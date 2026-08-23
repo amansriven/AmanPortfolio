@@ -1,0 +1,218 @@
+---
+import { socials } from '../lib/site';
+
+const currently = [
+  { label: 'Building', value: 'Roleward' },
+  { label: 'Studying', value: 'CS + Math, Texas A&M ’28' },
+  { label: 'Also', value: 'Quant trader, Sinn Fund' },
+  { label: 'Shipping', value: 'Maroon Rides, Aggie Coding Club' },
+];
+
+const toolkit = [
+  {
+    label: 'Languages',
+    items: ['Python', 'C++', 'C', 'Java', 'TypeScript', 'Go', 'SQL', 'Solidity'],
+  },
+  {
+    label: 'Frameworks & data',
+    items: ['FastAPI', 'React', 'Next.js', 'Node.js', 'PyTorch', 'Spark', 'Delta Lake', 'PostgreSQL', 'MongoDB', 'Kafka'],
+  },
+  {
+    label: 'Cloud & infrastructure',
+    items: ['AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Helm', 'ArgoCD', 'Databricks', 'CI/CD'],
+  },
+];
+---
+
+<section class="section about" id="about" aria-labelledby="about-heading">
+  <div class="shell">
+    <div class="section-head" data-reveal>
+      <h2 id="about-heading">About</h2>
+      <p class="eyebrow">Texas A&M · Class of 2028</p>
+    </div>
+
+    <div class="about__grid">
+      <div class="about__prose" data-reveal>
+        <p class="about__lead">
+          I&rsquo;m a computer science student at Texas A&amp;M, and most of what I care about
+          sits where infrastructure meets a product someone actually opens.
+        </p>
+        <p>
+          The two halves inform each other. Working on a gateway that routes hundreds of
+          thousands of model requests a day teaches you what a system does when it is tired —
+          which is the part that decides whether anyone trusts it. Shipping a consumer app to
+          real users teaches you that none of that matters if the first screen is confusing.
+        </p>
+        <p>
+          Lately I&rsquo;ve been most interested in systems where a language model is one
+          component among many rather than the whole answer: keeping the deterministic parts
+          deterministic, making failure legible, and giving whoever is on the other end enough
+          evidence to disagree with the machine.
+        </p>
+      </div>
+
+      <aside class="about__side" data-reveal>
+        <dl class="currently">
+          <p class="eyebrow currently__title">Currently</p>
+          {
+            currently.map((item) => (
+              <div class="currently__row">
+                <dt class="mono">{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <ul class="about__links">
+          {
+            socials.map((social) => (
+              <li>
+                <a href={social.href} target={social.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+                  <span>{social.label}</span>
+                  <span class="mono about__handle">{social.handle}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
+    </div>
+
+    <div class="toolkit" data-reveal>
+      {
+        toolkit.map((group) => (
+          <div class="toolkit__group">
+            <p class="eyebrow">{group.label}</p>
+            <p class="toolkit__items mono">{group.items.join('  ·  ')}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--space-9);
+    align-items: start;
+  }
+
+  .about__prose {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 42rem;
+    color: var(--text-secondary);
+  }
+
+  .about__lead {
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--text);
+    letter-spacing: var(--tracking-tight);
+    text-wrap: pretty;
+  }
+
+  /* --- Side rail ------------------------------------------------ */
+  .about__side {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .currently {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .currently__title {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .currently__row {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: baseline;
+  }
+
+  .currently__row dt {
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+  }
+
+  .currently__row dd {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+  }
+
+  .about__links {
+    display: grid;
+  }
+
+  .about__links a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border);
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .about__links li:last-child a {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .about__links a:hover {
+    color: var(--text);
+  }
+
+  .about__handle {
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* --- Toolkit -------------------------------------------------- */
+  .toolkit {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+
+  .toolkit__group {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: baseline;
+  }
+
+  .toolkit__items {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    line-height: 1.9;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 61.99rem) {
+    .about__grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+
+    .toolkit__group {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+</style>

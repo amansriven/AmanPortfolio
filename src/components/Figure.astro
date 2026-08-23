@@ -1,0 +1,201 @@
+---
+import { publicAssetExists } from '../lib/assets';
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  /** Chrome around the image. `browser` suits web product shots. */
+  frame?: 'browser' | 'plain';
+  /** Shown in the browser chrome's address pill. */
+  url?: string;
+  /** CSS aspect-ratio for the image well. */
+  ratio?: string;
+  /** Above-the-fold images should load eagerly. */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  frame = 'browser',
+  url,
+  ratio = '16 / 10',
+  priority = false,
+  class: className,
+} = Astro.props;
+
+const exists = publicAssetExists(src);
+---
+
+<figure class:list={['figure', className]} data-frame={frame}>
+  <div class="figure__frame">
+    {
+      frame === 'browser' && (
+        <div class="figure__chrome" aria-hidden="true">
+          <span class="figure__dots">
+            <i /><i /><i />
+          </span>
+          {url && <span class="figure__url mono">{url}</span>}
+        </div>
+      )
+    }
+
+    <div class="figure__well" style={`aspect-ratio: ${ratio}`}>
+      {
+        exists ? (
+          <img
+            src={src}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
+            fetchpriority={priority ? 'high' : 'auto'}
+          />
+        ) : (
+          <div class="figure__placeholder">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <rect
+                x="2.5"
+                y="4.5"
+                width="19"
+                height="15"
+                rx="2"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.2"
+              />
+              <path
+                d="M2.5 16l5-4.5 4 3.5 4-4 6 5.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <p class="figure__placeholder-label mono">Screenshot pending</p>
+            <p class="figure__placeholder-path mono">public{src}</p>
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .figure__frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* --- Browser chrome ---------------------------------------- */
+  .figure__chrome {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    height: 2.25rem;
+    padding-inline: var(--space-4);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+  }
+
+  .figure__dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .figure__dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-bright);
+  }
+
+  .figure__url {
+    overflow: hidden;
+    padding: 0.1rem 0.7rem;
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background: var(--bg);
+    border-radius: var(--radius-full);
+  }
+
+  /* --- Image well -------------------------------------------- */
+  .figure__well {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-deep);
+  }
+
+  .figure__well img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* --- Placeholder ------------------------------------------- */
+  .figure__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-5);
+    text-align: center;
+    color: var(--text-faint);
+    background-image:
+      repeating-linear-gradient(
+        -45deg,
+        transparent 0 10px,
+        rgb(255 255 255 / 1.6%) 10px 11px
+      );
+  }
+
+  .figure__placeholder-label {
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .figure__placeholder-path {
+    font-size: var(--fs-micro);
+    color: var(--text-muted);
+    word-break: break-all;
+  }
+
+  figcaption {
+    font-size: var(--fs-xs);
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: var(--width-prose);
+  }
+
+  @media (max-width: 47.99rem) {
+    .figure__frame {
+      border-radius: var(--radius-md);
+    }
+
+    .figure__chrome {
+      height: 1.85rem;
+    }
+  }
+</style>

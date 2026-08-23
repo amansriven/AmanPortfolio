@@ -1,0 +1,18 @@
+# build output
+dist/
+.astro/
+.wrangler/
+
+# dependencies
+node_modules/
+
+# environment
+.env
+.env.production
+.dev.vars
+
+# macOS
+.DS_Store
+
+# logs
+npm-debug.log*

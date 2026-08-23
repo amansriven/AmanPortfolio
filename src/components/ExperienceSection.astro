@@ -1,0 +1,200 @@
+---
+import { experience } from '../lib/experience';
+---
+
+<section class="section experience" id="experience" aria-labelledby="experience-heading">
+  <div class="shell">
+    <div class="section-head" data-reveal>
+      <h2 id="experience-heading">Experience</h2>
+      <p class="eyebrow">Platform · AI systems · Research</p>
+    </div>
+
+    <ol class="timeline">
+      {
+        experience.map((role) => (
+          <li class="entry" data-reveal>
+            <p class="entry__year mono" aria-hidden="true">
+              {role.year}
+            </p>
+
+            <div class="entry__body">
+              <div class="entry__head">
+                <div>
+                  <h3 class="entry__org">{role.org}</h3>
+                  <p class="entry__role">{role.role}</p>
+                </div>
+                <p class="entry__when mono">
+                  <span>{role.period}</span>
+                  <span class="entry__where">{role.location}</span>
+                </p>
+              </div>
+
+              <p class="entry__summary">{role.summary}</p>
+
+              {role.metrics && (
+                <ul class="entry__metrics">
+                  {role.metrics.map((metric) => (
+                    <li>
+                      <span class="entry__metric-value mono">{metric.value}</span>
+                      <span class="entry__metric-label">{metric.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <ul class="entry__stack mono">
+                {role.stack.map((tech) => (
+                  <li>{tech}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    display: grid;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--border);
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  .entry:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .entry:hover {
+    border-top-color: var(--border-strong);
+  }
+
+  .entry__year {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1;
+    color: var(--text-faint);
+    letter-spacing: -0.02em;
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .entry:hover .entry__year {
+    color: var(--accent);
+  }
+
+  .entry__body {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 46rem;
+  }
+
+  .entry__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+  }
+
+  .entry__org {
+    font-size: var(--fs-h3);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .entry__role {
+    margin-top: 2px;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+  }
+
+  .entry__when {
+    display: grid;
+    gap: 2px;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.05em;
+  }
+
+  .entry__where {
+    color: var(--text-faint);
+  }
+
+  .entry__summary {
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* --- Metrics ------------------------------------------------- */
+  .entry__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .entry__metrics li {
+    display: grid;
+    gap: 2px;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  .entry:hover .entry__metrics li {
+    border-color: var(--border-strong);
+  }
+
+  .entry__metric-value {
+    font-size: var(--fs-sm);
+    color: var(--text);
+  }
+
+  .entry__metric-label {
+    font-size: var(--fs-micro);
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .entry__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 47.99rem) {
+    .entry {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+      padding-block: var(--space-7);
+    }
+
+    .entry__head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .entry__when {
+      text-align: left;
+      grid-auto-flow: column;
+      gap: var(--space-3);
+    }
+
+    .entry__metrics li {
+      flex: 1 1 8rem;
+    }
+  }
+</style>
