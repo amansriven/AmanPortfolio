@@ -1,0 +1,54 @@
+---
+interface Props {
+  /** Short label rendered above the body, e.g. "Decision", "Tradeoff". */
+  label?: string;
+  title?: string;
+}
+const { label = 'Decision', title } = Astro.props;
+---
+
+<aside class="callout">
+  <p class="eyebrow callout__label">{label}</p>
+  {title && <p class="callout__title">{title}</p>}
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6);
+    border-left: 1px solid var(--accent);
+    background: linear-gradient(90deg, var(--accent-dim), transparent 70%);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .callout__label {
+    color: var(--accent);
+  }
+
+  .callout__title {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: var(--tracking-tight);
+    text-wrap: pretty;
+  }
+
+  .callout__body {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+  }
+
+  .callout__body :global(p + p) {
+    margin-top: var(--space-3);
+  }
+
+  @media (max-width: 47.99rem) {
+    .callout {
+      padding: var(--space-4) var(--space-5);
+    }
+  }
+</style>

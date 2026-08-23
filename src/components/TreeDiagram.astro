@@ -1,0 +1,97 @@
+---
+import TreeNode from './TreeNode.astro';
+import type { TreeNodeData } from '../lib/tree';
+
+interface Props {
+  title?: string;
+  nodes: TreeNodeData[];
+  legend?: { kind: 'deterministic' | 'model' | 'group'; label: string }[];
+}
+
+const { title, nodes, legend } = Astro.props;
+---
+
+<div class="tree" role="group" aria-label={title ?? 'System architecture'}>
+  {title && <p class="eyebrow tree__title">{title}</p>}
+
+  <ul class="tree__root">
+    {nodes.map((node) => <TreeNode node={node} />)}
+  </ul>
+
+  {
+    legend && (
+      <ul class="tree__legend">
+        {legend.map((item) => (
+          <li>
+            <span class="tree__swatch" data-kind={item.kind} aria-hidden="true" />
+            <span class="mono">{item.label}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  .tree {
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .tree__title {
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tree__root {
+    list-style: none;
+  }
+
+  .tree__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .tree__legend li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+  }
+
+  .tree__swatch {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+  }
+
+  .tree__swatch[data-kind='deterministic'] {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .tree__swatch[data-kind='model'] {
+    border-style: dashed;
+  }
+
+  .tree__swatch[data-kind='group'] {
+    border-radius: 2px;
+    background: var(--border-bright);
+  }
+
+  @media (max-width: 47.99rem) {
+    .tree {
+      padding: var(--space-5) var(--space-4);
+    }
+  }
+</style>

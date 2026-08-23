@@ -16,3 +16,4 @@ node_modules/
 
 # logs
 npm-debug.log*
+worker-configuration.d.ts

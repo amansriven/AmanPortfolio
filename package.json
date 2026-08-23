@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "wrangler dev",
-    "deploy": "astro build && wrangler deploy",
+    "preview": "astro build && wrangler dev -c dist/server/wrangler.json",
+    "deploy": "astro build && wrangler deploy -c dist/server/wrangler.json",
     "check": "astro check",
     "format": "prettier --write \"**/*.{astro,svelte,ts,js,mjs,json,css,md,mdx}\"",
     "format:check": "prettier --check \"**/*.{astro,svelte,ts,js,mjs,json,css,md,mdx}\""
@@ -20,7 +20,8 @@
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "astro": "^7.2.4",
-    "svelte": "^5.56.10"
+    "svelte": "^5.56.10",
+    "zod": "^4.4.3"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,

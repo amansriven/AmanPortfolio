@@ -1,0 +1,209 @@
+---
+title: Odyssey AI
+tagline: A nine-agent claims system where the agents explain findings and deterministic code decides facts.
+summary: A multi-agent system that triages denied healthcare claims and authorization gaps, explains them in plain language, and hands representatives a case summary when escalation is unavoidable. Built on Google ADK over a synthetic dataset; won first place at a Humana hackathon.
+year: '2026'
+role: Architecture and backend engineering
+status: 1st place — Humana hackathon
+stack:
+  - Python
+  - Google ADK
+  - FastAPI
+  - MongoDB
+  - React
+  - TypeScript
+accent: '210 58% 62%'
+featured: true
+order: 3
+githubUrl: https://github.com/amansriven/OdysseyDashboard
+heroImage: /media/odyssey/hero.png
+heroAlt: The Odyssey dashboard showing a claim story timeline, the identified issue, who needs to act, and the next step.
+metrics:
+  - value: '9'
+    label: agents in the pipeline
+  - value: '1st place'
+    label: Humana hackathon
+seo:
+  description: Odyssey AI is a nine-agent healthcare claims triage system built on Google ADK, designed so agents explain findings while deterministic code decides facts.
+---
+
+import Figure from '../../components/Figure.astro';
+import TreeDiagram from '../../components/TreeDiagram.astro';
+import Callout from '../../components/Callout.astro';
+import SpecList from '../../components/SpecList.astro';
+
+## What it is
+
+When a health claim is denied, the member usually finds out through silence — and then
+spends a phone call learning what happened. Odyssey moves that explanation earlier. It
+reads a claim, works out what went wrong, decides whether it is fixable, and produces a
+plain-language account of what happened, who needs to act, and what the next step is.
+
+When something genuinely needs a person, it hands the representative a case summary that
+was already assembled, so the call starts at the answer rather than at the beginning.
+
+It was built for a Humana hackathon on a fully synthetic dataset — no real member data
+was involved — and it won first place.
+
+## The architecture
+
+<TreeDiagram
+  title="Agent graph"
+  legend={[
+    { kind: 'deterministic', label: 'deterministic code' },
+    { kind: 'model', label: 'model agent' },
+    { kind: 'group', label: 'orchestration' },
+  ]}
+  nodes={[
+    {
+      label: 'ROI Gate',
+      kind: 'deterministic',
+      note: 'before_agent_callback',
+      detail:
+        'A data-access check that runs before any member data is fetched: is this caller permitted to receive this information? Roughly twenty lines of Python. Not an agent, and deliberately not a model call.',
+    },
+    {
+      label: 'Dash-Manager',
+      kind: 'group',
+      note: 'SequentialAgent',
+      detail: 'Orchestrator and state manager. Fans out to three independent workstreams.',
+      children: [
+        {
+          label: 'Claim Spine',
+          kind: 'group',
+          detail: 'The main path: what happened to this claim, and can it be fixed?',
+          children: [
+            {
+              label: 'Summarizer',
+              kind: 'model',
+              detail: 'Condenses the claim record into a working brief.',
+            },
+            {
+              label: 'Issue-Detector',
+              kind: 'model',
+              detail:
+                'Identifies the failure — missing prior authorization, modifier mismatch, coverage rule.',
+            },
+            {
+              label: 'Researchers',
+              kind: 'group',
+              note: 'ParallelAgent',
+              detail:
+                'Two agents investigate the identified issue concurrently against the deterministic tool layer.',
+            },
+            {
+              label: 'Mediator',
+              kind: 'model',
+              note: 'LoopAgent, max 2',
+              detail:
+                'Validation gate. Reconciles the researchers, and may reject and re-dispatch them — capped at two iterations, with a deterministic exhaustion path so the loop terminates by construction.',
+            },
+            {
+              label: 'Solvability-Router',
+              kind: 'deterministic',
+              note: 'BaseAgent, not an LLM',
+              detail:
+                'Reads a boolean the Mediator already produced and routes. Unit-testable, still visible in the trace.',
+              children: [
+                {
+                  label: 'Error-Fixer',
+                  kind: 'model',
+                  detail: 'Fixable: produce the remedy and the member-facing explanation.',
+                },
+                {
+                  label: 'Escalation-Flag',
+                  kind: 'model',
+                  detail: 'Not fixable: assemble a representative-ready case summary.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Benefits-Navigator',
+          kind: 'model',
+          detail:
+            'Answers coverage and prior-authorization questions, citing the specific coverage rule it used.',
+        },
+        {
+          label: 'Compliance-Sentinel',
+          kind: 'model',
+          detail: 'Triages the operational and compliance flag queue by severity.',
+        },
+      ],
+    },
+  ]}
+/>
+
+## The decision I would defend hardest
+
+<Callout label="Decision" title="The solvability router was an LLM call. I demoted it to code.">
+  Deciding whether a denied claim is fixable is a factual determination. It changes what a
+  member is told to do next, and being wrong about it wastes their time in a system that
+  already wastes a lot of it.
+
+The original design had an agent make that call. It worked most of the time, which is the
+dangerous kind of working. By the time the Mediator has finished reconciling the
+researchers, the answer already exists as a boolean in state — so the router became a
+`BaseAgent` subclass that reads it. Deterministic, unit-testable against ground truth in
+the dataset, and still visible in the execution trace.
+
+The rule that fell out of it and then governed the whole system: **agents explain
+findings, they do not decide facts.**
+
+</Callout>
+
+## Concurrency, and paying for reliability with latency
+
+Two parallel researcher agents issuing three tool calls each produced six concurrent
+calls against Vertex AI. That is a perfectly reasonable thing to want and a reliable way
+to hit a rate limit mid-run — which, in a demo, means the pipeline dies in front of an
+audience.
+
+I serialized those six calls. It cost about five seconds of end-to-end latency and it
+made the failure mode go away. For a system whose output a representative reads before
+picking up a phone, five seconds is not a currency anyone is counting; a run that dies
+halfway through is.
+
+<Callout label="Tradeoff" title="Bounded loops over clever recovery">
+  The Mediator can reject its researchers and try again, which is exactly the shape that turns into
+  two agents arguing forever. It is capped at two iterations with a deterministic exhaustion path
+  into escalation. The exhaustion path is a feature, not a fallback — when the agents cannot reach
+  confident consensus, the system does not fabricate an answer, it hands a human everything it
+  found.
+</Callout>
+
+## Notes on scope
+
+<SpecList
+  title="Deliberate limits"
+  items={[
+    {
+      term: 'Synthetic data',
+      detail: 'The entire dataset is synthetic. No real member information was used at any point.',
+    },
+    {
+      term: 'Not authentication',
+      detail:
+        'The ROI Gate is a data-access check, not a login. There are no accounts, credentials, or sessions anywhere in the system — calling it auth would overstate what it is.',
+    },
+    {
+      term: 'Grounded, not generated',
+      detail:
+        'Benefits answers cite a rule identifier. Compliance triage prioritises pre-written flags. Neither invents a number.',
+    },
+    {
+      term: 'Scope discipline',
+      detail:
+        'Half the provided dataset belonged to a different problem. An early version of the architecture drifted into it; those features were cut before the build rather than defended afterwards.',
+    },
+  ]}
+/>
+
+## What it is worth
+
+The headline is that it uses nine agents. That is the least interesting thing about it.
+The part I would actually put in front of an engineer is the subtraction: an agent that
+was removed because a boolean already existed, a loop that was capped because it could
+otherwise run forever, and five seconds of latency traded away to stop a rate limiter
+from ending the run.

@@ -15,7 +15,18 @@ const toolkit = [
   },
   {
     label: 'Frameworks & data',
-    items: ['FastAPI', 'React', 'Next.js', 'Node.js', 'PyTorch', 'Spark', 'Delta Lake', 'PostgreSQL', 'MongoDB', 'Kafka'],
+    items: [
+      'FastAPI',
+      'React',
+      'Next.js',
+      'Node.js',
+      'PyTorch',
+      'Spark',
+      'Delta Lake',
+      'PostgreSQL',
+      'MongoDB',
+      'Kafka',
+    ],
   },
   {
     label: 'Cloud & infrastructure',
@@ -34,20 +45,20 @@ const toolkit = [
     <div class="about__grid">
       <div class="about__prose" data-reveal>
         <p class="about__lead">
-          I&rsquo;m a computer science student at Texas A&amp;M, and most of what I care about
-          sits where infrastructure meets a product someone actually opens.
+          I&rsquo;m a computer science student at Texas A&amp;M, and most of what I care about sits
+          where infrastructure meets a product someone actually opens.
         </p>
         <p>
-          The two halves inform each other. Working on a gateway that routes hundreds of
-          thousands of model requests a day teaches you what a system does when it is tired —
-          which is the part that decides whether anyone trusts it. Shipping a consumer app to
-          real users teaches you that none of that matters if the first screen is confusing.
+          The two halves inform each other. Working on a gateway that routes hundreds of thousands
+          of model requests a day teaches you what a system does when it is tired — which is the
+          part that decides whether anyone trusts it. Shipping a consumer app to real users teaches
+          you that none of that matters if the first screen is confusing.
         </p>
         <p>
-          Lately I&rsquo;ve been most interested in systems where a language model is one
-          component among many rather than the whole answer: keeping the deterministic parts
-          deterministic, making failure legible, and giving whoever is on the other end enough
-          evidence to disagree with the machine.
+          Lately I&rsquo;ve been most interested in systems where a language model is one component
+          among many rather than the whole answer: keeping the deterministic parts deterministic,
+          making failure legible, and giving whoever is on the other end enough evidence to disagree
+          with the machine.
         </p>
       </div>
 
@@ -68,7 +79,11 @@ const toolkit = [
           {
             socials.map((social) => (
               <li>
-                <a href={social.href} target={social.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+                <a
+                  href={social.href}
+                  target={social.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                >
                   <span>{social.label}</span>
                   <span class="mono about__handle">{social.handle}</span>
                 </a>

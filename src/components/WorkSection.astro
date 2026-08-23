@@ -1,0 +1,39 @@
+---
+import ProjectFeature from './ProjectFeature.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+const { projects } = Astro.props;
+
+/* First project leads full-width; the rest alternate sides. */
+function layoutFor(index: number): 'lead' | 'split' | 'split-reverse' {
+  if (index === 0) return 'lead';
+  return index % 2 === 1 ? 'split' : 'split-reverse';
+}
+---
+
+<section class="section work" id="work" aria-labelledby="work-heading">
+  <div class="shell shell--wide">
+    <div class="section-head" data-reveal>
+      <h2 id="work-heading">Selected work</h2>
+      <p class="eyebrow">{projects.length} case studies</p>
+    </div>
+
+    <div class="work__list">
+      {
+        projects.map((project, i) => (
+          <ProjectFeature project={project} index={i} layout={layoutFor(i)} />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .work__list {
+    display: grid;
+    gap: clamp(5rem, 11vw, 9.5rem);
+  }
+</style>

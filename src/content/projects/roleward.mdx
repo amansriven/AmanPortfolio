@@ -1,0 +1,172 @@
+---
+title: Roleward
+tagline: An AI career workspace where applications, resumes, coding practice, and mock interviews share one context.
+summary: Most job searches are scattered across a tracker, a folder of resume drafts, a coding site, and a notes app — none of which know about each other. Roleward puts them in one system that keeps the target role at the centre, so every suggestion is grounded in the work you have actually done.
+year: '2026'
+role: Design, engineering, and operations — solo
+status: Live
+stack:
+  - Next.js
+  - TypeScript
+  - AWS Lambda
+  - DynamoDB
+  - Cognito
+  - S3
+  - OpenAI
+accent: '28 68% 58%'
+featured: true
+order: 1
+liveUrl: https://roleward.org
+heroImage: /media/roleward/hero.png
+heroAlt: The Roleward dashboard, connecting job applications, resume tailoring, coding practice, and interview preparation in one workspace.
+metrics: []
+seo:
+  description: Roleward is a production AI career workspace connecting applications, resume tailoring, coding practice, and mock interviews under one shared context. Built and shipped solo.
+---
+
+import Figure from '../../components/Figure.astro';
+import Pipeline from '../../components/Pipeline.astro';
+import Callout from '../../components/Callout.astro';
+import SpecList from '../../components/SpecList.astro';
+
+## What it is
+
+Roleward is a career workspace for software engineers. It holds the job you are
+targeting, the applications you have sent, the resume you are tailoring, the coding
+problems you are practising, and the mock interviews you are running — and it treats
+all of that as one connected context rather than five unrelated tools.
+
+It is live at [roleward.org](https://roleward.org). I conceived it, designed it,
+built it, and I operate it.
+
+## The problem
+
+A job search generates a surprising amount of state. Which version of the resume went
+to which company. What that posting actually asked for. Which of your projects is the
+right story for this role. Which behavioural question you fumbled last time.
+
+Almost none of the tooling holds that state. A tracker knows your applications but
+nothing about your experience. A resume tool knows your document but not the role. A
+coding site knows your submissions but not why you are practising. So the person doing
+the search becomes the integration layer, re-explaining their own background to every
+tool, every time.
+
+Roleward's premise is that the target role is the missing primary key.
+
+<Pipeline
+  title="Shared context"
+  steps={[
+    {
+      label: 'Target role, applications, and confirmed experience',
+      detail:
+        'The user saves a posting and confirms what they have actually done. This is the only place facts enter the system.',
+    },
+    {
+      label: 'One shared career context',
+      detail:
+        'Every workspace reads from the same record instead of keeping a private copy of who the user is.',
+    },
+    {
+      label: 'Resume tailoring · coding practice · mock interviews',
+      detail:
+        'Resume revisions close specific evidence gaps. Coding sessions focus on relevant patterns. Interview practice draws on decisions the user can defend.',
+    },
+    {
+      label: 'One recommended next action',
+      detail:
+        'Activity across all three feeds a readiness view that surfaces the highest-value thing to do next, and explains why it matters for that role.',
+    },
+  ]}
+/>
+
+## What I built
+
+All of it — product design, frontend, backend, infrastructure, and the operational
+side of running something with real accounts and real user data.
+
+<SpecList
+  title="System"
+  items={[
+    {
+      term: 'Application',
+      detail:
+        'Next.js with TypeScript and React Server Components. Server-only modules keep model calls and data access off the client entirely.',
+    },
+    {
+      term: 'Identity',
+      detail:
+        'Amazon Cognito behind Auth.js, with sessions scoped so a user record is never reachable from another account.',
+    },
+    {
+      term: 'Data',
+      detail:
+        'DynamoDB as the primary store, S3 for uploaded and generated documents, and Lambda for the longer-running document and generation work that does not belong in a request cycle.',
+    },
+    {
+      term: 'Documents',
+      detail:
+        'PDF and DOCX resumes are parsed server-side, normalised into structured experience, and re-rendered rather than mutated in place.',
+    },
+    {
+      term: 'Model layer',
+      detail:
+        'OpenAI, called with bounded context and schema-validated output. Zod validates every model response before it is allowed near the UI or the database.',
+    },
+    {
+      term: 'Verification',
+      detail:
+        'Vitest for units, Playwright for the flows that would be embarrassing to break — sign-in, import, tailor, export.',
+    },
+  ]}
+/>
+
+## Decisions worth explaining
+
+<Callout label="Decision" title="Evidence before generation">
+  A resume tool that invents plausible-sounding accomplishments is worse than no tool, because the
+  person carrying the consequence into an interview is the user. Roleward only suggests bullets
+  grounded in experience the user has explicitly confirmed, and it shows the source evidence next to
+  the suggestion. If the evidence is not there, the product's answer is to ask for it, not to fill
+  the gap.
+</Callout>
+
+<Callout label="Decision" title="Never overwrite the original">
+  An imported resume is immutable. Tailored versions are separate artifacts derived from it. This
+  costs storage and a little interface complexity, and it removes the single worst failure mode: a
+  user losing the document they actually trust because a generated revision quietly replaced it.
+</Callout>
+
+<Callout label="Decision" title="Coach, don't answer">
+  The coding and interview workspaces are deliberately worse at giving answers than a general chat
+  model would be. They give progressive hints, ask for reasoning, and push on communication.
+  Optimising for "user gets the solution" would have been easier to build and would have made the
+  product useless for its actual purpose.
+</Callout>
+
+## Tradeoffs
+
+**Serverless made the early product cheap and the debugging harder.** Lambda and
+DynamoDB meant no idle infrastructure cost while the product had no users, which is the
+right shape for something you are funding yourself. The cost is that a request now spans
+several execution contexts, and reproducing a failure locally takes deliberate effort
+rather than a stack trace.
+
+**Schema-validated model output rejects work I paid for.** Every model response is
+parsed against a schema and thrown away if it does not conform, which means occasionally
+discarding a generation and retrying. That is a real latency and cost tax. It is worth
+it, because the alternative is malformed data reaching a user's resume.
+
+**Single-region, single-operator.** There is no multi-region story and no on-call
+rotation. For a product at this stage that is the correct amount of infrastructure, and
+I would rather say so than build a resilience story the traffic does not justify.
+
+## Where it stands
+
+Roleward launched recently. I am deliberately not putting usage, retention, or revenue
+numbers on this page yet, because there are not enough of them to mean anything — and a
+portfolio that quotes a metric from week two is telling you something about the author
+rather than the product. Those numbers will appear here when they are real.
+
+What it does demonstrate today is the full arc: taking a product from an idea about how
+a job search should work, through design and engineering, to something that is deployed,
+authenticated, paid for, and used by people who are not me.

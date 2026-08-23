@@ -8,6 +8,8 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://amansriven.com',
   output: 'static',
+  // No session store is needed; this avoids requiring a KV binding.
+  session: false,
   adapter: cloudflare({ imageService: 'compile' }),
   integrations: [svelte(), mdx(), sitemap()],
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },

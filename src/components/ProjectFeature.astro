@@ -15,12 +15,7 @@ const href = `/projects/${project.id}`;
 const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
 ---
 
-<article
-  class="feature"
-  data-layout={layout}
-  style={`--atmosphere: ${data.accent}`}
-  data-reveal
->
+<article class="feature" data-layout={layout} style={`--atmosphere: ${data.accent}`} data-reveal>
   <div class="feature__glow" aria-hidden="true"></div>
 
   <div class="feature__media">

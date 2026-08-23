@@ -1,0 +1,59 @@
+---
+interface Props {
+  title?: string;
+  items: { term: string; detail: string }[];
+}
+const { title, items } = Astro.props;
+---
+
+<div class="spec">
+  {title && <p class="eyebrow spec__title">{title}</p>}
+  <dl>
+    {
+      items.map((item) => (
+        <div class="spec__row">
+          <dt class="mono">{item.term}</dt>
+          <dd>{item.detail}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .spec__title {
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-1);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spec__row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--space-5);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spec__row dt {
+    color: var(--text-muted);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  .spec__row dd {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 47.99rem) {
+    .spec__row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+</style>

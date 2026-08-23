@@ -1,0 +1,155 @@
+---
+interface Step {
+  label: string;
+  detail?: string;
+  /** Marks a step where deterministic code, not a model, makes the call. */
+  kind?: 'default' | 'model' | 'deterministic';
+}
+
+interface Props {
+  title?: string;
+  steps: Step[];
+}
+
+const { title, steps } = Astro.props;
+
+const kindLabel: Record<string, string> = {
+  model: 'model',
+  deterministic: 'deterministic',
+};
+---
+
+<div class="pipeline" role="group" aria-label={title ?? 'System flow'}>
+  {title && <p class="eyebrow pipeline__title">{title}</p>}
+
+  <ol class="pipeline__steps">
+    {
+      steps.map((step, i) => (
+        <li class="pipeline__step" data-kind={step.kind ?? 'default'}>
+          <span class="pipeline__node" aria-hidden="true" />
+          <div class="pipeline__content">
+            <p class="pipeline__label">
+              <span class="pipeline__num mono">{String(i + 1).padStart(2, '0')}</span>
+              <span>{step.label}</span>
+              {step.kind && step.kind !== 'default' && (
+                <span class="pipeline__tag mono">{kindLabel[step.kind]}</span>
+              )}
+            </p>
+            {step.detail && <p class="pipeline__detail">{step.detail}</p>}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .pipeline {
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .pipeline__title {
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pipeline__steps {
+    display: grid;
+  }
+
+  .pipeline__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-bottom: var(--space-6);
+  }
+
+  .pipeline__step:last-child {
+    padding-bottom: 0;
+  }
+
+  /* The connecting rail, drawn between node centres. */
+  .pipeline__step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 0.6875rem;
+    top: 1.1rem;
+    bottom: -0.2rem;
+    width: 1px;
+    background: linear-gradient(var(--border-strong), var(--border));
+  }
+
+  .pipeline__node {
+    position: relative;
+    z-index: 1;
+    width: 9px;
+    height: 9px;
+    margin-top: 0.5rem;
+    margin-left: 3px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+  }
+
+  .pipeline__step[data-kind='deterministic'] .pipeline__node {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .pipeline__step[data-kind='model'] .pipeline__node {
+    border-style: dashed;
+  }
+
+  .pipeline__content {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .pipeline__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .pipeline__num {
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+  }
+
+  .pipeline__tag {
+    padding: 0.1rem 0.45rem;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .pipeline__step[data-kind='deterministic'] .pipeline__tag {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+    background: var(--accent-dim);
+  }
+
+  .pipeline__detail {
+    font-size: var(--fs-xs);
+    line-height: 1.65;
+    color: var(--text-muted);
+    max-width: 46rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    .pipeline {
+      padding: var(--space-5) var(--space-4);
+    }
+  }
+</style>

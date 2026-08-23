@@ -1,0 +1,147 @@
+---
+import ContactForm from './ContactForm.svelte';
+import { site, socials } from '../lib/site';
+
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<section class="section contact" id="contact" aria-labelledby="contact-heading">
+  <div class="shell">
+    <div class="contact__grid">
+      <div class="contact__intro" data-reveal>
+        <p class="eyebrow">Contact</p>
+        <h2 class="contact__heading" id="contact-heading">Let&rsquo;s build something.</h2>
+        <p class="contact__body">
+          Working on an interesting engineering problem, hiring for one, or want to argue about
+          whether the model should be making that decision? I read everything that comes through
+          here.
+        </p>
+
+        <ul class="contact__direct">
+          {
+            socials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target={social.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                >
+                  <span class="mono contact__direct-label">{social.label}</span>
+                  <span class="contact__direct-value">{social.handle}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="contact__form" data-reveal>
+        <ContactForm client:visible siteKey={siteKey} email={site.email} />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    position: relative;
+  }
+
+  .contact::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-9) var(--space-11);
+    align-items: start;
+  }
+
+  .contact__intro {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+  }
+
+  .contact__heading {
+    font-size: var(--fs-h1);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .contact__body {
+    max-width: 34rem;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .contact__direct {
+    display: grid;
+    margin-top: var(--space-4);
+  }
+
+  .contact__direct a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border);
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    transition:
+      color var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out);
+  }
+
+  .contact__direct li:last-child a {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact__direct a:hover {
+    color: var(--text);
+    border-top-color: var(--border-bright);
+  }
+
+  .contact__direct-label {
+    flex: 0 0 5rem;
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .contact__direct-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .contact__form {
+    padding: var(--space-7);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (max-width: 61.99rem) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+
+    .contact__form {
+      padding: var(--space-6) var(--space-5);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .contact__form {
+      padding: var(--space-5) var(--space-4);
+    }
+  }
+</style>

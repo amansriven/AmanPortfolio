@@ -1,0 +1,133 @@
+---
+import type { TreeNodeData } from '../lib/tree';
+
+interface Props {
+  node: TreeNodeData;
+}
+const { node } = Astro.props;
+const kind = node.kind ?? 'default';
+---
+
+<li class="node" data-kind={kind}>
+  <div class="node__row">
+    <span class="node__dot" aria-hidden="true"></span>
+    <span class="node__label">{node.label}</span>
+    {node.note && <span class="node__note mono">{node.note}</span>}
+  </div>
+
+  {node.detail && <p class="node__detail">{node.detail}</p>}
+
+  {
+    node.children && node.children.length > 0 && (
+      <ul class="node__children">
+        {node.children.map((child) => (
+          <Astro.self node={child} />
+        ))}
+      </ul>
+    )
+  }
+</li>
+
+<style>
+  .node {
+    position: relative;
+    padding-block: var(--space-2);
+  }
+
+  .node__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .node__dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    transform: translateY(-1px);
+  }
+
+  .node[data-kind='deterministic'] > .node__row .node__dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .node[data-kind='model'] > .node__row .node__dot {
+    border-style: dashed;
+  }
+
+  .node[data-kind='group'] > .node__row .node__dot {
+    border-radius: 2px;
+    background: var(--border-bright);
+  }
+
+  .node__label {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .node[data-kind='deterministic'] > .node__row .node__label {
+    color: var(--accent-bright);
+  }
+
+  .node__note {
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .node__detail {
+    margin-top: var(--space-1);
+    margin-left: calc(7px + var(--space-3));
+    font-size: var(--fs-xs);
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 44rem;
+  }
+
+  /* --- Nesting rails -------------------------------------------- */
+  .node__children {
+    position: relative;
+    margin-top: var(--space-1);
+    margin-left: 3px;
+    padding-left: var(--space-5);
+    list-style: none;
+  }
+
+  .node__children::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0.9rem;
+    width: 1px;
+    background: var(--border-strong);
+  }
+
+  /* Elbow from the rail into each child node. */
+  .node__children > .node > .node__row::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--space-5));
+    top: 0.62rem;
+    width: calc(var(--space-5) - 6px);
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  @media (max-width: 30rem) {
+    .node__children {
+      padding-left: var(--space-4);
+    }
+
+    .node__children > .node > .node__row::before {
+      left: calc(-1 * var(--space-4));
+      width: calc(var(--space-4) - 6px);
+    }
+  }
+</style>

@@ -36,7 +36,11 @@ const exists = publicAssetExists(src);
       frame === 'browser' && (
         <div class="figure__chrome" aria-hidden="true">
           <span class="figure__dots">
-            <i /><i /><i />
+            <>
+              <i />
+              <i />
+              <i />
+            </>
           </span>
           {url && <span class="figure__url mono">{url}</span>}
         </div>
@@ -162,12 +166,11 @@ const exists = publicAssetExists(src);
     padding: var(--space-5);
     text-align: center;
     color: var(--text-faint);
-    background-image:
-      repeating-linear-gradient(
-        -45deg,
-        transparent 0 10px,
-        rgb(255 255 255 / 1.6%) 10px 11px
-      );
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      rgb(255 255 255 / 1.6%) 10px 11px
+    );
   }
 
   .figure__placeholder-label {

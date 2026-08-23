@@ -1,0 +1,10 @@
+# Local Worker secrets. Copy to `.dev.vars` (git-ignored) for `npm run preview`.
+# In production these are set with `wrangler secret put <NAME>`.
+
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxx"
+
+# Cloudflare's always-passes test secret. Replace with your real one.
+TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA"
+
+CONTACT_TO_EMAIL="sriven.aman@gmail.com"
+CONTACT_FROM_EMAIL="Portfolio <contact@amansriven.com>"

@@ -67,11 +67,7 @@ const personSchema = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <script
-      type="application/ld+json"
-      is:inline
-      set:html={JSON.stringify(personSchema)}
-    />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
 
     <!-- Cloudflare Web Analytics. Replace the token, then remove this comment.
     <script

@@ -1,0 +1,95 @@
+---
+import { site, socials } from '../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="shell footer__inner">
+    <div class="footer__brand">
+      <p class="footer__name">Aman Sriven</p>
+      <p class="footer__note mono">
+        Built with Astro, Svelte, and a suspicious amount of CSS. Deployed on Cloudflare.
+      </p>
+    </div>
+
+    <nav class="footer__links" aria-label="Elsewhere">
+      <ul>
+        {
+          socials.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                target={social.href.startsWith('http') ? '_blank' : undefined}
+                rel="noopener"
+              >
+                {social.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={site.resume} target="_blank" rel="noopener">Resume</a>
+        </li>
+      </ul>
+    </nav>
+
+    <p class="footer__meta mono">&copy; {year}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-block: var(--space-8);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+
+  .footer__name {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .footer__note {
+    margin-top: var(--space-2);
+    max-width: 24rem;
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    line-height: 1.7;
+  }
+
+  .footer__links ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .footer__links a {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .footer__links a:hover {
+    color: var(--text);
+  }
+
+  .footer__meta {
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+  }
+
+  @media (max-width: 47.99rem) {
+    .footer__inner {
+      align-items: flex-start;
+      gap: var(--space-5);
+    }
+  }
+</style>

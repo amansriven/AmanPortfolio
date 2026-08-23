@@ -1,0 +1,173 @@
+---
+title: Delta Code
+tagline: Dependabot finds version bumps. Delta Code finds the API behaviour that changed underneath you — and proves it.
+summary: A GitHub App that watches upstream API and SDK changes, locates the call sites they affect, proposes a bounded migration, verifies it in an isolated sandbox, and opens an evidence-rich draft pull request. The reviewer sees what changed, why, and what was actually executed to check it.
+year: '2026'
+role: Full-stack engineering
+status: In development
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - Next.js
+  - TypeScript
+  - GitHub Apps
+  - Docker
+accent: '152 40% 50%'
+featured: true
+order: 2
+githubUrl: https://github.com/amansriven/DeltaCode
+heroImage: /media/delta-code/hero.png
+heroAlt: The Delta Code dashboard showing a detected upstream API change, the affected call sites, and the verification evidence attached to a draft pull request.
+metrics: []
+seo:
+  description: Delta Code is a Dependabot-style GitHub App for breaking API changes — detecting upstream changes, verifying migrations in a sandbox, and opening evidence-rich draft pull requests.
+---
+
+import Figure from '../../components/Figure.astro';
+import Pipeline from '../../components/Pipeline.astro';
+import Callout from '../../components/Callout.astro';
+import SpecList from '../../components/SpecList.astro';
+
+## What it is
+
+Dependabot is very good at telling you that a dependency moved from `2.4.1` to
+`2.5.0`. It has nothing to say about the fact that the endpoint you call now returns a
+different shape, or that a parameter you rely on became required.
+
+Delta Code is built for that second problem. It watches official API and SDK changes,
+works out which repositories and which specific call sites those changes affect,
+proposes a bounded migration, executes the migration in an isolated sandbox to see
+whether it actually holds, and opens a draft pull request carrying all of that evidence
+with it.
+
+## Why I built it
+
+External APIs change on their own schedule. The announcement arrives as a release note,
+an OpenAPI revision, a changelog entry, or a migration guide — and none of those formats
+identify the lines of your code that need to change. The gap between "the provider
+announced something" and "I know what to edit" is currently filled by a human reading
+prose and grepping.
+
+That gap is mechanical enough to automate and consequential enough that automating it
+badly is worse than not automating it at all. Which makes the interesting engineering
+question not "can a model write the patch" but "what does the reviewer need in order to
+trust it."
+
+## The flow
+
+<Pipeline
+  title="Detection to draft PR"
+  steps={[
+    {
+      label: 'Upstream change detected',
+      kind: 'deterministic',
+      detail:
+        'Provider release notes, OpenAPI revisions, and SDK releases are captured as source artifacts and hashed, so every downstream claim traces back to something immutable.',
+    },
+    {
+      label: 'Affected repositories and call sites identified',
+      kind: 'deterministic',
+      detail:
+        'Dependency graphs and static call-site analysis narrow a provider-wide announcement to specific files and lines. No model involved.',
+    },
+    {
+      label: 'Migration and tests proposed',
+      kind: 'model',
+      detail:
+        'The model receives bounded, repository-specific context and returns a schema-validated plan: a minimal patch, test changes, and the exact commands allowed to verify it.',
+    },
+    {
+      label: 'Patch executed in an isolated sandbox',
+      kind: 'deterministic',
+      detail:
+        'A containerised worker applies the patch and runs only the permitted commands. This is the step that decides whether the migration works. Nothing else gets to decide it.',
+    },
+    {
+      label: 'Result reviewed against the evidence',
+      kind: 'model',
+      detail:
+        'The model inspects the patch alongside completed sandbox output and produces grounded findings — approve, revise, snooze, or decline — citing what it actually saw.',
+    },
+    {
+      label: 'Draft pull request opened',
+      kind: 'deterministic',
+      detail:
+        'The PR carries the source artifact, the affected call sites, the commands that ran, their output, attempt history, and the uncertainty that remains.',
+    },
+  ]}
+/>
+
+## The idea the whole system rests on
+
+<Callout
+  label="Principle"
+  title="A model may interpret and propose. It may never establish a fact."
+>
+  The clean line runs between judgement and truth. A language model is genuinely good at reading a
+  migration guide and guessing what a patch should look like. It is categorically unqualified to
+  tell you whether the test suite passed. So the architecture makes that boundary structural rather
+  than a matter of prompt discipline: whether a check passed is only ever the exit code of a process
+  that actually ran.
+</Callout>
+
+<SpecList
+  title="Authority boundary"
+  items={[
+    {
+      term: 'Model interprets',
+      detail:
+        'Provider prose and migration intent, repository-specific migration plans, reviewer-facing explanations, and how confident it is in each of them.',
+    },
+    {
+      term: 'Code establishes',
+      detail:
+        'Captured source artifacts and their hashes, dependency and call-site evidence, sandbox execution results, and whether the change is safe to open as a PR at all.',
+    },
+  ]}
+/>
+
+## Engineering notes
+
+**A GitHub App, not a bot account.** Installation-scoped tokens are minted per
+repository and expire, so the system never holds a long-lived credential with broad
+access. Webhooks arrive for the events that matter, and results are reported through
+Check Runs so they land where a reviewer already looks instead of as another comment to
+ignore.
+
+**Webhooks enqueue; they do not work.** GitHub expects a fast acknowledgement, and
+sandbox verification is measured in minutes. The webhook handler validates the signature,
+writes a job, and returns. A separate worker leases jobs from PostgreSQL, which gives
+retries, backoff, and an auditable record of every attempt for free — and avoids adding a
+queue broker to a system that does not yet need one.
+
+**The sandbox is the security boundary.** Executing a model-authored patch against a
+checkout is the sharp edge of this entire product. It runs in an isolated container with
+a permitted command list rather than a shell, so the blast radius of a bad proposal is a
+failed job rather than an incident.
+
+**Draft, always.** Delta Code never opens a PR that could be merged by accident. The
+output is a proposal addressed to a human, and the interface treats "decline" as a
+first-class outcome rather than a failure.
+
+## Tradeoffs
+
+**Verification is slow, and that is the point.** Running the patch in a container costs
+minutes per proposal where a pure-model pipeline would answer in seconds. Every second of
+that is buying the reviewer the right to disbelieve the model and check for themselves.
+
+**Static call-site analysis is conservative.** It misses dynamic dispatch and clever
+indirection, so some genuinely affected code goes unflagged. I would rather under-report
+than send a developer to a call site that has nothing to do with the change — false
+positives are how a tool like this gets muted in the first week.
+
+**Schema-validated model output means throwing work away.** Any response that does not
+conform is discarded and retried. That is a real cost per proposal, and it is the price of
+never letting an unparsed model response reach the sandbox.
+
+## Status
+
+In active development. The end-to-end path — detection, call-site resolution, proposal,
+sandbox verification, draft PR — works. What I am still refining is the part that decides
+how much evidence to put in front of a reviewer before it stops being evidence and starts
+being noise.

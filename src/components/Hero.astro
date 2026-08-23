@@ -10,11 +10,7 @@ const { projects } = Astro.props;
 /* Split for a staggered entrance; each line animates as a unit. */
 const nameLines = ['Aman', 'Sriven'];
 
-const facts = [
-  'CS @ Texas A&M',
-  'SWE Intern @ Humana',
-  site.location,
-];
+const facts = ['CS @ Texas A&M', 'SWE Intern @ Humana', site.location];
 ---
 
 <section class="hero">
@@ -37,8 +33,8 @@ const facts = [
 
     <div class="hero__body">
       <p class="hero__lead">
-        I build infrastructure that carries real traffic and products that reach real people —
-        AI gateways and data pipelines on one end, shipped consumer software on the other.
+        I build infrastructure that carries real traffic and products that reach real people — AI
+        gateways and data pipelines on one end, shipped consumer software on the other.
       </p>
 
       <div class="hero__actions">
@@ -110,11 +106,7 @@ const facts = [
     position: absolute;
     inset: -20% -10% auto;
     height: 90%;
-    background: radial-gradient(
-      60% 55% at 72% 8%,
-      hsl(var(--atmosphere) / 9%) 0%,
-      transparent 68%
-    );
+    background: radial-gradient(60% 55% at 72% 8%, hsl(var(--atmosphere) / 9%) 0%, transparent 68%);
     pointer-events: none;
   }
 

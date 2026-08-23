@@ -1,0 +1,132 @@
+---
+title: Ahvaan
+tagline: A cross-platform RSVP app that routes invitations through push, WhatsApp, or SMS without handing anyone your contact list.
+summary: A consumer iOS and Android app for organising events and collecting RSVPs, built with React Native and a Node.js backend on Firebase. Phone-number authentication, calendar sync, and an invitation system designed so the server never needs a guest's address book.
+year: '2025'
+role: Mobile and backend engineering
+status: Shipped — 600+ users
+stack:
+  - React Native
+  - TypeScript
+  - Node.js
+  - Firebase
+  - Redux
+accent: '344 52% 62%'
+featured: true
+order: 4
+heroImage: /media/ahvaan/hero.png
+heroAlt: Ahvaan running on iOS and Android, showing an event invitation and its RSVP list.
+metrics:
+  - value: '600+'
+    label: users
+  - value: 'iOS + Android'
+    label: from one codebase
+seo:
+  description: Ahvaan is a React Native RSVP app for iOS and Android with phone-number auth, calendar sync, and multi-channel invitations, serving 600+ users.
+---
+
+import Figure from '../../components/Figure.astro';
+import Pipeline from '../../components/Pipeline.astro';
+import Callout from '../../components/Callout.astro';
+import SpecList from '../../components/SpecList.astro';
+
+## What it is
+
+Ahvaan is an invitation and RSVP app. You create an event, invite people, and they
+respond — on iOS, on Android, and through whichever channel they actually read.
+
+It is the project on this page with the least architectural drama and the most users,
+which is a useful thing for a portfolio to admit.
+
+## The interesting constraint
+
+Invitation apps have a well-worn shortcut: ask for the address book, upload it, and let
+the server figure out who is already a user. It works, it is fast to build, and it means
+a host's entire contact list — including people who never agreed to anything — now lives
+on someone else's infrastructure.
+
+I did not want to build that, so the invitation flow had to work without it.
+
+<Pipeline
+  title="Invitation delivery"
+  steps={[
+    {
+      label: 'Host selects recipients on-device',
+      kind: 'deterministic',
+      detail:
+        'Contact selection happens entirely on the phone. The address book is never uploaded.',
+    },
+    {
+      label: 'Only the chosen numbers reach the backend',
+      kind: 'deterministic',
+      detail:
+        'The server receives the specific recipients for this event and nothing else — no bulk sync, no shadow social graph accumulating.',
+    },
+    {
+      label: 'Route per recipient',
+      detail:
+        'Existing users get a push notification. Everyone else gets a WhatsApp or SMS link that opens the invitation without requiring an account first.',
+    },
+    {
+      label: 'RSVP and calendar sync',
+      detail:
+        'Responses update the event in real time, and accepting adds it to the guest’s native calendar.',
+    },
+  ]}
+/>
+
+<Callout label="Decision" title="No contact-list upload">
+  Choosing this cost real product surface — no "find friends who are already here", no contact-graph
+  suggestions, and a harder invitation flow to build. It also meant that the worst thing a breach of
+  my backend could expose was a list of phone numbers that were deliberately invited to specific
+  events, rather than the complete address books of every host who ever signed up. For a side
+  project handling other people's contacts, that was not a difficult trade.
+</Callout>
+
+## Engineering notes
+
+<SpecList
+  title="System"
+  items={[
+    {
+      term: 'Client',
+      detail:
+        'React Native with TypeScript, shipped to both the App Store and Play Store from one codebase. Redux holds event and RSVP state so the UI stays consistent across the several screens that can mutate it.',
+    },
+    {
+      term: 'Authentication',
+      detail:
+        'Phone-number auth. For an app whose entire premise is inviting people you already have a number for, an email-and-password flow would have been friction with no purpose.',
+    },
+    {
+      term: 'Backend',
+      detail:
+        'A Node.js REST service over Firebase, handling invitation routing, RSVP state, and delivery through push, WhatsApp, and SMS.',
+    },
+    {
+      term: 'Calendar',
+      detail:
+        'Native calendar integration on both platforms, so an accepted invitation exists somewhere the guest will actually see it again.',
+    },
+  ]}
+/>
+
+**Redux earned its place here, which is not always true.** An event's RSVP list can be
+changed by the host, by a guest responding, and by a push notification arriving while a
+different screen is open. Centralising that state removed a category of bug where two
+screens disagreed about who was coming.
+
+**Two platforms, one codebase, several exceptions.** Most of the app is genuinely
+shared. Notification permissions, calendar access, and deep-link handling are not, and
+pretending otherwise produced more bugs than accepting a small amount of
+platform-specific code.
+
+## Why it is on this page
+
+Six hundred people used this to organise real events, which means it had to survive
+things the other projects on this page have not: a guest on an old Android phone, a
+WhatsApp link opened three days late, someone tapping RSVP twice on a bad connection.
+
+It is a useful counterweight to the infrastructure work. Distributed systems fail in
+ways you can read in a trace. Consumer apps fail in ways a person tells you about, in a
+message, at eleven at night.
