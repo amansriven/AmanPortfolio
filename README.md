@@ -106,7 +106,9 @@ CONTACT_FROM_EMAIL
 ```
 
 Locally, copy `.env.example` → `.env` and `.dev.vars.example` → `.dev.vars`.
-Both are git-ignored. Cloudflare's test keys (`1x00000000000000000000AA` /
+Both are git-ignored. `npm run preview` copies `.dev.vars` into `dist/server/`
+for you — Wrangler resolves it relative to the generated config, not the project
+root, which is an easy hour to lose. Cloudflare's test keys (`1x00000000000000000000AA` /
 `1x0000000000000000000000000000000AA`) always pass and are fine for development.
 
 In production:

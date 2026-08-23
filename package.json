@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro build && wrangler dev -c dist/server/wrangler.json",
+    "preview": "astro build && node -e \"require('fs').existsSync('.dev.vars')&&require('fs').copyFileSync('.dev.vars','dist/server/.dev.vars')\" && wrangler dev -c dist/server/wrangler.json",
     "deploy": "astro build && wrangler deploy -c dist/server/wrangler.json",
     "check": "astro check",
     "format": "prettier --write \"**/*.{astro,svelte,ts,js,mjs,json,css,md,mdx}\"",

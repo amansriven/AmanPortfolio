@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects'))
+  .filter((project) => project.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Not found" description="That page does not exist on amansriven.com.">
+  <section class="notfound">
+    <div class="shell shell--wide notfound__inner">
+      <p class="eyebrow">Error 404</p>
+      <h1 class="notfound__title">This page<br />does not exist.</h1>
+      <p class="notfound__body">
+        Either the link is wrong or I moved something and did not set up a redirect. Both are my
+        fault. Here is everything that does exist:
+      </p>
+
+      <ol class="notfound__index">
+        {
+          projects.map((project, i) => (
+            <li>
+              <a href={`/projects/${project.id}`} style={`--atmosphere: ${project.data.accent}`}>
+                <span class="notfound__num mono">{String(i + 1).padStart(2, '0')}</span>
+                <span class="notfound__name">{project.data.title}</span>
+                <span class="notfound__tagline">{project.data.tagline}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+
+      <a class="notfound__home" href="/">
+        <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
+          <path
+            d="M12 7H2M2 7l4-4M2 7l4 4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span>Back home</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    display: flex;
+    align-items: center;
+    min-height: 100svh;
+    padding-top: calc(var(--header-height) + var(--space-9));
+    padding-bottom: var(--space-9);
+  }
+
+  .notfound__title {
+    margin-top: var(--space-4);
+    font-size: var(--fs-hero);
+    font-weight: 500;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .notfound__body {
+    margin-top: var(--space-5);
+    max-width: 34rem;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .notfound__index {
+    margin-top: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+
+  .notfound__index a {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 12rem) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border);
+    transition:
+      padding-left var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .notfound__index a:hover {
+    padding-left: var(--space-4);
+    background: linear-gradient(90deg, hsl(var(--atmosphere) / 7%), transparent 60%);
+  }
+
+  .notfound__num {
+    color: var(--text-faint);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .notfound__index a:hover .notfound__num {
+    color: hsl(var(--atmosphere) / 90%);
+  }
+
+  .notfound__name {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .notfound__tagline {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .notfound__home {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+    padding: 0.7rem 1.25rem;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    transition:
+      border-color var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .notfound__home:hover {
+    border-color: var(--border-bright);
+    background: var(--surface-raised);
+  }
+
+  .notfound__home svg {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .notfound__home:hover svg {
+    transform: translateX(-3px);
+  }
+
+  @media (max-width: 47.99rem) {
+    .notfound__index a {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      row-gap: var(--space-1);
+    }
+
+    .notfound__tagline {
+      grid-column: 2;
+      white-space: normal;
+    }
+  }
+</style>

@@ -1,4 +1,6 @@
-@import '@fontsource-variable/instrument-sans';
-@import '@fontsource-variable/jetbrains-mono';
+/* Upright weight axis only — the design uses no italics and no width axis,
+   so this avoids shipping font-face rules and files we never render. */
+@import '@fontsource-variable/instrument-sans/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
 @import './tokens.css';
 @import './base.css';
