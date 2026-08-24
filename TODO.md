@@ -12,18 +12,15 @@ Ground rules for anyone (or anything) picking this up:
   libraries, database, or auth. Add dependencies only when genuinely necessary.
 - Commit as `Aman Sriven <amansriven757@gmail.com>`, no tool attribution.
 
-## Assets Aman needs to supply
+## Assets still needed
 
-| What | Where | Notes |
-| --- | --- | --- |
-| Roleward screenshot | `public/media/roleward/hero.png` | 2560×1440 (16:9) |
-| Delta Code screenshot | `public/media/delta-code/hero.png` | 2560×1440 |
-| Odyssey screenshot | `public/media/odyssey/hero.png` | 2560×1440 |
-| Ahvaan screenshot | `public/media/ahvaan/hero.png` | 2560×1440 |
+| What                  | Where                                                 | Notes         |
+| --------------------- | ----------------------------------------------------- | ------------- |
 | Social preview images | `public/og/default.png`, `public/og/<project-id>.png` | 1200×630 each |
 
-Until a file exists the site renders a labelled placeholder naming the exact
-path, so nothing breaks and no code change is needed when you drop one in.
+Project screenshots are in place, under `src/assets/media/<project>/`. Ahvaan's
+is portrait App Store art rather than a product capture — a real in-app screen
+would sit better next to the other three.
 
 ## Design refinement pass
 
@@ -33,7 +30,7 @@ review. Worth going through at 1440 / 1280 / 768 / 390 px:
 - Typographic hierarchy and rhythm — is the scale doing real work?
 - Section spacing; generous whitespace was a stated goal.
 - The `lead` project layout (first feature, full width) is the least resolved.
-- Mobile should be *designed*, not just reflowed — especially the project
+- Mobile should be _designed_, not just reflowed — especially the project
   features, experience timeline, and the nested `TreeDiagram` on Odyssey.
 - Hover and focus states throughout.
 

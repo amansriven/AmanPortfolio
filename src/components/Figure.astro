@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import { publicAssetExists } from '../lib/assets';
+import { resolveImage } from '../lib/images';
 
 interface Props {
   src: string;
@@ -30,7 +32,9 @@ const {
   class: className,
 } = Astro.props;
 
-const exists = publicAssetExists(src);
+/* Optimised module first; fall back to a raw file under public/. */
+const asset = resolveImage(src);
+const exists = asset !== undefined || publicAssetExists(src);
 ---
 
 <figure class:list={['figure', className]} data-frame={frame}>
@@ -52,7 +56,19 @@ const exists = publicAssetExists(src);
 
     <div class="figure__well" data-fit={fit} style={`aspect-ratio: ${ratio}`}>
       {
-        exists ? (
+        asset ? (
+          <Image
+            src={asset}
+            alt={alt}
+            widths={[640, 1024, 1600, 2048]}
+            sizes="(max-width: 62rem) 100vw, 70vw"
+            format="webp"
+            quality={72}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
+            fetchpriority={priority ? 'high' : 'auto'}
+          />
+        ) : exists ? (
           <img
             src={src}
             alt={alt}
