@@ -181,7 +181,9 @@ for (const c of cards) {
   const out = join(OUT, `${c.name}.png`);
   await sharp(Buffer.from(card(c)))
     .composite([{ input: grain, blend: 'overlay', opacity: 0.055 }])
-    .png({ compressionLevel: 9, palette: false })
+    // A dithered 128-colour palette. Full-depth PNG of a grained gradient
+    // runs ~855 KB; this lands near 57 KB with no visible banding.
+    .png({ palette: true, colours: 128, dither: 1, compressionLevel: 9 })
     .toFile(out);
   console.log(`  ${c.name}.png  ${c.title}`);
 }
