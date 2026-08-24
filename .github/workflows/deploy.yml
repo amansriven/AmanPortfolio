@@ -45,5 +45,7 @@ jobs:
         # The Astro adapter writes the real worker config during the build.
         run: npx wrangler deploy -c dist/server/wrangler.json
         env:
+          # The token is a real credential, so it lives in Secrets.
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # The account ID is just an identifier, so it lives in Variables.
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
