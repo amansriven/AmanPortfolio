@@ -1,13 +1,16 @@
 ---
 import { experience } from '../lib/experience';
+import SectionHead from './SectionHead.astro';
 ---
 
 <section class="section experience" id="experience" aria-labelledby="experience-heading">
   <div class="shell">
-    <div class="section-head" data-reveal>
-      <h2 id="experience-heading">Experience</h2>
-      <p class="eyebrow">Platform · AI systems · Research</p>
-    </div>
+    <SectionHead
+      index="02"
+      title="Experience"
+      meta="Platform · AI systems · Research"
+      id="experience-heading"
+    />
 
     <ol class="timeline">
       {

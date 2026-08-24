@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import portrait from '../assets/portrait/aman.jpg';
 import { socials } from '../lib/site';
+import SectionHead from './SectionHead.astro';
 
 const currently = [
   { label: 'Building', value: 'Roleward' },
@@ -39,10 +40,7 @@ const toolkit = [
 
 <section class="section about" id="about" aria-labelledby="about-heading">
   <div class="shell">
-    <div class="section-head" data-reveal>
-      <h2 id="about-heading">About</h2>
-      <p class="eyebrow">Texas A&M · Class of 2028</p>
-    </div>
+    <SectionHead index="03" title="About" meta="Texas A&M · Class of 2028" id="about-heading" />
 
     <div class="about__grid">
       <div class="about__prose" data-reveal>

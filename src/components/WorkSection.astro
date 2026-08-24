@@ -1,5 +1,6 @@
 ---
 import ProjectFeature from './ProjectFeature.astro';
+import SectionHead from './SectionHead.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -16,10 +17,12 @@ function layoutFor(index: number): 'lead' | 'split' | 'split-reverse' {
 
 <section class="section work" id="work" aria-labelledby="work-heading">
   <div class="shell shell--wide">
-    <div class="section-head" data-reveal>
-      <h2 id="work-heading">Selected work</h2>
-      <p class="eyebrow">{projects.length} case studies</p>
-    </div>
+    <SectionHead
+      index="01"
+      title="Selected work"
+      meta={`${projects.length} case studies`}
+      id="work-heading"
+    />
 
     <div class="work__list">
       {

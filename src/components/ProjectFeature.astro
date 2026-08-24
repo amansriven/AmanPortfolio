@@ -42,38 +42,40 @@ const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
       <p class="feature__tagline">{data.tagline}</p>
     </header>
 
-    <p class="feature__summary">{data.summary}</p>
+    <div class="feature__detail">
+      <p class="feature__summary">{data.summary}</p>
 
-    {
-      data.metrics.length > 0 && (
-        <ul class="feature__metrics">
-          {data.metrics.map((metric) => (
-            <li>
-              <span class="feature__metric-value">{metric.value}</span>
-              <span class="feature__metric-label">{metric.label}</span>
-            </li>
-          ))}
+      {
+        data.metrics.length > 0 && (
+          <ul class="feature__metrics">
+            {data.metrics.map((metric) => (
+              <li>
+                <span class="feature__metric-value">{metric.value}</span>
+                <span class="feature__metric-label">{metric.label}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <footer class="feature__foot">
+        <ul class="feature__stack mono">
+          {data.stack.map((tech) => <li>{tech}</li>)}
         </ul>
-      )
-    }
-
-    <footer class="feature__foot">
-      <ul class="feature__stack mono">
-        {data.stack.map((tech) => <li>{tech}</li>)}
-      </ul>
-      <p class="feature__cta">
-        <span>Read case study</span>
-        <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
-          <path
-            d="M2 7h10M12 7l-4-4M12 7l-4 4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </p>
-    </footer>
+        <p class="feature__cta">
+          <span>Read case study</span>
+          <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
+            <path
+              d="M2 7h10M12 7l-4-4M12 7l-4 4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </p>
+      </footer>
+    </div>
   </div>
 </article>
 
@@ -140,6 +142,12 @@ const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
     display: grid;
     gap: var(--space-5);
     align-content: start;
+  }
+
+  /* Transparent in the split layouts so the body grid still spaces each
+     child directly; becomes a real column in `lead` below. */
+  .feature__detail {
+    display: contents;
   }
 
   .feature__index {
@@ -266,16 +274,14 @@ const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
       align-items: start;
     }
 
-    .feature[data-layout='lead'] .feature__head {
-      grid-row: span 3;
+    .feature[data-layout='lead'] .feature__detail {
+      display: grid;
+      gap: var(--space-5);
+      align-content: start;
     }
 
     .feature[data-layout='lead'] .feature__title {
       font-size: var(--fs-h1);
-    }
-
-    .feature[data-layout='lead'] .feature__foot {
-      grid-column: 2;
     }
 
     .feature[data-layout='split'],
