@@ -22,9 +22,10 @@ const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
     <Figure
       src={data.heroImage}
       alt={data.heroAlt}
-      frame={layout === 'lead' ? 'browser' : 'browser'}
-      url={displayUrl}
-      ratio={layout === 'lead' ? '16 / 9' : '4 / 3'}
+      frame={data.heroFrame}
+      url={data.heroFrame === 'browser' ? displayUrl : undefined}
+      ratio={data.heroFit === 'contain' ? data.heroRatio : layout === 'lead' ? '16 / 9' : '4 / 3'}
+      fit={data.heroFit}
       priority={index === 0}
     />
   </div>

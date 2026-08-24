@@ -10,7 +10,12 @@ export default defineConfig({
   output: 'static',
   // No session store is needed; this avoids requiring a KV binding.
   session: false,
-  adapter: cloudflare({ imageService: 'compile' }),
+  adapter: cloudflare({
+    imageService: 'compile',
+    // Prerender in Node, not workerd: build-time helpers need real fs access
+    // (see src/lib/assets.ts, which decides image vs. placeholder).
+    prerenderEnvironment: 'node',
+  }),
   integrations: [svelte(), mdx(), sitemap()],
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   build: { inlineStylesheets: 'auto' },

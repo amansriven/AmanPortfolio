@@ -11,6 +11,8 @@ interface Props {
   url?: string;
   /** CSS aspect-ratio for the image well. */
   ratio?: string;
+  /** `contain` letterboxes the image instead of cropping it. */
+  fit?: 'cover' | 'contain';
   /** Above-the-fold images should load eagerly. */
   priority?: boolean;
   class?: string;
@@ -23,6 +25,7 @@ const {
   frame = 'browser',
   url,
   ratio = '16 / 10',
+  fit = 'cover',
   priority = false,
   class: className,
 } = Astro.props;
@@ -47,7 +50,7 @@ const exists = publicAssetExists(src);
       )
     }
 
-    <div class="figure__well" style={`aspect-ratio: ${ratio}`}>
+    <div class="figure__well" data-fit={fit} style={`aspect-ratio: ${ratio}`}>
       {
         exists ? (
           <img
@@ -153,6 +156,12 @@ const exists = publicAssetExists(src);
     height: 100%;
     object-fit: cover;
     object-position: top center;
+  }
+
+  /* Marketing shots and portrait captures must not be cropped. */
+  .figure__well[data-fit='contain'] img {
+    object-fit: contain;
+    object-position: center;
   }
 
   /* --- Placeholder ------------------------------------------- */

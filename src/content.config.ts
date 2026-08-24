@@ -37,6 +37,12 @@ const projects = defineCollection({
      */
     heroImage: z.string(),
     heroAlt: z.string(),
+    /** Chrome around the hero. Use `plain` for anything that isn't a web app. */
+    heroFrame: z.enum(['browser', 'plain']).default('browser'),
+    /** `contain` letterboxes instead of cropping — right for portrait shots. */
+    heroFit: z.enum(['cover', 'contain']).default('cover'),
+    /** CSS aspect-ratio for the hero well. */
+    heroRatio: z.string().default('16 / 9'),
     /** Optional supporting shots shown inside the case study. */
     gallery: z
       .array(z.object({ src: z.string(), alt: z.string(), caption: z.string().optional() }))

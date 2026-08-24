@@ -119,7 +119,15 @@ const meta = [
     </header>
 
     <div class="shell shell--wide case__visual">
-      <Figure src={data.heroImage} alt={data.heroAlt} url={displayUrl} ratio="16 / 9" priority />
+      <Figure
+        src={data.heroImage}
+        alt={data.heroAlt}
+        frame={data.heroFrame}
+        url={data.heroFrame === 'browser' ? displayUrl : undefined}
+        ratio={data.heroRatio}
+        fit={data.heroFit}
+        priority
+      />
     </div>
 
     {
