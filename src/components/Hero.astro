@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait/aman.jpg';
 import { site } from '../lib/site';
 import type { CollectionEntry } from 'astro:content';
 
@@ -15,9 +17,24 @@ const facts = ['CS @ Texas A&M', 'SWE Intern @ Humana', site.location];
 
 <section class="hero">
   <div class="hero__atmosphere" aria-hidden="true"></div>
+  <div class="rules" aria-hidden="true">
+    <span style="left: 18%"></span>
+    <span style="left: 50%"></span>
+    <span style="left: 82%"></span>
+  </div>
 
   <div class="shell shell--wide hero__inner">
-    <p class="eyebrow hero__eyebrow">Software Engineer</p>
+    <div class="hero__identity">
+      <Image
+        class="hero__portrait"
+        src={portrait}
+        alt="Aman Sriven"
+        widths={[64, 128, 192]}
+        sizes="60px"
+        loading="eager"
+      />
+      <p class="eyebrow hero__eyebrow">Software Engineer</p>
+    </div>
 
     <h1 class="hero__name">
       {
@@ -115,8 +132,27 @@ const facts = ['CS @ Texas A&M', 'SWE Intern @ Humana', site.location];
     gap: var(--space-6);
   }
 
+  .hero__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .hero__identity :global(.hero__portrait) {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    /* The face sits high in the frame; pull the crop up to centre it. */
+    object-position: center 28%;
+    border: 1px solid var(--border-strong);
+    filter: saturate(0.94);
+  }
+
   .hero__eyebrow {
     display: flex;
+    flex: 1;
     align-items: center;
     gap: var(--space-3);
   }

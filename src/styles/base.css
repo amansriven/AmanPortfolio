@@ -25,7 +25,13 @@ html {
 }
 
 body {
+  /* A faint cool wash from the top keeps the page from reading as flat black. */
   background-color: var(--bg);
+  background-image:
+    radial-gradient(140% 70% at 50% -8%, rgb(226 176 119 / 3.5%), transparent 62%),
+    radial-gradient(90% 50% at 50% 0%, rgb(255 255 255 / 3%), transparent 70%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-sans);
   font-size: var(--fs-body);
@@ -104,6 +110,55 @@ hr {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: var(--radius-sm);
+}
+
+/* --- Film grain -----------------------------------------------
+   A fixed, non-interactive noise layer. This is what stops a dark
+   page from looking like flat vector fill, and it dithers away the
+   banding that large low-opacity gradients otherwise show.
+   Inlined as a data URI, so it costs no request. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Layout rules ---------------------------------------------
+   Hairline verticals aligned to the content column. Barely visible;
+   they give large screens a sense of an underlying grid. */
+.rules {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  max-width: var(--width-wide);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  pointer-events: none;
+  display: none;
+}
+
+.rules span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(255 255 255 / 5%) 12%,
+    rgb(255 255 255 / 5%) 78%,
+    transparent
+  );
+}
+
+@media (min-width: 75rem) {
+  .rules {
+    display: block;
+  }
 }
 
 /* --- Shared primitives -------------------------------------- */

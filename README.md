@@ -80,8 +80,18 @@ is needed when you add the real thing.
 Shoot at 2560×1440 (16:9) where possible. Additional in-body shots can be added
 per project via the `gallery` frontmatter field or an inline `<Figure />`.
 
-**Social preview images** go in `public/og/` — `default.png` for the site and
-`<project-id>.png` per case study, all at 1200×630.
+**Social preview images** are generated, not hand-made:
+
+```bash
+node scripts/generate-og.mjs
+```
+
+It reads each project's title, tagline, stack, and accent straight from the MDX
+frontmatter and writes 1200×630 cards into `public/og/`. Re-run it after editing
+frontmatter or adding a project.
+
+**Portrait** lives at `src/assets/portrait/aman.jpg` and appears in the hero
+identity row and the About section. Replacing that file updates both.
 
 ## Résumé
 

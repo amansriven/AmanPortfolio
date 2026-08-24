@@ -1,4 +1,5 @@
 ---
+import Logo from './Logo.astro';
 import MobileNav from './MobileNav.svelte';
 import { nav, site } from '../lib/site';
 
@@ -11,7 +12,7 @@ const { isHome = false } = Astro.props;
 <header class="header" data-header>
   <div class="header__inner shell shell--wide">
     <a class="brand" href="/" aria-current={isHome ? 'page' : undefined}>
-      <span class="brand__mark" aria-hidden="true"></span>
+      <Logo size={20} class="brand__mark" />
       <span class="brand__name">Aman Sriven</span>
     </a>
 
@@ -99,16 +100,16 @@ const { isHome = false } = Astro.props;
     white-space: nowrap;
   }
 
-  .brand__mark {
-    width: 9px;
-    height: 9px;
-    border-radius: 2px;
-    background: var(--accent);
-    transition: transform var(--dur) var(--ease-out);
+  .brand :global(.brand__mark) {
+    color: var(--accent);
+    transition:
+      transform var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
   }
 
-  .brand:hover .brand__mark {
-    transform: rotate(45deg) scale(1.15);
+  .brand:hover :global(.brand__mark) {
+    transform: translateY(-1px);
+    color: var(--accent-bright);
   }
 
   /* --- Desktop nav ------------------------------------------- */

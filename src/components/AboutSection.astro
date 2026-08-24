@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait/aman.jpg';
 import { socials } from '../lib/site';
 
 const currently = [
@@ -63,6 +65,15 @@ const toolkit = [
       </div>
 
       <aside class="about__side" data-reveal>
+        <figure class="about__portrait">
+          <Image
+            src={portrait}
+            alt="Aman Sriven"
+            widths={[320, 480, 720]}
+            sizes="(max-width: 62rem) 60vw, 22rem"
+          />
+        </figure>
+
         <dl class="currently">
           <p class="eyebrow currently__title">Currently</p>
           {
@@ -134,6 +145,46 @@ const toolkit = [
   .about__side {
     display: grid;
     gap: var(--space-7);
+  }
+
+  .about__portrait {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .about__portrait :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 22%;
+    /* Nudged toward the page palette so a bright studio shot does not
+       punch a hole in a dark layout. */
+    filter: saturate(0.9) contrast(1.02) brightness(0.96);
+    transition: filter var(--dur-slow) var(--ease-out);
+  }
+
+  .about__portrait:hover :global(img) {
+    filter: saturate(1) contrast(1) brightness(1);
+  }
+
+  /* Softens the top edge into the page rather than ending on a hard line. */
+  .about__portrait::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgb(10 11 12 / 22%) 0%,
+      transparent 34%,
+      transparent 76%,
+      rgb(10 11 12 / 30%) 100%
+    );
   }
 
   .currently {

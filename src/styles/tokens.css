@@ -14,15 +14,17 @@
   --surface-hover: #1c2024;
 
   /* --- Colour: line work ------------------------------------- */
-  --border: rgb(255 255 255 / 7%);
-  --border-strong: rgb(255 255 255 / 13%);
-  --border-bright: rgb(255 255 255 / 22%);
+  --border: rgb(255 255 255 / 8%);
+  --border-strong: rgb(255 255 255 / 14%);
+  --border-bright: rgb(255 255 255 / 24%);
 
   /* --- Colour: type ------------------------------------------ */
   --text: #eceef0;
   --text-secondary: #a9afb5;
-  --text-muted: #6e757c;
-  --text-faint: #4a5057;
+  /* Both of these clear WCAG AA (4.5:1) against --bg. The previous values
+     were 4.22 and 2.42, and --text-faint carries 11px mono metadata. */
+  --text-muted: #868d94;
+  --text-faint: #757c84;
 
   /* --- Colour: accent ---------------------------------------- */
   --accent: #e2b077;
