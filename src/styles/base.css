@@ -53,6 +53,13 @@ svg {
   max-width: 100%;
 }
 
+/* Astro's <Image> emits width/height attributes. Those are presentational
+   hints, so without this the box has a definite height, `aspect-ratio` is
+   ignored, and `object-fit` crops instead of scaling. */
+img {
+  height: auto;
+}
+
 input,
 button,
 textarea,
