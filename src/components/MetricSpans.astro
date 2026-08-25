@@ -1,0 +1,380 @@
+---
+import { classes, macro } from '../lib/research';
+
+/**
+ * Per-class test results.
+ *
+ * Rendered as a span chart rather than a bar chart on purpose. Every class in
+ * this model has high recall; what varies is precision. Drawing the distance
+ * between the two makes that the first thing you see — a long span is a class
+ * the model over-reports — and the F1 tick sits where the two resolve.
+ *
+ * It is a real table underneath, so a screen reader gets the numbers and the
+ * chart is the presentation layer over them.
+ */
+
+/* Domain starts at 0.5; the lowest value on the page is precision 0.5434. */
+const MIN = 0.5;
+const pct = (v: number) => ((v - MIN) / (1 - MIN)) * 100;
+
+const ticks = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+const rows = [...classes].sort((a, b) => b.f1 - a.f1);
+const fmt = (v: number) => v.toFixed(4);
+---
+
+<figure class="spans">
+  <figcaption class="spans__caption">
+    <span class="eyebrow">Table I</span>
+    <span class="spans__caption-text">
+      Test-set performance across twelve classes. The test split is untouched by oversampling,
+      augmentation, or threshold tuning.
+    </span>
+  </figcaption>
+
+  <div class="spans__legend" aria-hidden="true">
+    <span class="key key--precision"><i></i>Precision</span>
+    <span class="key key--recall"><i></i>Recall</span>
+    <span class="key key--f1"><i></i>F1</span>
+  </div>
+
+  <div class="spans__scroll">
+    <table class="spans__table">
+      <caption class="visually-hidden">
+        Precision, recall, F1 score, and AUC for each vulnerability class.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Vulnerability</th>
+          <th scope="col" class="spans__axis-head">
+            <span class="visually-hidden">Precision to recall span</span>
+            <span class="spans__axis" aria-hidden="true">
+              {
+                ticks.map((t) => (
+                  <span class="spans__tick" style={`--x:${pct(t)}%`}>
+                    <span class="mono">{t.toFixed(1)}</span>
+                  </span>
+                ))
+              }
+            </span>
+          </th>
+          <th scope="col" class="num num--wide">Precision</th>
+          <th scope="col" class="num num--wide">Recall</th>
+          <th scope="col" class="num">F1</th>
+          <th scope="col" class="num num--wide">AUC</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {
+          rows.map((row, i) => (
+            <tr data-reveal style={`--reveal-delay:${Math.min(i * 32, 320)}ms`}>
+              <th scope="row" class="spans__name">
+                <span>{row.name}</span>
+                <span class="spans__label mono">{row.label}</span>
+              </th>
+
+              <td class="spans__plot">
+                <span class="plot" aria-hidden="true">
+                  <span class="plot__grid">
+                    {ticks.slice(1, -1).map((t) => (
+                      <span style={`--x:${pct(t)}%`} />
+                    ))}
+                  </span>
+                  <span
+                    class="plot__span"
+                    style={`--from:${pct(row.precision)}%; --to:${pct(row.recall)}%`}
+                  />
+                  <span
+                    class="plot__dot plot__dot--precision"
+                    style={`--x:${pct(row.precision)}%`}
+                  />
+                  <span class="plot__dot plot__dot--recall" style={`--x:${pct(row.recall)}%`} />
+                  <span class="plot__f1" style={`--x:${pct(row.f1)}%`} />
+                </span>
+              </td>
+
+              <td class="num num--wide mono">{fmt(row.precision)}</td>
+              <td class="num num--wide mono">{fmt(row.recall)}</td>
+              <td class="num mono num--strong">{fmt(row.f1)}</td>
+              <td class="num num--wide mono">{fmt(row.auc)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th scope="row" class="spans__name">
+            <span>{macro.name}</span>
+            <span class="spans__label mono">12 classes</span>
+          </th>
+          <td class="spans__plot">
+            <span class="plot plot--macro" aria-hidden="true">
+              <span
+                class="plot__span"
+                style={`--from:${pct(macro.precision)}%; --to:${pct(macro.recall)}%`}></span>
+              <span class="plot__dot plot__dot--precision" style={`--x:${pct(macro.precision)}%`}
+              ></span>
+              <span class="plot__dot plot__dot--recall" style={`--x:${pct(macro.recall)}%`}></span>
+              <span class="plot__f1" style={`--x:${pct(macro.f1)}%`}></span>
+            </span>
+          </td>
+          <td class="num num--wide mono">{fmt(macro.precision)}</td>
+          <td class="num num--wide mono">{fmt(macro.recall)}</td>
+          <td class="num mono num--strong">{fmt(macro.f1)}</td>
+          <td class="num num--wide mono">{fmt(macro.auc)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</figure>
+
+<style>
+  .spans {
+    margin: 0;
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .spans__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spans__caption-text {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    max-width: 44rem;
+  }
+
+  /* --- Legend ---------------------------------------------------- */
+  .spans__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  .key i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+
+  .key--precision i {
+    border: 1.5px solid var(--text-muted);
+  }
+
+  .key--recall i {
+    background: var(--text-secondary);
+  }
+
+  .key--f1 i {
+    width: 3px;
+    height: 12px;
+    border-radius: 1px;
+    background: hsl(var(--atmosphere) / 95%);
+  }
+
+  /* --- Table ----------------------------------------------------- */
+  .spans__scroll {
+    overflow-x: auto;
+  }
+
+  .spans__table {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .spans__table thead th {
+    padding-bottom: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-faint);
+    vertical-align: bottom;
+  }
+
+  /* The axis lives in the header cell so its ticks line up with the plots. */
+  .spans__axis-head {
+    width: 46%;
+    padding-inline: var(--space-5);
+  }
+
+  .spans__axis {
+    position: relative;
+    display: block;
+    height: 1.1rem;
+  }
+
+  .spans__tick {
+    position: absolute;
+    left: var(--x);
+    bottom: 0;
+    transform: translateX(-50%);
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    letter-spacing: 0;
+  }
+
+  .spans__table tbody tr,
+  .spans__table tfoot tr {
+    border-top: 1px solid var(--border);
+    transition: background-color var(--dur) var(--ease-out);
+  }
+
+  .spans__table tbody tr:hover {
+    background: hsl(var(--atmosphere) / 4%);
+  }
+
+  .spans__table tfoot tr {
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .spans__table td,
+  .spans__table tbody th,
+  .spans__table tfoot th {
+    padding-block: var(--space-4);
+    vertical-align: middle;
+  }
+
+  .spans__name {
+    display: grid;
+    gap: 1px;
+    padding-right: var(--space-5);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .spans__label {
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+    font-weight: 400;
+  }
+
+  .spans__plot {
+    padding-inline: var(--space-5);
+  }
+
+  .num {
+    padding-left: var(--space-5);
+    text-align: right;
+    color: var(--text-muted);
+    font-size: var(--fs-micro);
+    white-space: nowrap;
+  }
+
+  .num--strong {
+    color: var(--text);
+  }
+
+  /* --- The plot -------------------------------------------------- */
+  .plot {
+    position: relative;
+    display: block;
+    height: 1.25rem;
+  }
+
+  .plot__grid span {
+    position: absolute;
+    left: var(--x);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgb(255 255 255 / 4%);
+  }
+
+  .plot__span {
+    position: absolute;
+    left: var(--from);
+    width: calc(var(--to) - var(--from));
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 1px;
+    background: linear-gradient(to right, rgb(255 255 255 / 22%), hsl(var(--atmosphere) / 55%));
+    transform-origin: left center;
+    transition: transform var(--dur-slow) var(--ease-out);
+    transition-delay: inherit;
+  }
+
+  .plot__dot {
+    position: absolute;
+    left: var(--x);
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    border-radius: 50%;
+  }
+
+  .plot__dot--precision {
+    border: 1.5px solid var(--text-muted);
+    background: var(--bg);
+  }
+
+  .plot__dot--recall {
+    background: var(--text-secondary);
+  }
+
+  .plot__f1 {
+    position: absolute;
+    left: var(--x);
+    top: 50%;
+    width: 3px;
+    height: 16px;
+    margin: -8px 0 0 -1.5px;
+    border-radius: 1.5px;
+    background: hsl(var(--atmosphere) / 95%);
+    box-shadow: 0 0 0 3px hsl(var(--atmosphere) / 14%);
+  }
+
+  .plot--macro .plot__f1 {
+    height: 20px;
+    margin-top: -10px;
+  }
+
+  /* The span draws itself in as the row reveals. */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] .plot__span {
+      transform: scaleX(0);
+    }
+
+    [data-reveal].is-revealed .plot__span {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (max-width: 61.99rem) {
+    .num--wide {
+      display: none;
+    }
+
+    .spans__table {
+      min-width: 30rem;
+    }
+
+    .spans__axis-head {
+      width: 52%;
+    }
+  }
+</style>

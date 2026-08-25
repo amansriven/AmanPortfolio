@@ -1,0 +1,145 @@
+---
+import { Image } from 'astro:assets';
+import { resolveImage } from '../lib/images';
+import { paper } from '../lib/research';
+
+/**
+ * Every page of the paper, rendered at build time and laid out as a strip.
+ *
+ * Each thumbnail deep-links into the PDF at that page — `#page=n` is honoured
+ * by every viewer that matters — so this is a table of contents you can read
+ * before deciding whether to open anything.
+ */
+const spreads = [
+  { page: 1, label: 'Title, abstract, introduction' },
+  { page: 2, label: 'Related work, dataset, preprocessing' },
+  { page: 3, label: 'Architecture' },
+  { page: 4, label: 'Loss, ensembling, results' },
+  { page: 5, label: 'Per-class table, EGA comparison' },
+  { page: 6, label: 'Baselines, ablation, discussion' },
+  { page: 7, label: 'References' },
+];
+---
+
+<div class="shelf">
+  <ol class="shelf__strip">
+    {
+      spreads.map((spread) => {
+        const image = resolveImage(`/media/research/page-${spread.page}.png`);
+        return (
+          <li class="sheet">
+            <a href={`${paper.href}#page=${spread.page}`} target="_blank" rel="noopener">
+              <span class="sheet__page">
+                {image && (
+                  <Image
+                    src={image}
+                    alt={`Page ${spread.page} of the paper: ${spread.label.toLowerCase()}`}
+                    widths={[224, 448]}
+                    sizes="14rem"
+                    format="webp"
+                    quality={58}
+                    loading="lazy"
+                  />
+                )}
+              </span>
+              <span class="sheet__meta">
+                <span class="sheet__num mono">{String(spread.page).padStart(2, '0')}</span>
+                <span class="sheet__label">{spread.label}</span>
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ol>
+</div>
+
+<style>
+  .shelf {
+    /* Bleeds to the gutter so the strip reads as continuing past the edge
+       rather than stopping short of it. */
+    margin-inline: calc(-1 * var(--gutter));
+  }
+
+  .shelf__strip {
+    display: flex;
+    gap: var(--space-4);
+    padding-inline: var(--gutter);
+    padding-bottom: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-bright) transparent;
+  }
+
+  .sheet {
+    flex: 0 0 14rem;
+    scroll-snap-align: start;
+  }
+
+  .sheet a {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .sheet__page {
+    display: block;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    transition:
+      transform var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  .sheet__page :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: brightness(0.82) contrast(1.05) saturate(0.9);
+    transition: filter var(--dur) var(--ease-out);
+  }
+
+  .sheet a:hover .sheet__page,
+  .sheet a:focus-visible .sheet__page {
+    transform: translateY(-4px);
+    border-color: hsl(var(--atmosphere) / 55%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sheet a:hover .sheet__page :global(img) {
+    filter: brightness(1) contrast(1) saturate(1);
+  }
+
+  .sheet__meta {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  .sheet__num {
+    font-size: var(--fs-micro);
+    color: hsl(var(--atmosphere) / 80%);
+  }
+
+  .sheet__label {
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .sheet a:hover .sheet__label {
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 47.99rem) {
+    .sheet {
+      flex-basis: 10.5rem;
+    }
+  }
+</style>

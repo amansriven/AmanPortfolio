@@ -1,0 +1,209 @@
+---
+import { baselines } from '../lib/research';
+
+/**
+ * The four deep-learning baselines from the literature.
+ *
+ * These were published on other corpora, so nothing here is like-for-like and
+ * the card says so. Rows where SCRAN loses are marked in exactly the same way
+ * as rows where it wins — two of the four models beat it on timestamp
+ * dependence, and that is the most useful fact on this part of the page.
+ */
+
+const cards = baselines.map((card) => ({
+  ...card,
+  rows: card.rows.map((row) => ({
+    ...row,
+    delta: Math.round((row.scran - row.other) * 10000) / 10000,
+  })),
+}));
+
+const fmt = (v: number) => v.toFixed(4);
+const signed = (v: number) => `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(3)}`;
+const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
+---
+
+<section class="baselines">
+  <div class="baselines__grid">
+    {
+      cards.map((card) => (
+        <article class="card" data-reveal>
+          <header class="card__head">
+            <h3 class="card__model mono">{card.model}</h3>
+            <p class="card__citation mono">{card.citation}</p>
+          </header>
+
+          <p class="card__approach">{card.approach}</p>
+
+          <table class="card__table">
+            <caption class="visually-hidden">
+              {card.metric} for SCRAN compared with {card.model}.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Vulnerability</th>
+                <th scope="col" class="num">
+                  SCRAN
+                </th>
+                <th scope="col" class="num">
+                  {card.model}
+                </th>
+                <th scope="col" class="num">
+                  Δ {card.metric}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {card.rows.map((row) => (
+                <tr data-sign={row.delta >= 0 ? 'up' : 'down'}>
+                  <th scope="row">{row.name}</th>
+                  <td class="num mono num--strong">{fmt(row.scran)}</td>
+                  <td class="num mono">{fmt(row.other)}</td>
+                  <td class="num mono card__delta">{signed(row.delta)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="baselines__note">
+    Different datasets, so read these as bearings rather than as a scoreboard.
+    {losses === 1 ? 'One row goes the other way' : `${losses} rows go the other way`} — MH-NEC and MEVD
+    both detect timestamp dependence better than SCRAN does, by a wide margin in MEVD&rsquo;s case. That
+    is the same weakness the per-class table shows, arriving from a second direction, and it is the first
+    thing I would go after in a second pass.
+  </p>
+</section>
+
+<style>
+  .baselines {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .baselines__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .card {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  .card:hover {
+    border-color: var(--border-strong);
+  }
+
+  .card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card__model {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .card__citation {
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+  }
+
+  .card__approach {
+    font-size: var(--fs-xs);
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .card__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .card__table thead th {
+    padding-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .card__table tbody tr {
+    border-top: 1px solid var(--border);
+  }
+
+  .card__table tbody th {
+    padding-block: var(--space-3);
+    padding-right: var(--space-3);
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .num {
+    padding-left: var(--space-3);
+    text-align: right;
+    font-size: var(--fs-micro);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .num--strong {
+    color: var(--text);
+  }
+
+  .card__table tbody tr[data-sign='up'] .card__delta {
+    color: var(--success);
+  }
+
+  .card__table tbody tr[data-sign='down'] .card__delta {
+    color: var(--danger);
+  }
+
+  /* A hairline in the row's own colour, so wins and losses are separable
+     without relying on the green/red pair alone. */
+  .card__table tbody tr[data-sign='down'] th {
+    box-shadow: inset 2px 0 0 -1px var(--danger);
+    padding-left: var(--space-3);
+  }
+
+  .card__table tbody tr[data-sign='up'] th {
+    box-shadow: inset 2px 0 0 -1px hsl(var(--atmosphere) / 60%);
+    padding-left: var(--space-3);
+  }
+
+  .baselines__note {
+    font-size: var(--fs-xs);
+    line-height: 1.8;
+    color: var(--text-muted);
+    max-width: 46rem;
+  }
+
+  @media (max-width: 61.99rem) {
+    .baselines__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

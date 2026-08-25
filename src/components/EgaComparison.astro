@@ -1,0 +1,349 @@
+---
+import { ega } from '../lib/research';
+
+/**
+ * SCRAN against the model that came before it on the same dataset.
+ *
+ * Paired F1 bars, sorted by the size of the gain. The macro row underneath is
+ * the honest part: F1 goes up by twelve points, and precision goes down by
+ * five. Both are in the paper and both belong here.
+ */
+
+const rows = [...ega.rows]
+  .map((row) => ({ ...row, delta: Math.round((row.scranF1 - row.egaF1) * 100) / 100 }))
+  .sort((a, b) => b.delta - a.delta);
+
+const fmt = (v: number) => v.toFixed(2);
+const signed = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v).toFixed(2)}`;
+
+const macroF1Delta = Math.round((ega.macro.scranF1 - ega.macro.egaF1) * 100) / 100;
+const macroPrecisionDelta =
+  Math.round((ega.macro.scranPrecision - ega.macro.egaPrecision) * 100) / 100;
+---
+
+<figure class="ega">
+  <figcaption class="ega__caption">
+    <span class="eyebrow">Table II</span>
+    <span class="ega__caption-text">
+      F1 against <strong>{ega.name}</strong> ({ega.citation}) — the prior model on this same
+      dataset. {ega.approach}
+    </span>
+  </figcaption>
+
+  <div class="ega__legend" aria-hidden="true">
+    <span class="key key--scran"><i></i>SCRAN</span>
+    <span class="key key--ega"><i></i>EGA profiling</span>
+  </div>
+
+  <div class="ega__scroll">
+    <table class="ega__table">
+      <caption class="visually-hidden">F1 score per class, SCRAN versus EGA profiling.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Vulnerability</th>
+          <th scope="col" class="ega__bar-head">F1</th>
+          <th scope="col" class="num">SCRAN</th>
+          <th scope="col" class="num">EGA</th>
+          <th scope="col" class="num">Δ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row, i) => (
+            <tr data-reveal style={`--reveal-delay:${Math.min(i * 30, 300)}ms`}>
+              <th scope="row" class="ega__name">
+                {row.name}
+              </th>
+              <td class="ega__bars">
+                <span class="bars" aria-hidden="true">
+                  <span class="bars__row">
+                    <span
+                      class="bars__fill bars__fill--scran"
+                      style={`--v:${row.scranF1 * 100}%`}
+                    />
+                  </span>
+                  <span class="bars__row">
+                    <span class="bars__fill bars__fill--ega" style={`--v:${row.egaF1 * 100}%`} />
+                  </span>
+                </span>
+              </td>
+              <td class="num mono num--strong">{fmt(row.scranF1)}</td>
+              <td class="num mono">{fmt(row.egaF1)}</td>
+              <td class="num mono num--delta" data-sign={row.delta >= 0 ? 'up' : 'down'}>
+                {signed(row.delta)}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ega__macro">
+    <div class="ega__macro-item">
+      <p class="eyebrow">Macro F1</p>
+      <p class="ega__macro-value mono">
+        {fmt(ega.macro.scranF1)}
+        <span>vs {fmt(ega.macro.egaF1)}</span>
+      </p>
+      <p class="ega__macro-delta mono" data-sign="up">{signed(macroF1Delta)}</p>
+    </div>
+
+    <div class="ega__macro-item">
+      <p class="eyebrow">Macro precision</p>
+      <p class="ega__macro-value mono">
+        {fmt(ega.macro.scranPrecision)}
+        <span>vs {fmt(ega.macro.egaPrecision)}</span>
+      </p>
+      <p class="ega__macro-delta mono" data-sign="down">{signed(macroPrecisionDelta)}</p>
+    </div>
+
+    <p class="ega__macro-note">
+      The trade is legible in one line. SCRAN finds far more of what is there, and is wrong more
+      often when it flags something. For a tool that hands an auditor a queue rather than a verdict,
+      that is the direction I would pick — but it is a choice, not a free win, and the
+      genetic-algorithm model is also the one that can still tell you <em>why</em>.
+    </p>
+  </div>
+</figure>
+
+<style>
+  .ega {
+    margin: 0;
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .ega__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ega__caption-text {
+    font-size: var(--fs-xs);
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 48rem;
+  }
+
+  .ega__caption-text strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .ega__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  .key i {
+    width: 16px;
+    height: 5px;
+    border-radius: 2.5px;
+  }
+
+  .key--scran i {
+    background: hsl(var(--atmosphere) / 88%);
+  }
+
+  .key--ega i {
+    background: rgb(255 255 255 / 24%);
+  }
+
+  /* --- Table ------------------------------------------------------ */
+  .ega__scroll {
+    overflow-x: auto;
+  }
+
+  .ega__table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .ega__table thead th {
+    padding-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .ega__bar-head {
+    width: 44%;
+    padding-inline: var(--space-5);
+  }
+
+  .ega__table tbody tr {
+    border-top: 1px solid var(--border);
+    transition: background-color var(--dur) var(--ease-out);
+  }
+
+  .ega__table tbody tr:hover {
+    background: hsl(var(--atmosphere) / 4%);
+  }
+
+  .ega__table td,
+  .ega__table tbody th {
+    padding-block: var(--space-4);
+    vertical-align: middle;
+  }
+
+  .ega__name {
+    padding-right: var(--space-5);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .ega__bars {
+    padding-inline: var(--space-5);
+  }
+
+  .bars {
+    display: grid;
+    gap: 3px;
+  }
+
+  .bars__row {
+    display: block;
+    height: 5px;
+    border-radius: 2.5px;
+    background: rgb(255 255 255 / 5%);
+    overflow: hidden;
+  }
+
+  .bars__fill {
+    display: block;
+    width: var(--v);
+    height: 100%;
+    border-radius: 2.5px;
+    transform-origin: left center;
+    transition: transform var(--dur-slow) var(--ease-out);
+    transition-delay: inherit;
+  }
+
+  .bars__fill--scran {
+    background: linear-gradient(
+      to right,
+      hsl(var(--atmosphere) / 55%),
+      hsl(var(--atmosphere) / 95%)
+    );
+  }
+
+  .bars__fill--ega {
+    background: rgb(255 255 255 / 24%);
+  }
+
+  .num {
+    padding-left: var(--space-5);
+    text-align: right;
+    color: var(--text-muted);
+    font-size: var(--fs-micro);
+    white-space: nowrap;
+  }
+
+  .num--strong {
+    color: var(--text);
+  }
+
+  .num--delta[data-sign='up'] {
+    color: var(--success);
+  }
+
+  .num--delta[data-sign='down'] {
+    color: var(--danger);
+  }
+
+  /* --- Macro summary ---------------------------------------------- */
+  .ega__macro {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto)) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-5) var(--space-8);
+    margin-top: var(--space-2);
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .ega__macro-item {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .ega__macro-value {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .ega__macro-value span {
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+  }
+
+  .ega__macro-delta {
+    font-size: var(--fs-micro);
+  }
+
+  .ega__macro-delta[data-sign='up'] {
+    color: var(--success);
+  }
+
+  .ega__macro-delta[data-sign='down'] {
+    color: var(--danger);
+  }
+
+  .ega__macro-note {
+    font-size: var(--fs-xs);
+    line-height: 1.75;
+    color: var(--text-muted);
+    max-width: 34rem;
+  }
+
+  .ega__macro-note em {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] .bars__fill {
+      transform: scaleX(0);
+    }
+
+    [data-reveal].is-revealed .bars__fill {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (max-width: 61.99rem) {
+    .ega__macro {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ega__macro-note {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

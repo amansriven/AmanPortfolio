@@ -153,6 +153,17 @@ const cards = [
     accent: hslToHex('28 68% 58%'),
     stack: ['Kubernetes', 'Envoy', 'Python', 'TypeScript', 'PyTorch', 'Databricks'],
   },
+  {
+    // Mirrors `paper` in src/lib/research.ts. There is no frontmatter to read
+    // for the research page, so keep these two in step by hand.
+    name: 'research',
+    eyebrow: 'Research Paper',
+    title: 'SCRAN',
+    tagline:
+      'A hybrid residual-attention ensemble for smart contract vulnerability detection, across 111,897 Solidity contracts.',
+    accent: hslToHex('264 44% 66%'),
+    stack: ['PyTorch', 'Multi-head attention', 'Focal loss', 'SMOTE', 'Ensemble'],
+  },
 ];
 
 for (const file of (await readdir(CONTENT)).filter((f) => f.endsWith('.mdx'))) {

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import WorkSection from '../components/WorkSection.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
+import ResearchSection from '../components/ResearchSection.astro';
 import AboutSection from '../components/AboutSection.astro';
 import ContactSection from '../components/ContactSection.astro';
 
@@ -15,6 +16,7 @@ const featured = projects.filter((project) => project.data.featured);
   <Hero projects={featured} />
   <WorkSection projects={featured} />
   <ExperienceSection />
+  <ResearchSection />
   <AboutSection />
   <ContactSection />
 </BaseLayout>

@@ -1,0 +1,199 @@
+---
+import SectionHead from './SectionHead.astro';
+import PaperCover from './PaperCover.astro';
+import { paper, headline } from '../lib/research';
+
+/**
+ * Homepage entry to the research page.
+ *
+ * Deliberately not shaped like a project feature — the paper is an artifact
+ * rather than a product, so it gets a sheet and a title block instead of a
+ * browser frame and a live link.
+ */
+---
+
+<section
+  class="section research"
+  id="research"
+  aria-labelledby="research-heading"
+  style={`--atmosphere: ${paper.accent}`}
+>
+  <div class="shell shell--wide">
+    <SectionHead index="03" title="Research" meta="Texas A&M · 2024 — 2025" id="research-heading" />
+
+    <div class="plate" data-reveal>
+      <div class="plate__cover">
+        <PaperCover />
+      </div>
+
+      <div class="plate__text">
+        <p class="eyebrow plate__eyebrow">Paper</p>
+
+        <h3 class="plate__title">
+          {paper.title}
+          <span class="plate__acronym mono">{paper.acronym}</span>
+        </h3>
+
+        <p class="plate__summary">
+          An ensemble residual-attention network that reads 240 static features off a Solidity
+          contract and answers eleven independent questions about it — is this re-entrant, does it
+          overflow, can a stranger call into it. Trained on 111,897 contracts where some
+          vulnerability classes appear in under one percent of samples, which is the entire reason
+          the architecture looks the way it does.
+        </p>
+
+        <ul class="plate__metrics">
+          {
+            headline.slice(0, 3).map((metric) => (
+              <li>
+                <span class="plate__metric-value mono">{metric.value}</span>
+                <span class="plate__metric-label">{metric.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a class="plate__cta" href="/research">
+          <span>Read the write-up</span>
+          <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
+            <path
+              d="M2 7h10M12 7l-4-4M12 7l-4 4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .plate {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20rem minmax(0, 1fr);
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    background:
+      radial-gradient(80% 120% at 12% 0%, hsl(var(--atmosphere) / 8%), transparent 62%),
+      var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition:
+      border-color var(--dur-slow) var(--ease-out),
+      background-color var(--dur-slow) var(--ease-out);
+  }
+
+  .plate:hover {
+    border-color: hsl(var(--atmosphere) / 34%);
+  }
+
+  /* The cover is its own link inside the plate; the plate link sits behind it,
+     so a click anywhere else still reaches the write-up. */
+  .plate__cover {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .plate__eyebrow {
+    color: hsl(var(--atmosphere) / 92%);
+  }
+
+  .plate__title {
+    margin-top: var(--space-3);
+    font-size: var(--fs-h3);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .plate__acronym {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.55rem;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.14em;
+    vertical-align: 0.22em;
+    color: hsl(var(--atmosphere) / 95%);
+    background: hsl(var(--atmosphere) / 12%);
+    border: 1px solid hsl(var(--atmosphere) / 32%);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  .plate__summary {
+    margin-top: var(--space-4);
+    max-width: 40rem;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .plate__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+
+  .plate__metrics li {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .plate__metric-value {
+    font-size: clamp(1.125rem, 1.9vw, 1.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .plate__metric-label {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+
+  /* Stretched link: the whole plate is clickable, but only one anchor exists
+     for the write-up, so the cover's own link can still sit on top of it. */
+  .plate__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    font-size: var(--fs-sm);
+    color: var(--text);
+  }
+
+  .plate__cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+  }
+
+  .plate__cta svg {
+    color: hsl(var(--atmosphere) / 95%);
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .plate:hover .plate__cta svg {
+    transform: translateX(5px);
+  }
+
+  @media (max-width: 61.99rem) {
+    .plate {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-7);
+    }
+
+    .plate__cover {
+      justify-content: flex-start;
+    }
+  }
+</style>

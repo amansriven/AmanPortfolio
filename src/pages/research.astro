@@ -1,0 +1,941 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHead from '../components/SectionHead.astro';
+import SpecList from '../components/SpecList.astro';
+import ModelDiagram from '../components/ModelDiagram.astro';
+import MetricSpans from '../components/MetricSpans.astro';
+import EgaComparison from '../components/EgaComparison.astro';
+import BaselineCards from '../components/BaselineCards.astro';
+import PaperCover from '../components/PaperCover.astro';
+import PaperShelf from '../components/PaperShelf.astro';
+import CiteBlock from '../components/CiteBlock.astro';
+import { paper, headline, dataset, training, ablation, classes } from '../lib/research';
+
+const facts = [
+  { label: 'Period', value: paper.period },
+  { label: 'Context', value: paper.venue },
+  { label: 'Dataset', value: 'BCCC-SCsVul-2024' },
+  { label: 'Recognition', value: paper.award },
+];
+
+/* Stated rather than asserted: the reader can check it in the table below. */
+const above88 = classes.filter((c) => c.f1 >= 0.88).length;
+---
+
+<BaseLayout
+  title={`${paper.acronym} — ${paper.subtitle}`}
+  description="SCRAN: an ensemble residual-attention network for multi-label smart contract vulnerability detection across 111,897 Solidity contracts. Undergraduate research at Texas A&M, with the paper and every per-class number on the page."
+  ogImage="/og/research.png"
+  type="article"
+>
+  <article class="paper" style={`--atmosphere: ${paper.accent}`}>
+    <div class="paper__glow" aria-hidden="true"></div>
+
+    <!-- ============ Masthead ============ -->
+    <header class="paper__masthead">
+      <div class="shell shell--wide">
+        <a class="paper__back" href="/#research">
+          <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
+            <path
+              d="M12 7H2M2 7l4-4M2 7l4 4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          <span>Back to the portfolio</span>
+        </a>
+
+        <div class="masthead">
+          <div class="masthead__text">
+            <p class="eyebrow paper__eyebrow">Research paper</p>
+
+            <h1 class="paper__title">
+              {paper.title}
+              <span class="paper__acronym mono">{paper.acronym}</span>
+            </h1>
+
+            <p class="paper__subtitle">{paper.subtitle}</p>
+
+            <ul class="authors">
+              {
+                paper.authors.map((author) => (
+                  <li class="author" data-self={author.self ? '' : undefined}>
+                    <p class="author__name">{author.name}</p>
+                    <p class="author__where">
+                      {author.department}, {author.institution}
+                    </p>
+                    <p class="author__contact mono">
+                      {author.location} · {author.email}
+                    </p>
+                  </li>
+                ))
+              }
+            </ul>
+
+            <div class="paper__actions">
+              <a class="action action--primary" href={paper.href} target="_blank" rel="noopener">
+                <span>Read the paper</span>
+                <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                  <path
+                    d="M3 9L9 3M9 3H4.5M9 3v4.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+              </a>
+              <a class="action" href={paper.href} download>
+                <span>Download PDF</span>
+                <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                  <path
+                    d="M6 2v6.5M6 8.5 3.5 6M6 8.5 8.5 6M2.5 10h7"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="masthead__cover" data-reveal>
+            <PaperCover />
+          </div>
+        </div>
+
+        <dl class="facts">
+          {
+            facts.map((fact) => (
+              <div class="facts__row">
+                <dt class="mono">{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </header>
+
+    <!-- ============ Headline numbers ============ -->
+    <div class="shell shell--wide">
+      <ul class="headline" data-reveal>
+        {
+          headline.map((metric) => (
+            <li>
+              <span class="headline__value mono">{metric.value}</span>
+              <span class="headline__label">{metric.label}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- ============ 01 Abstract ============ -->
+    <section class="section paper__section" aria-labelledby="abstract-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="01"
+          title="Abstract"
+          meta={paper.indexTerms.slice(0, 3).join(' · ')}
+          id="abstract-heading"
+        />
+
+        <div class="abstract">
+          <p class="abstract__text" data-reveal>{paper.abstract}</p>
+
+          <div class="abstract__side" data-reveal>
+            <p class="eyebrow">Index terms</p>
+            <ul class="terms mono">
+              {paper.indexTerms.map((term) => <li>{term}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <div class="paper__block" data-reveal>
+          <SpecList title="The dataset" items={[...dataset]} />
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 Architecture ============ -->
+    <section class="section paper__section" aria-labelledby="architecture-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="02"
+          title="Architecture"
+          meta="Residual · Attention · Class-specific heads"
+          id="architecture-heading"
+        />
+
+        <p class="paper__lead" data-reveal>
+          A contract arrives as 240 numbers. The question is which of eleven failure modes those
+          numbers imply — and a contract can be guilty of several at once, so the eleven answers
+          have to be independent rather than a single choice among classes.
+        </p>
+
+        <div class="paper__block" data-reveal>
+          <ModelDiagram />
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 Results ============ -->
+    <section class="section paper__section" aria-labelledby="results-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="03"
+          title="Results"
+          meta="Held-out test split · 20% of the corpus"
+          id="results-heading"
+        />
+
+        <div class="paper__block" data-reveal>
+          <MetricSpans />
+        </div>
+
+        <div class="paper__prose" data-reveal>
+          <p>
+            The shape of that chart is the finding. Recall never drops below 0.89 — the model very
+            rarely misses a vulnerability that is present. Precision runs from 0.98 down to 0.54,
+            and every long span in the plot is a class the model over-reports. Those two facts are
+            the same fact: thresholds were selected to hold recall above 0.5 on the imbalanced
+            classes, and a model tuned that way buys its coverage with false positives.
+          </p>
+          <p>
+            Timestamp dependence is the worst of it at 0.5434 precision — close to one wrong flag
+            for every right one. Transaction order dependence is not much better. Both are
+            vulnerabilities whose signature is contextual rather than structural, and 240 static
+            features are a thin description of context.
+            {' '}
+            {above88} of the twelve classes clear an F1 of 0.88; the macro average of 0.8703 sits just
+            under it, pulled down by exactly those two.
+          </p>
+          <p>
+            The AUC column is worth reading separately. It stays above 0.99 everywhere, including
+            for the two weak classes. The ranking is good even where the decision is not, which says
+            the failure is in where the threshold lands rather than in what the network learned —
+            and that is a much more tractable problem than the alternative.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 Comparison ============ -->
+    <section class="section paper__section" aria-labelledby="comparison-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="04"
+          title="Against prior work"
+          meta="One same-dataset baseline · Four from the literature"
+          id="comparison-heading"
+        />
+
+        <div class="paper__block" data-reveal>
+          <EgaComparison />
+        </div>
+
+        <div class="paper__block paper__block--tight" data-reveal>
+          <BaselineCards />
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 Method ============ -->
+    <section class="section paper__section" aria-labelledby="method-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="05"
+          title="Method"
+          meta="Imbalance · Objective · Aggregation"
+          id="method-heading"
+        />
+
+        <p class="paper__lead" data-reveal>
+          Almost everything below exists to survive one property of the data: some vulnerability
+          classes appear in well under one percent of contracts. Train naively against that and the
+          network learns to answer <em>no</em> to everything and still score well.
+        </p>
+
+        <div class="paper__block" data-reveal>
+          <SpecList title="Training" items={[...training]} />
+        </div>
+
+        <div class="ablation" data-reveal>
+          <p class="eyebrow ablation__title">Ablation</p>
+          <ul class="ablation__list">
+            {
+              ablation.map((row) => (
+                <li class="ablation__row" data-shipped={row.shipped ? '' : undefined}>
+                  <div class="ablation__head">
+                    <p class="ablation__name">
+                      {row.name}
+                      {row.shipped && <span class="ablation__tag mono">shipped</span>}
+                    </p>
+                    <p class="ablation__detail">{row.detail}</p>
+                  </div>
+
+                  {row.f1 !== null && row.auc !== null ? (
+                    <div class="ablation__scores">
+                      <span class="ablation__score">
+                        <span class="ablation__score-value mono">{row.f1.toFixed(4)}</span>
+                        <span class="ablation__score-label mono">F1</span>
+                      </span>
+                      <span class="ablation__score">
+                        <span class="ablation__score-value mono">{row.auc.toFixed(4)}</span>
+                        <span class="ablation__score-label mono">AUC</span>
+                      </span>
+                    </div>
+                  ) : (
+                    <div class="ablation__scores">
+                      <span class="ablation__score">
+                        <span class="ablation__score-value mono">−30%</span>
+                        <span class="ablation__score-label mono">minority recall</span>
+                      </span>
+                    </div>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+
+          <p class="ablation__note">
+            The second row is the uncomfortable one: a single model scores a higher macro F1 than
+            the ensemble it was averaged into. What the ensemble buys is AUC and stability across
+            the rare classes — better ranking everywhere rather than a better score on the metric
+            being quoted. It is a defensible trade and it is still a trade, so it is printed rather
+            than omitted.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 06 Limits ============ -->
+    <section class="section paper__section" aria-labelledby="limits-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="06"
+          title="Limits"
+          meta="And what I would do next"
+          id="limits-heading"
+        />
+
+        <div class="paper__prose" data-reveal>
+          <p>
+            The model never sees a contract. It sees 240 numbers extracted from one, which is why
+            the vulnerabilities it struggles with are precisely the ones defined by execution
+            context rather than by structure. Dynamic traces or a graph encoder over the
+            control-flow graph would give it the thing it is currently missing, and that is the
+            first change I would make.
+          </p>
+          <p>
+            Every number on this page comes from one corpus. BCCC-SCsVul-2024 is large and it is
+            labelled, but a model evaluated on a single dataset has demonstrated competence at that
+            dataset. The comparisons in the previous section are drawn across different corpora and
+            are indicative at best — the honest version of that section is that SCRAN is ahead on
+            most of the rows shown, behind on timestamp dependence, and untested against any of
+            these models on shared ground.
+          </p>
+          <p>
+            The last limit is one the previous model handled better. The genetic-algorithm approach
+            could point at the source attributes behind a flag. SCRAN cannot; the class-specific
+            attention heads say which feature dimensions mattered, which is not the same as a reason
+            an auditor can act on. Buying accuracy with explainability is a reasonable trade for a
+            queue-ranking tool and a bad one for a system that is supposed to justify itself.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 07 The paper ============ -->
+    <section class="section paper__section" aria-labelledby="paper-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="07"
+          title="The paper"
+          meta={`${paper.pages} pages · PDF`}
+          id="paper-heading"
+        />
+
+        <div data-reveal>
+          <PaperShelf />
+        </div>
+
+        <div class="paper__closing" data-reveal>
+          <CiteBlock />
+
+          <div class="paper__thanks">
+            <p class="eyebrow">Acknowledgements</p>
+            <p>
+              Written with Dr. Irfan Khan, who advised the work throughout MARE 491, and with help
+              from graduate students Zahid Hussain and Shorya Agarwal.
+            </p>
+            <a class="action action--primary" href={paper.href} target="_blank" rel="noopener">
+              <span>Read the paper</span>
+              <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                <path
+                  d="M3 9L9 3M9 3H4.5M9 3v4.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Onward ============ -->
+    <nav class="paper__next" aria-label="Continue">
+      <a href="/#work">
+        <div class="shell shell--wide paper__next-inner">
+          <div>
+            <p class="eyebrow">Back to</p>
+            <p class="paper__next-title">Selected work</p>
+            <p class="paper__next-tagline">
+              Four case studies — the systems this research sits next to.
+            </p>
+          </div>
+          <svg viewBox="0 0 14 14" width="20" height="20" aria-hidden="true">
+            <path
+              d="M2 7h10M12 7l-4-4M12 7l-4 4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </div>
+      </a>
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .paper {
+    position: relative;
+  }
+
+  .paper__glow {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 80vh;
+    pointer-events: none;
+    background: radial-gradient(
+      58% 62% at 50% 0%,
+      hsl(var(--atmosphere) / 11%) 0%,
+      transparent 72%
+    );
+  }
+
+  /* --- Masthead --------------------------------------------------- */
+  .paper__masthead {
+    padding-top: calc(var(--header-height) + clamp(3rem, 8vw, 6rem));
+    padding-bottom: var(--space-9);
+  }
+
+  .paper__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .paper__back:hover {
+    color: var(--text);
+  }
+
+  .paper__back svg {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .paper__back:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .masthead {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  .paper__eyebrow {
+    color: hsl(var(--atmosphere) / 92%);
+  }
+
+  .paper__title {
+    margin-top: var(--space-3);
+    font-size: var(--fs-h1);
+    font-weight: 500;
+    line-height: var(--lh-snug);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  .paper__acronym {
+    display: inline-block;
+    transform: translateY(-0.35em);
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.6rem;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.14em;
+    vertical-align: baseline;
+    color: hsl(var(--atmosphere) / 95%);
+    background: hsl(var(--atmosphere) / 12%);
+    border: 1px solid hsl(var(--atmosphere) / 32%);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  .paper__subtitle {
+    margin-top: var(--space-4);
+    max-width: 36rem;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--text-secondary);
+  }
+
+  /* --- Authors ---------------------------------------------------- */
+  .authors {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+  }
+
+  .author {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border);
+  }
+
+  .author[data-self] {
+    border-left-color: hsl(var(--atmosphere) / 70%);
+  }
+
+  .author__name {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .author[data-self] .author__name {
+    color: hsl(var(--atmosphere) / 96%);
+  }
+
+  .author__where {
+    margin-top: 1px;
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+  }
+
+  .author__contact {
+    margin-top: 2px;
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+  }
+
+  /* --- Actions ---------------------------------------------------- */
+  .paper__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-7);
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.55rem 1.1rem;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    transition:
+      color var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .action:hover {
+    color: var(--text);
+    border-color: hsl(var(--atmosphere) / 55%);
+  }
+
+  .action--primary {
+    color: var(--text);
+    background: hsl(var(--atmosphere) / 14%);
+    border-color: hsl(var(--atmosphere) / 42%);
+  }
+
+  .action--primary:hover {
+    background: hsl(var(--atmosphere) / 22%);
+    border-color: hsl(var(--atmosphere) / 70%);
+  }
+
+  .action svg {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .action--primary:hover svg {
+    transform: translate(1px, -1px);
+  }
+
+  .masthead__cover {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* --- Facts rail -------------------------------------------------- */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin-top: var(--space-9);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+
+  .facts__row {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .facts__row dt {
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .facts__row dd {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* --- Headline numbers -------------------------------------------- */
+  .headline {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+    padding: var(--space-6) 0;
+    border-block: 1px solid var(--border);
+  }
+
+  .headline li {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .headline__value {
+    font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .headline__label {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+
+  /* --- Section scaffolding ------------------------------------------ */
+  .paper__section {
+    padding-block: clamp(4rem, 9vw, 7.5rem);
+  }
+
+  .paper__lead {
+    max-width: 44rem;
+    margin-bottom: var(--space-8);
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    letter-spacing: var(--tracking-tight);
+    color: var(--text);
+  }
+
+  .paper__lead em {
+    font-style: italic;
+    color: hsl(var(--atmosphere) / 92%);
+  }
+
+  .paper__block {
+    margin-top: var(--space-8);
+  }
+
+  .paper__block--tight {
+    margin-top: var(--space-9);
+  }
+
+  .paper__prose {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 42rem;
+    margin-top: var(--space-9);
+    color: var(--text-secondary);
+  }
+
+  /* --- Abstract ------------------------------------------------------ */
+  .abstract {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: var(--space-9);
+    align-items: start;
+  }
+
+  .abstract__text {
+    max-width: 42rem;
+    font-size: var(--fs-lead);
+    line-height: 1.62;
+    letter-spacing: var(--tracking-normal);
+    color: var(--text-secondary);
+  }
+
+  /* A single accent initial. The paper has a run-in "Abstract—"; this is the
+     web equivalent, and it gives the block a place to start. */
+  .abstract__text::first-letter {
+    float: left;
+    margin: 0.06em 0.12em 0 0;
+    font-size: 3.1em;
+    line-height: 0.86;
+    font-weight: 500;
+    color: hsl(var(--atmosphere) / 95%);
+  }
+
+  .abstract__side {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+  }
+
+  .terms {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .terms li {
+    padding-block: var(--space-2);
+    font-size: var(--fs-micro);
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  /* --- Ablation ------------------------------------------------------- */
+  .ablation {
+    margin-top: var(--space-10);
+  }
+
+  .ablation__title {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ablation__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ablation__row[data-shipped] {
+    background: linear-gradient(90deg, hsl(var(--atmosphere) / 6%), transparent 60%);
+    box-shadow: inset 2px 0 0 -1px hsl(var(--atmosphere) / 70%);
+    padding-left: var(--space-4);
+  }
+
+  .ablation__name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .ablation__tag {
+    padding: 0.1rem 0.45rem;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    color: hsl(var(--atmosphere) / 95%);
+    background: hsl(var(--atmosphere) / 12%);
+    border: 1px solid hsl(var(--atmosphere) / 30%);
+    border-radius: var(--radius-full);
+  }
+
+  .ablation__detail {
+    margin-top: 2px;
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    max-width: 40rem;
+  }
+
+  .ablation__scores {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .ablation__score {
+    display: grid;
+    gap: 1px;
+    text-align: right;
+  }
+
+  .ablation__score-value {
+    font-size: var(--fs-sm);
+    color: var(--text);
+  }
+
+  .ablation__score-label {
+    font-size: var(--fs-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .ablation__note {
+    margin-top: var(--space-6);
+    max-width: 42rem;
+    font-size: var(--fs-xs);
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  /* --- Closing --------------------------------------------------------- */
+  .paper__closing {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: start;
+    margin-top: var(--space-9);
+  }
+
+  .paper__thanks {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding-top: var(--space-2);
+  }
+
+  .paper__thanks p:not(.eyebrow) {
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 30rem;
+  }
+
+  /* --- Onward ---------------------------------------------------------- */
+  .paper__next {
+    border-top: 1px solid var(--border);
+  }
+
+  .paper__next a {
+    display: block;
+    padding-block: var(--space-9);
+    transition: background-color var(--dur-slow) var(--ease-out);
+  }
+
+  .paper__next a:hover {
+    background: linear-gradient(hsl(var(--atmosphere) / 7%), transparent);
+  }
+
+  .paper__next-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+
+  .paper__next-title {
+    margin-top: var(--space-3);
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .paper__next-tagline {
+    margin-top: var(--space-2);
+    max-width: 34rem;
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .paper__next svg {
+    flex-shrink: 0;
+    margin-bottom: var(--space-2);
+    color: var(--text-muted);
+    transition:
+      transform var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
+  }
+
+  .paper__next a:hover svg {
+    transform: translateX(6px);
+    color: hsl(var(--atmosphere) / 95%);
+  }
+
+  /* --- Responsive ------------------------------------------------------- */
+  @media (max-width: 61.99rem) {
+    .masthead {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+
+    .masthead__cover {
+      order: -1;
+      justify-content: flex-start;
+    }
+
+    .abstract {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-7);
+    }
+
+    .facts,
+    .headline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5) var(--space-4);
+    }
+
+    .paper__closing {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ablation__scores {
+      gap: var(--space-5);
+    }
+  }
+
+  @media (max-width: 35.99rem) {
+    .paper__acronym {
+      transform: none;
+      margin-left: 0;
+      margin-top: var(--space-3);
+      display: block;
+      width: fit-content;
+    }
+
+    .ablation__row {
+      align-items: flex-start;
+    }
+
+    .ablation__scores {
+      justify-content: flex-start;
+    }
+
+    .ablation__score {
+      text-align: left;
+    }
+  }
+</style>

@@ -1,0 +1,472 @@
+---
+import { stages } from '../lib/research';
+
+/**
+ * The SCRAN forward pass.
+ *
+ * Five stages across, each carrying its own small glyph: a feature vector, a
+ * residual skip, an attention matrix, the eleven-way class fan, and the
+ * thresholded output. The glyphs are the diagram — the cards are captions for
+ * them. Explanatory notes sit underneath so the band itself stays a picture.
+ *
+ * Everything is inline SVG on `currentColor`, so the whole thing costs one
+ * request of zero bytes and inherits the page's atmosphere hue.
+ */
+
+/** A fixed pseudo-random sequence. Stable across builds, unlike Math.random. */
+function seq(n: number, seed: number): number[] {
+  const out: number[] = [];
+  let s = seed;
+  for (let i = 0; i < n; i++) {
+    s = (s * 1103515245 + 12345) % 2147483648;
+    out.push(s / 2147483648);
+  }
+  return out;
+}
+
+/* 40 ticks standing in for the 240-dimensional input vector. */
+const features = seq(40, 7).map((v) => 0.25 + v * 0.75);
+
+/* An 8 x 8 attention map. Rows are softmax-normalised so the glyph is not
+   merely decorative — it is the shape the operator actually produces. */
+const attention = Array.from({ length: 8 }, (_, r) => {
+  const raw = seq(8, 31 + r * 17).map((v) => Math.exp(v * 2.6));
+  const total = raw.reduce((a, b) => a + b, 0);
+  return raw.map((v) => v / total);
+});
+const attentionPeak = Math.max(...attention.flat());
+
+/* Eleven output probabilities, with the threshold rule visible. */
+const outputs = seq(11, 91).map((v) => 0.08 + v * 0.9);
+---
+
+<figure class="arch">
+  <figcaption class="arch__caption">
+    <span class="eyebrow">Figure 1</span>
+    <span class="arch__caption-text">
+      SCRAN forward pass — 240 static features in, 11 independent vulnerability probabilities out.
+    </span>
+  </figcaption>
+
+  <ol class="arch__band">
+    {
+      stages.map((stage, i) => (
+        <li class="stage" data-glyph={i}>
+          <div class="stage__glyph" aria-hidden="true">
+            {i === 0 && (
+              <svg viewBox="0 0 200 56" preserveAspectRatio="none" class="glyph">
+                {features.map((h, j) => (
+                  <rect
+                    x={j * 5 + 1}
+                    y={(1 - h) * 46 + 5}
+                    width="2.6"
+                    height={h * 46}
+                    rx="1"
+                    fill="currentColor"
+                    opacity={0.28 + h * 0.5}
+                  />
+                ))}
+              </svg>
+            )}
+
+            {i === 1 && (
+              <svg viewBox="0 0 200 56" class="glyph">
+                <path
+                  d="M42 34 C 62 4, 138 4, 158 34"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-dasharray="3 3"
+                  opacity="0.75"
+                />
+                <rect
+                  x="52"
+                  y="26"
+                  width="40"
+                  height="16"
+                  rx="4"
+                  fill="currentColor"
+                  opacity="0.16"
+                />
+                <rect
+                  x="52"
+                  y="26"
+                  width="40"
+                  height="16"
+                  rx="4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  opacity="0.5"
+                />
+                <rect
+                  x="100"
+                  y="26"
+                  width="40"
+                  height="16"
+                  rx="4"
+                  fill="currentColor"
+                  opacity="0.16"
+                />
+                <rect
+                  x="100"
+                  y="26"
+                  width="40"
+                  height="16"
+                  rx="4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  opacity="0.5"
+                />
+                <path
+                  d="M20 34h28M144 34h10"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  opacity="0.45"
+                />
+                <circle
+                  cx="160"
+                  cy="34"
+                  r="7"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                />
+                <path d="M160 30v8M156 34h8" stroke="currentColor" stroke-width="1.2" />
+                <path d="M171 34h9" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+              </svg>
+            )}
+
+            {i === 2 && (
+              <svg viewBox="0 0 200 56" class="glyph">
+                <g transform="translate(78 4)">
+                  {attention.map((row, r) =>
+                    row.map((v, c) => (
+                      <rect
+                        x={c * 6}
+                        y={r * 6}
+                        width="5"
+                        height="5"
+                        rx="0.8"
+                        fill="currentColor"
+                        opacity={0.1 + (v / attentionPeak) * 0.85}
+                      />
+                    )),
+                  )}
+                </g>
+                <text x="20" y="26" class="glyph__tag">
+                  Q
+                </text>
+                <text x="20" y="40" class="glyph__tag">
+                  K
+                </text>
+                <text x="44" y="33" class="glyph__tag">
+                  V
+                </text>
+                <path d="M58 30h14" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+                <path d="M132 30h12" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+                <path d="M150 22v16" stroke="currentColor" stroke-width="1.2" opacity="0.35" />
+              </svg>
+            )}
+
+            {i === 3 && (
+              <svg viewBox="0 0 200 56" class="glyph">
+                {Array.from({ length: 11 }, (_, j) => {
+                  const y = 6 + j * 4.4;
+                  return (
+                    <>
+                      <path
+                        d={`M40 28 C 92 28, 108 ${y}, 150 ${y}`}
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="0.9"
+                        opacity={j === 5 ? 0.85 : 0.32}
+                      />
+                      <circle
+                        cx="152"
+                        cy={y}
+                        r="1.7"
+                        fill="currentColor"
+                        opacity={j === 5 ? 0.95 : 0.5}
+                      />
+                    </>
+                  );
+                })}
+                <circle cx="38" cy="28" r="4.5" fill="currentColor" opacity="0.9" />
+                <path d="M18 28h15" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+              </svg>
+            )}
+
+            {i === 4 && (
+              <svg viewBox="0 0 200 56" class="glyph">
+                <line
+                  x1="128"
+                  y1="3"
+                  x2="128"
+                  y2="53"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  stroke-dasharray="2 3"
+                  opacity="0.55"
+                />
+                {outputs.map((p, j) => {
+                  const y = 4 + j * 4.4;
+                  const w = p * 150;
+                  return (
+                    <rect
+                      x="22"
+                      y={y}
+                      width={w}
+                      height="2.6"
+                      rx="1.3"
+                      fill="currentColor"
+                      opacity={22 + w > 128 ? 0.92 : 0.3}
+                    />
+                  );
+                })}
+                <text x="134" y="52" class="glyph__tag">
+                  τⱼ
+                </text>
+              </svg>
+            )}
+          </div>
+
+          <p class="stage__index mono">{String(i + 1).padStart(2, '0')}</p>
+          <h3 class="stage__label">{stage.label}</h3>
+          <p class="stage__formula mono">{stage.formula}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="arch__ensemble">
+    <p class="arch__ensemble-label eyebrow">Ensemble</p>
+    <ul class="arch__gammas mono">
+      <li>γ = 2.0</li>
+      <li>γ = 2.5</li>
+      <li>γ = 3.0</li>
+    </ul>
+    <p class="arch__ensemble-note">
+      Three instances of the network above, each trained under a different focal focusing parameter
+      and learning rate. Their logits are combined with per-class weights taken from validation F1,
+      so a model that is good at re-entrancy and bad at timestamps is trusted accordingly.
+    </p>
+  </div>
+
+  <ol class="arch__notes">
+    {
+      stages.map((stage, i) => (
+        <li>
+          <span class="arch__notes-index mono">{String(i + 1).padStart(2, '0')}</span>
+          <span>
+            <strong>{stage.label}.</strong> {stage.note}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+</figure>
+
+<style>
+  .arch {
+    margin: 0;
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .arch__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .arch__caption-text {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    max-width: 44rem;
+  }
+
+  /* --- The band ------------------------------------------------
+     Five stages across on wide screens, stacked below. The arrow
+     between cards lives in the grid gap and simply rotates. */
+  .arch__band {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .stage {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4);
+    background: linear-gradient(hsl(var(--atmosphere) / 5%), transparent 70%), var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition:
+      border-color var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .stage:hover {
+    border-color: hsl(var(--atmosphere) / 40%);
+    transform: translateY(-2px);
+  }
+
+  /* Connector, drawn into the gap to the right of every card but the last. */
+  .stage:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: var(--space-6);
+    height: 1px;
+    background: linear-gradient(to right, var(--border-strong), hsl(var(--atmosphere) / 45%));
+  }
+
+  .stage:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(100% + var(--space-6) - 5px);
+    width: 5px;
+    height: 5px;
+    border-top: 1px solid hsl(var(--atmosphere) / 70%);
+    border-right: 1px solid hsl(var(--atmosphere) / 70%);
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .stage__glyph {
+    color: hsl(var(--atmosphere) / 88%);
+    margin-bottom: var(--space-2);
+  }
+
+  .stage__glyph :global(.glyph) {
+    width: 100%;
+    height: 56px;
+    overflow: visible;
+  }
+
+  .stage__glyph :global(.glyph__tag) {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: currentColor;
+    opacity: 0.6;
+  }
+
+  .stage__index {
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+  }
+
+  .stage__label {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .stage__formula {
+    font-size: var(--fs-micro);
+    color: hsl(var(--atmosphere) / 92%);
+    word-break: break-word;
+  }
+
+  /* --- Ensemble rail -------------------------------------------- */
+  .arch__ensemble {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-4) var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .arch__ensemble-label {
+    color: hsl(var(--atmosphere) / 90%);
+  }
+
+  .arch__gammas {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .arch__gammas li {
+    padding: 0.2rem 0.55rem;
+    font-size: var(--fs-micro);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  .arch__ensemble-note {
+    font-size: var(--fs-xs);
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  /* --- Notes ----------------------------------------------------- */
+  .arch__notes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-8);
+  }
+
+  .arch__notes li {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: var(--space-2);
+    font-size: var(--fs-xs);
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .arch__notes-index {
+    font-size: var(--fs-micro);
+    color: hsl(var(--atmosphere) / 75%);
+    line-height: 1.9;
+  }
+
+  .arch__notes strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  @media (max-width: 61.99rem) {
+    .arch__band {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-7);
+    }
+
+    .stage:not(:last-child)::after {
+      top: 100%;
+      left: 50%;
+      width: 1px;
+      height: var(--space-7);
+      background: linear-gradient(to bottom, var(--border-strong), hsl(var(--atmosphere) / 45%));
+    }
+
+    .stage:not(:last-child)::before {
+      top: calc(100% + var(--space-7) - 5px);
+      left: 50%;
+      transform: translateX(-50%) rotate(135deg);
+    }
+
+    .arch__ensemble {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+
+    .arch__notes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
