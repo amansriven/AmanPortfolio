@@ -93,10 +93,8 @@ frontmatter or adding a project.
 **Portrait** lives at `src/assets/portrait/aman.jpg` and appears in the hero
 identity row and the About section. Replacing that file updates both.
 
-## Résumé
-
-`public/Aman_Sriven_Resume.pdf`. Replacing that file updates every résumé link
-on the site. The path is set once in `src/lib/site.ts`.
+The résumé is deliberately **not** published here. `public/*Resume*.pdf` is
+git-ignored; the nav's emphasised action is Contact instead.
 
 ## Environment variables
 

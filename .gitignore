@@ -17,3 +17,7 @@ node_modules/
 # logs
 npm-debug.log*
 worker-configuration.d.ts
+
+# résumé — kept off the site and out of the repo
+public/*Resume*.pdf
+public/*resume*.pdf

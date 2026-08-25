@@ -4,7 +4,7 @@
     href: string;
   }
 
-  let { items, resume }: { items: NavItem[]; resume: string } = $props();
+  let { items, cta }: { items: NavItem[]; cta: NavItem } = $props();
 
   let open = $state(false);
   let panel = $state<HTMLElement | null>(null);
@@ -61,9 +61,7 @@
         </li>
       {/each}
       <li style="--i: {items.length}">
-        <a href={resume} target="_blank" rel="noopener" onclick={close}>
-          Resume <span aria-hidden="true">↗</span>
-        </a>
+        <a class="sheet__cta" href={cta.href} onclick={close}>{cta.label}</a>
       </li>
     </ul>
   </nav>
@@ -136,10 +134,8 @@
     transform: none;
   }
 
-  .sheet a span {
-    font-size: 0.5em;
-    color: var(--text-muted);
-    vertical-align: super;
+  .sheet__cta {
+    color: var(--accent);
   }
 
   @media (max-width: 47.99rem) {

@@ -7,8 +7,6 @@ export const site = {
   description:
     'Software engineer building infrastructure and products people actually use. Computer science at Texas A&M. Previously platform and AI engineering at Humana and JAGGAER.',
   email: 'sriven.aman@gmail.com',
-  /* Swap to contact@amansriven.com once Resend domain verification is live. */
-  resume: '/Aman_Sriven_Resume.pdf',
   location: 'College Station, TX',
   school: 'Texas A&M University',
 } as const;
@@ -24,5 +22,7 @@ export const nav = [
   { label: 'Experience', href: '/#experience' },
   { label: 'Research', href: '/research' },
   { label: 'About', href: '/#about' },
-  { label: 'Contact', href: '/#contact' },
 ] as const;
+
+/** The emphasised nav action, rendered as a button rather than a link. */
+export const navCta = { label: 'Contact', href: '/#contact' } as const;
