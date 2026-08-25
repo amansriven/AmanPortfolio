@@ -21,6 +21,9 @@ const cards = baselines.map((card) => ({
 const fmt = (v: number) => v.toFixed(4);
 const signed = (v: number) => `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(3)}`;
 const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
+/* Spelled out — the sentence starts on it. */
+const lossWords = ['No rows go', 'One row goes', 'Two rows go', 'Three rows go', 'Four rows go'];
+const lossPhrase = lossWords[losses] ?? `${losses} rows go`;
 ---
 
 <section class="baselines">
@@ -29,7 +32,10 @@ const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
       cards.map((card) => (
         <article class="card" data-reveal>
           <header class="card__head">
-            <h3 class="card__model mono">{card.model}</h3>
+            <div class="card__id">
+              <h3 class="card__model mono">{card.model}</h3>
+              <span class="card__metric mono">{card.metric}</span>
+            </div>
             <p class="card__citation mono">{card.citation}</p>
           </header>
 
@@ -49,7 +55,7 @@ const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
                   {card.model}
                 </th>
                 <th scope="col" class="num">
-                  Δ {card.metric}
+                  Δ
                 </th>
               </tr>
             </thead>
@@ -71,10 +77,9 @@ const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
 
   <p class="baselines__note">
     Different datasets, so read these as bearings rather than as a scoreboard.
-    {losses === 1 ? 'One row goes the other way' : `${losses} rows go the other way`} — MH-NEC and MEVD
-    both detect timestamp dependence better than SCRAN does, by a wide margin in MEVD&rsquo;s case. That
-    is the same weakness the per-class table shows, arriving from a second direction, and it is the first
-    thing I would go after in a second pass.
+    {lossPhrase} the other way — MH-NEC and MEVD both detect timestamp dependence better than SCRAN does,
+    by a wide margin in MEVD&rsquo;s case. That is the same weakness the per-class table shows, arriving
+    from a second direction, and it is the first thing I would go after in a second pass.
   </p>
 </section>
 
@@ -115,11 +120,26 @@ const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
     border-bottom: 1px solid var(--border);
   }
 
+  .card__id {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
   .card__model {
     font-size: var(--fs-sm);
     font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--text);
+  }
+
+  .card__metric {
+    padding: 0.1rem 0.45rem;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
   }
 
   .card__citation {
@@ -204,6 +224,16 @@ const losses = cards.flatMap((c) => c.rows.filter((r) => r.delta < 0)).length;
   @media (max-width: 61.99rem) {
     .baselines__grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .card {
+      padding: var(--space-5);
+    }
+
+    .card__table thead th {
+      letter-spacing: 0.04em;
     }
   }
 </style>

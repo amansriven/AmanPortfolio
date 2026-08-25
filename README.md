@@ -31,10 +31,11 @@ src/
   content/
     projects/     One .mdx file per case study. Filename becomes the URL.
   layouts/        BaseLayout — document shell, SEO, structured data.
-  lib/            site.ts (identity/nav), experience.ts, small helpers.
+  lib/            site.ts (identity/nav), experience.ts, research.ts, small helpers.
   pages/
     index.astro           Homepage.
     projects/[...slug]    Case study template.
+    research.astro        The SCRAN paper write-up.
     api/contact.ts        The only server-rendered route.
   styles/
     tokens.css      Every colour, size, space, and timing value.
@@ -64,6 +65,37 @@ Inside the body you can import `Figure`, `Pipeline`, `TreeDiagram`, `Callout`,
 and `SpecList` from `../../components/`. Figures and diagrams break out to the
 full content width automatically; prose stays in the narrow column.
 
+## The research page
+
+`/research` is a single hand-built page rather than a content collection —
+there is one paper. Everything it displays comes from `src/lib/research.ts`,
+which is a straight transcription of the PDF: per-class metrics, the two
+comparison tables, the ablation, and the training setup. **Do not round, restate,
+or omit a weak result there.** The paper is one click away on the same page, so
+every number is checkable, and the layout deliberately marks the rows where the
+model loses.
+
+The page renders the PDF itself in two places — a cover in the masthead and a
+seven-page strip at the bottom. Those images are build inputs, not screenshots:
+
+```
+public/research/<file>.pdf          the paper, linked and downloadable
+src/assets/media/research/page-N.png  one render per page, Astro-optimised
+```
+
+Regenerating the page renders after replacing the PDF (macOS only — it drives
+PDFKit through the Swift interpreter in the Xcode Command Line Tools rather than
+adding a rasteriser to `package.json`):
+
+```bash
+node scripts/render-paper-pages.mjs
+```
+
+Custom components on this page: `ModelDiagram` (the architecture band and its
+five glyphs), `MetricSpans` (the per-class precision-to-recall chart),
+`EgaComparison`, `BaselineCards`, `PaperCover`, `PaperShelf`, and `CiteBlock`.
+All of them read `research.ts` and none take props.
+
 ## Screenshots
 
 Images live under `public/media/<project>/`. Until a file exists, the site
@@ -88,7 +120,9 @@ node scripts/generate-og.mjs
 
 It reads each project's title, tagline, stack, and accent straight from the MDX
 frontmatter and writes 1200×630 cards into `public/og/`. Re-run it after editing
-frontmatter or adding a project.
+frontmatter or adding a project. The `default` and `research` cards are literals
+in that script — the research one mirrors `paper` in `src/lib/research.ts` and
+has to be kept in step by hand.
 
 **Portrait** lives at `src/assets/portrait/aman.jpg` and appears in the hero
 identity row and the About section. Replacing that file updates both.

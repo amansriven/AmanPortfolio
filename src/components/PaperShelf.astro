@@ -68,6 +68,9 @@ const spreads = [
     padding-bottom: var(--space-3);
     overflow-x: auto;
     scroll-snap-type: x proximity;
+    /* Without this the snapport starts at the padding edge, so the first sheet
+       snaps flush to the bleed and loses its alignment with the text column. */
+    scroll-padding-inline: var(--gutter);
     scrollbar-width: thin;
     scrollbar-color: var(--border-bright) transparent;
   }

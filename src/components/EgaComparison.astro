@@ -162,7 +162,7 @@ const macroPrecisionDelta =
   }
 
   .key--ega i {
-    background: rgb(255 255 255 / 24%);
+    background: rgb(255 255 255 / 34%);
   }
 
   /* --- Table ------------------------------------------------------ */
@@ -251,7 +251,7 @@ const macroPrecisionDelta =
   }
 
   .bars__fill--ega {
-    background: rgb(255 255 255 / 24%);
+    background: rgb(255 255 255 / 34%);
   }
 
   .num {
@@ -344,6 +344,45 @@ const macroPrecisionDelta =
 
     .ega__macro-note {
       grid-column: 1 / -1;
+    }
+  }
+
+  /* Phone. The EGA figure is legible off its own bar, so the column goes and
+     the delta — which is the whole point of the table — stays. */
+  @media (max-width: 47.99rem) {
+    .ega__table {
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    /* Fixed layout takes its columns from the header row, so the width has to
+       be set there rather than on the body cells. */
+    .ega__table thead th:first-child {
+      width: 38%;
+    }
+
+    .ega__table thead th {
+      letter-spacing: 0.06em;
+    }
+
+    .ega__name {
+      padding-right: var(--space-3);
+      font-size: var(--fs-xs);
+    }
+
+    .ega__bar-head,
+    .ega__bars {
+      width: 30%;
+      padding-inline: var(--space-3);
+    }
+
+    .ega__table thead th:nth-child(4),
+    .ega__table tbody td:nth-child(4) {
+      display: none;
+    }
+
+    .num {
+      padding-left: var(--space-3);
     }
   }
 </style>

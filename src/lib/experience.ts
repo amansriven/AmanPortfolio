@@ -53,9 +53,12 @@ export const experience: Experience[] = [
     summary:
       'Trained an ensemble PyTorch classifier that detects eleven classes of smart-contract vulnerability across a hundred thousand contracts, pairing residual connections and multi-head attention with an adaptive focal loss to survive severe label imbalance.',
     stack: ['PyTorch', 'Multi-head attention', 'Focal loss'],
+    /* Taken from Table I of the paper, which is now published at /research —
+       a visitor can click through and check them. Any figure here has to
+       survive that. */
     metrics: [
-      { value: '94–96%', label: 'balanced accuracy' },
-      { value: '11 / 11', label: 'labels beating the 0.88 F1 benchmark' },
+      { value: '0.8703', label: 'macro F1 across 12 classes' },
+      { value: '0.9973', label: 'macro AUC' },
       { value: '1st of 40', label: '2025 research symposium' },
     ],
   },

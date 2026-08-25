@@ -155,7 +155,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
           </div>
         </div>
 
-        <div class="paper__block" data-reveal>
+        <div class="paper__block paper__block--measure" data-reveal>
           <SpecList title="The dataset" items={[...dataset]} />
         </div>
       </div>
@@ -260,7 +260,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
           network learns to answer <em>no</em> to everything and still score well.
         </p>
 
-        <div class="paper__block" data-reveal>
+        <div class="paper__block paper__block--measure" data-reveal>
           <SpecList title="Training" items={[...training]} />
         </div>
 
@@ -591,7 +591,10 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   .masthead__cover {
     display: flex;
+    /* The stack sheets are translated and rotated outward, so the column needs
+       room on the right or the paper runs into the page gutter. */
     justify-content: flex-end;
+    padding-right: var(--space-6);
   }
 
   /* --- Facts rail -------------------------------------------------- */
@@ -674,6 +677,12 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   .paper__block--tight {
     margin-top: var(--space-9);
+  }
+
+  /* Definition lists have no natural measure. At the wide shell they run past
+     100 characters a line, so they get one. */
+  .paper__block--measure {
+    max-width: 58rem;
   }
 
   .paper__prose {
@@ -892,9 +901,11 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
       gap: var(--space-8);
     }
 
+    /* The cover follows the type on narrow screens. Leading with it pushed the
+       title more than a screen down, which is the wrong first thing to read. */
     .masthead__cover {
-      order: -1;
-      justify-content: flex-start;
+      justify-content: center;
+      padding-right: 0;
     }
 
     .abstract {

@@ -255,9 +255,9 @@ const fmt = (v: number) => v.toFixed(4);
     vertical-align: middle;
   }
 
+  /* Left as a real table cell — `display: grid` on a <th> takes it out of the
+     table's column model and the cell collapses to min-content. */
   .spans__name {
-    display: grid;
-    gap: 1px;
     padding-right: var(--space-5);
     font-size: var(--fs-sm);
     font-weight: 500;
@@ -265,7 +265,12 @@ const fmt = (v: number) => v.toFixed(4);
     line-height: 1.35;
   }
 
+  .spans__name > span {
+    display: block;
+  }
+
   .spans__label {
+    margin-top: 1px;
     font-size: var(--fs-micro);
     color: var(--text-faint);
     font-weight: 400;
@@ -375,6 +380,65 @@ const fmt = (v: number) => v.toFixed(4);
 
     .spans__axis-head {
       width: 52%;
+    }
+  }
+
+  /* Phone. The chart has to fit rather than scroll: the strongest classes sit
+     at the right-hand end of the scale, so a table that starts scrolled to the
+     left shows empty track for exactly the rows that matter most. The dataset
+     label and the interior axis ticks go; the plot keeps its proportions. */
+  @media (max-width: 47.99rem) {
+    .spans__table {
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    .spans__table thead th:first-child {
+      width: 42%;
+    }
+
+    .spans__name {
+      padding-right: var(--space-3);
+      font-size: var(--fs-xs);
+    }
+
+    .spans__axis-head,
+    .spans__plot {
+      width: 42%;
+      padding-inline: var(--space-3);
+    }
+
+    .spans__tick:not(:first-child):not(:last-child) {
+      display: none;
+    }
+
+    /* Centred end labels overhang into the neighbouring columns at this width,
+       so they tuck inside the axis instead. */
+    .spans__tick:first-child {
+      transform: none;
+    }
+
+    .spans__tick:last-child {
+      transform: translateX(-100%);
+    }
+
+    .plot__grid {
+      display: none;
+    }
+
+    .num {
+      padding-left: var(--space-3);
+    }
+
+    .plot__dot {
+      width: 7px;
+      height: 7px;
+      margin: -3.5px 0 0 -3.5px;
+    }
+
+    .plot__f1 {
+      height: 13px;
+      margin-top: -6.5px;
     }
   }
 </style>

@@ -22,6 +22,20 @@ Project screenshots are in place, under `src/assets/media/<project>/`. Ahvaan's
 is portrait App Store art rather than a product capture — a real in-app screen
 would sit better next to the other three.
 
+## Research page
+
+`/research` is built and reviewed at 1440 and 375. Outstanding:
+
+- The claims in the Experience entry for Texas A&M were realigned to the paper's
+  own Table I — macro F1 0.8703, macro AUC 0.9973. **The résumé still says
+  "94–96% balanced accuracy" and "beat published benchmark F1 of 0.88 across all
+  11 labels", and the paper does not support either**: six of twelve classes
+  clear 0.88, and balanced accuracy is never reported. Fix the résumé, or find
+  the run those numbers came from and put it in the paper.
+- Not yet reviewed at 768 or 1280.
+- The comparison tables against EA-RGCN, MH-NEC, MEVD, and DeepFusion are drawn
+  from different corpora. The page says so; keep it saying so.
+
 ## Design refinement pass
 
 The build is a complete, working v1. It has **not** had a critical design
