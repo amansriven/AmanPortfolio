@@ -5,7 +5,7 @@ export const site = {
   role: 'Software Engineer',
   title: 'Aman Sriven — Software Engineer',
   description:
-    'Software engineer building infrastructure and products people actually use. Computer science at Texas A&M. Previously platform and AI engineering at Humana and JAGGAER.',
+    'Software engineer building infrastructure and products people actually use. Computer science at Texas A&M. Previously software engineering at Humana and JAGGAER.',
   email: 'sriven.aman@gmail.com',
   location: 'College Station, TX',
   school: 'Texas A&M University',

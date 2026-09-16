@@ -16,10 +16,15 @@ stack:
 accent: '152 40% 50%'
 featured: true
 order: 2
+liveUrl: https://deltacode-tau.vercel.app
 githubUrl: https://github.com/amansriven/DeltaCode
 heroImage: /media/delta-code/hero.png
 heroAlt: Delta Code's intelligence history, showing a detected regression in a discount attribute alongside its change map, recommended actions, confidence, and token cost.
-metrics: []
+metrics:
+  - value: '100+'
+    label: CI test cases in the evaluation set
+  - value: '90%+'
+    label: seeded regressions caught
 seo:
   description: Delta Code is a Dependabot-style GitHub App for breaking API changes — detecting upstream changes, verifying migrations in a sandbox, and opening evidence-rich draft pull requests.
 ---
@@ -168,6 +173,8 @@ never letting an unparsed model response reach the sandbox.
 ## Status
 
 In active development. The end-to-end path — detection, call-site resolution, proposal,
-sandbox verification, draft PR — works. What I am still refining is the part that decides
-how much evidence to put in front of a reviewer before it stops being evidence and starts
-being noise.
+sandbox verification, draft PR — works. To check that the verification step is actually
+doing its job, I seed known regressions into a corpus of a hundred-plus CI test cases and
+diff base against PR behaviour; the system currently catches more than ninety percent of
+them. What I am still refining is the part that decides how much evidence to put in front
+of a reviewer before it stops being evidence and starts being noise.

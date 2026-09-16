@@ -8,6 +8,7 @@ status: Live
 stack:
   - Next.js
   - TypeScript
+  - Python
   - AWS Lambda
   - DynamoDB
   - Cognito
@@ -17,9 +18,16 @@ accent: '28 68% 58%'
 featured: true
 order: 1
 liveUrl: https://roleward.org
+githubUrl: https://github.com/amansriven/Roleward
 heroImage: /media/roleward/hero1.png
 heroAlt: The Roleward command center, showing the highest-impact next step alongside live counts from applications, evidence, resume, coding practice, and mock interviews.
-metrics: []
+metrics:
+  - value: '100+'
+    label: users
+  - value: '1.5K+'
+    label: mock interviews run
+  - value: '28s → <2s'
+    label: generation latency
 seo:
   description: Roleward is a production AI career workspace connecting applications, resume tailoring, coding practice, and mock interviews under one shared context. Built and shipped solo.
 ---
@@ -136,6 +144,15 @@ side of running something with real accounts and real user data.
   user losing the document they actually trust because a generated revision quietly replaced it.
 </Callout>
 
+<Callout label="Decision" title="Precompute, then lease">
+  The first version generated content on request, and a request took around twenty-eight seconds.
+  The fix was not a faster model. Generation now runs ahead of demand into a precomputed pool in
+  DynamoDB, and a request leases an item from that pool instead of waiting on one. Leases expire, so
+  a worker that dies mid-job hands its work back rather than losing it, and five hundred-plus
+  concurrent generation jobs share the pool without two of them doing the same work. User-facing
+  latency went from twenty-eight seconds to under two.
+</Callout>
+
 <Callout label="Decision" title="Coach, don't answer">
   The coding and interview workspaces are deliberately worse at giving answers than a general chat
   model would be. They give progressive hints, ask for reasoning, and push on communication.
@@ -170,11 +187,11 @@ I would rather say so than build a resilience story the traffic does not justify
 
 ## Where it stands
 
-Roleward launched recently. I am deliberately not putting usage, retention, or revenue
-numbers on this page yet, because there are not enough of them to mean anything — and a
-portfolio that quotes a metric from week two is telling you something about the author
-rather than the product. Those numbers will appear here when they are real.
+Roleward has passed a hundred users and fifteen hundred mock interviews. I held off on
+quoting numbers here until they stopped being a rounding error, and these are still
+small — but they are real, and they came from people who are not me.
 
-What it does demonstrate today is the full arc: taking a product from an idea about how
-a job search should work, through design and engineering, to something that is deployed,
-authenticated, paid for, and used by people who are not me.
+What the project demonstrates is the full arc: taking a product from an idea about how a
+job search should work, through design and engineering, to something that is deployed,
+authenticated, paid for, and used — and then doing the unglamorous latency and
+coordination work that a first wave of users forces on you.

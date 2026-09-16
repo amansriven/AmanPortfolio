@@ -5,8 +5,8 @@ Ground rules for anyone (or anything) picking this up:
 - **Never fabricate.** No invented metrics, user counts, revenue, retention,
   awards, testimonials, or technologies. Every claim on the site traces to the
   résumé in `public/` or Aman's own project repos. If a value isn't known, omit
-  it or leave a `TODO`. Roleward is newly launched and must carry **no** usage
-  metrics until they're real.
+  it or leave a `TODO`. Roleward's usage figures (100+ users, 1.5K+ interviews)
+  come from the résumé; don't extrapolate beyond them.
 - **Stack is fixed.** Astro + Svelte islands + TypeScript + vanilla CSS tokens,
   on Cloudflare. No React, Next.js, Tailwind, component frameworks, animation
   libraries, database, or auth. Add dependencies only when genuinely necessary.

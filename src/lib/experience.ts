@@ -13,6 +13,8 @@ export interface Experience {
   metrics?: { value: string; label: string }[];
 }
 
+/* Ordered by start date, newest first. Every figure below is lifted from the
+   résumé; if it changes there, change it here. */
 export const experience: Experience[] = [
   {
     year: '2026',
@@ -21,27 +23,44 @@ export const experience: Experience[] = [
     location: 'Louisville, KY',
     period: 'May — Aug 2026',
     summary:
-      'Architected a distributed AI gateway on Azure Kubernetes, routing model traffic through Envoy with Helm and ArgoCD delivery. Put internal APIs behind MCP servers with per-user tool scoping, and rebuilt the RAG ingestion, embedding, and ranking pipelines on Databricks Delta Lake.',
-    stack: ['Kubernetes', 'Envoy', 'Helm', 'ArgoCD', 'Databricks', 'Spark'],
+      'Architected a distributed AI gateway on Azure Kubernetes that routes model traffic at under 25 ms of p95 overhead. Enforced per-user authorization and Redis token-bucket rate limits across thirty-plus MCP tool servers at the Envoy layer, hardened the SSE token streams with bounded retries and automated provider failover, and chaos-tested the whole thing against a hundred-plus provider-failure and retry-storm scenarios under Prometheus and Grafana.',
+    stack: ['Kubernetes', 'Envoy', 'Redis', 'MCP', 'SSE', 'Prometheus', 'Grafana'],
     metrics: [
       { value: '450K+', label: 'requests routed per day' },
-      { value: '68% → 89%', label: 'tool-selection accuracy' },
-      { value: '+40%', label: 'retrieval recall' },
+      { value: '<25 ms', label: 'p95 gateway overhead' },
+      { value: '30+', label: 'MCP tool servers behind one policy' },
+      { value: '100+', label: 'failure scenarios chaos-tested' },
+    ],
+  },
+  {
+    year: '2026',
+    org: 'Sinn Fund, Aggie Investment Club',
+    role: 'Software Developer',
+    location: 'College Station, TX',
+    period: 'Jan 2026 — Present',
+    summary:
+      'Built an event-driven backtester in Python and C++ over a hundred and fifty million options contracts, modelling the risk and transaction costs behind a student-run fund. Productionised the strategies through data, signal, and execution pipelines that the researchers run themselves.',
+    stack: ['Python', 'C++', 'Options data', 'Backtesting'],
+    metrics: [
+      { value: '150M+', label: 'options contracts modelled' },
+      { value: '$80K+', label: 'fund under management' },
+      { value: '−34%', label: 'simulation runtime for 7 researchers' },
     ],
   },
   {
     year: '2025',
     org: 'JAGGAER',
-    role: 'AI Engineering Intern',
+    role: 'Software Engineering Intern',
     location: 'Durham, NC',
     period: 'Jun — Aug 2025',
     summary:
-      'Built a Python retrieval and orchestration agent over a four-million-supplier corpus, then automated the training, retraining, and inference pipelines behind it so the vector index stayed current without anyone babysitting a notebook.',
-    stack: ['Python', 'Vector search', 'GitHub Actions'],
+      'Engineered a Java and Spring Boot microservice exposing REST APIs over four million supplier records, then fed it with an asynchronous ingestion and normalisation pipeline built on idempotent writes and retries. Tuned the MySQL queries and caching underneath so high-volume reads stopped being the bottleneck.',
+    stack: ['Java', 'Spring Boot', 'MySQL', 'REST'],
     metrics: [
-      { value: '4M+', label: 'supplier corpus' },
-      { value: '+25%', label: 'matching accuracy over baseline' },
-      { value: '−40%', label: 'procurement cycle time' },
+      { value: '4M+', label: 'supplier records served' },
+      { value: '−38%', label: 'p95 API latency' },
+      { value: '4.2×', label: 'ingestion throughput' },
+      { value: '−55%', label: 'read latency' },
     ],
   },
   {
