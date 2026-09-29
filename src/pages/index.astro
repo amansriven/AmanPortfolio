@@ -2,21 +2,125 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import WorkSection from '../components/WorkSection.astro';
-import ExperienceSection from '../components/ExperienceSection.astro';
-import ResearchSection from '../components/ResearchSection.astro';
-import AboutSection from '../components/AboutSection.astro';
-import ContactSection from '../components/ContactSection.astro';
-
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const featured = projects.filter((project) => project.data.featured);
+import ProjectFeature from '../components/ProjectFeature.astro';
+import CompanyLogo from '../components/CompanyLogo.astro';
+import { experience } from '../lib/experience';
+const projects = (await getCollection('projects'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .filter((project) => project.data.featured)
+  .slice(0, 2);
 ---
 
 <BaseLayout isHome>
-  <Hero projects={featured} />
-  <WorkSection projects={featured} />
-  <ExperienceSection />
-  <ResearchSection />
-  <AboutSection />
-  <ContactSection />
+  <Hero />
+  <section class="home-section shell" id="work" aria-labelledby="work-heading">
+    <div class="section-heading">
+      <h2 id="work-heading">Selected work</h2><a class="text-link" href="/projects"
+        >All projects <span aria-hidden="true">→</span></a>
+    </div>
+    <div>
+      {projects.map((project, index) => <ProjectFeature project={project} index={index} compact />)}
+    </div>
+  </section>
+  <section class="home-section shell" id="experience" aria-labelledby="experience-heading">
+    <div class="section-heading">
+      <h2 id="experience-heading">Along the way</h2><a class="text-link" href="/experience"
+        >Full experience <span aria-hidden="true">→</span></a>
+    </div>
+    <ul class="experience-list">
+      {
+        experience.slice(0, 3).map((role) => (
+          <li>
+            <>
+              <CompanyLogo role={role} size={2.25} />
+              <div class="experience-list__who">
+                <>
+                  <h3>{role.org}</h3>
+                  <p>{role.role}</p>
+                </>
+              </div>
+              <span class="mono">{role.period}</span>
+            </>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+  <section class="home-note shell" aria-labelledby="contact-heading">
+    <div>
+      <p class="eyebrow">Have something in mind?</p><h2 id="contact-heading">
+        Let’s make it happen.
+      </h2>
+    </div><a class="button-primary" href="/contact"
+      >Get in touch <span aria-hidden="true">→</span></a>
+  </section>
 </BaseLayout>
+<script>
+  // Preserve incoming links to sections that now have their own pages.
+  const legacy: Record<string, string> = {
+    '#about': '/about',
+    '#research': '/research',
+    '#contact': '/contact',
+  };
+  const redirectLegacyHash = () => {
+    const target = legacy[window.location.hash];
+    if (target) window.location.replace(target);
+  };
+  redirectLegacyHash();
+  window.addEventListener('hashchange', redirectLegacyHash);
+</script>
+<style>
+  .home-section {
+    padding-bottom: 3.5rem;
+  }
+  .section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--border-strong);
+    padding-top: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  h2 {
+    font: 400 1.8rem var(--font-display);
+    letter-spacing: -0.03em;
+  }
+  .experience-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .experience-list__who {
+    flex: 1;
+    min-width: 0;
+  }
+  .experience-list h3 {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .experience-list p {
+    margin-top: 0.3rem;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+  .experience-list .mono {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
+  .home-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 2rem 3.5rem;
+  }
+  .home-note .eyebrow {
+    margin-bottom: 0.6rem;
+  }
+</style>

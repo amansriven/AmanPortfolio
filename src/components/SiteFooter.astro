@@ -1,51 +1,63 @@
 ---
+import SocialIcon from './SocialIcon.astro';
 import { socials } from '../lib/site';
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <div class="shell footer__inner">
-    <div class="footer__brand">
-      <p class="footer__name">Aman Sriven</p>
-      <p class="footer__note mono">
-        Built with Astro, Svelte, and a suspicious amount of CSS. Deployed on Cloudflare.
-      </p>
+  <div class="shell">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <p class="footer__name">Aman Sriven</p>
+        <p class="footer__note mono">Software engineer · Texas A&amp;M University</p>
+      </div>
+
+      <nav class="footer__links" aria-label="Elsewhere">
+        <ul>
+          {
+            socials.map((social) => (
+              <li>
+                <a
+                  class="social-circle"
+                  data-brand={social.label.toLowerCase()}
+                  href={social.href}
+                  target={social.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                  aria-label={social.label}
+                  title={social.label}
+                >
+                  <SocialIcon label={social.label} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
 
-    <nav class="footer__links" aria-label="Elsewhere">
-      <ul>
-        {
-          socials.map((social) => (
-            <li>
-              <a
-                href={social.href}
-                target={social.href.startsWith('http') ? '_blank' : undefined}
-                rel="noopener"
-              >
-                {social.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-
-    <p class="footer__meta mono">&copy; {year}</p>
+    <p class="footer__meta mono">
+      <span>&copy; {year}</span>
+      <span class="footer__stack">
+        <span class="footer__dot" aria-hidden="true"></span>
+        Built with Astro · Deployed on Cloudflare
+      </span>
+    </p>
   </div>
 </footer>
 
 <style>
   .footer {
     border-top: 1px solid var(--border);
-    padding-block: var(--space-8);
+    padding-block: var(--space-7) var(--space-5);
   }
 
   .footer__inner {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
-    gap: var(--space-6);
+    gap: var(--space-5);
+    padding-bottom: var(--space-6);
   }
 
   .footer__name {
@@ -64,29 +76,45 @@ const year = new Date().getFullYear();
 
   .footer__links ul {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-5);
-  }
-
-  .footer__links a {
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-    transition: color var(--dur) var(--ease-out);
-  }
-
-  .footer__links a:hover {
-    color: var(--text);
+    gap: var(--space-3);
   }
 
   .footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
     color: var(--text-faint);
     font-size: var(--fs-micro);
   }
+  .footer__stack {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-  @media (max-width: 47.99rem) {
-    .footer__inner {
-      align-items: flex-start;
-      gap: var(--space-5);
+  /* A small "live" indicator, like a status page. */
+  .footer__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 50%, transparent);
+    animation: footer-pulse 2.4s var(--ease-out) infinite;
+  }
+
+  @keyframes footer-pulse {
+    70%,
+    100% {
+      box-shadow: 0 0 0 6px transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__dot {
+      animation: none;
     }
   }
 </style>

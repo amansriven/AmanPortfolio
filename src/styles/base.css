@@ -15,7 +15,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + var(--space-6));
+  /* Clears the header and, on long pages, the sticky "On this page" bar. */
+  scroll-padding-top: calc(var(--header-height) + 5rem);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -25,13 +26,10 @@ html {
 }
 
 body {
-  /* A faint cool wash from the top keeps the page from reading as flat black. */
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(140% 70% at 50% -8%, rgb(226 176 119 / 3.5%), transparent 62%),
-    radial-gradient(90% 50% at 50% 0%, rgb(255 255 255 / 3%), transparent 70%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background: var(--bg);
+  padding-top: var(--header-height);
+  display: flex;
+  flex-direction: column;
   color: var(--text);
   font-family: var(--font-sans);
   font-size: var(--fs-body);
@@ -119,55 +117,6 @@ hr {
   border-radius: var(--radius-sm);
 }
 
-/* --- Film grain -----------------------------------------------
-   A fixed, non-interactive noise layer. This is what stops a dark
-   page from looking like flat vector fill, and it dithers away the
-   banding that large low-opacity gradients otherwise show.
-   Inlined as a data URI, so it costs no request. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 500;
-  pointer-events: none;
-  opacity: 0.032;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* --- Layout rules ---------------------------------------------
-   Hairline verticals aligned to the content column. Barely visible;
-   they give large screens a sense of an underlying grid. */
-.rules {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  max-width: var(--width-wide);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-  pointer-events: none;
-  display: none;
-}
-
-.rules span {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgb(255 255 255 / 5%) 12%,
-    rgb(255 255 255 / 5%) 78%,
-    transparent
-  );
-}
-
-@media (min-width: 75rem) {
-  .rules {
-    display: block;
-  }
-}
-
 /* --- Shared primitives -------------------------------------- */
 
 .shell {
@@ -245,5 +194,148 @@ body::after {
   [data-reveal].is-revealed {
     opacity: 1;
     transform: none;
+  }
+}
+
+main {
+  flex: 1;
+  min-width: 0;
+}
+.button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  transition: background var(--dur-fast);
+}
+.button-primary:hover {
+  background: var(--accent-bright);
+}
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 36px;
+  font-size: var(--fs-xs);
+  color: var(--accent);
+}
+.text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.page-content {
+  padding-bottom: 4rem;
+}
+
+/* --- Social circles ------------------------------------------
+   A round button holding a brand mark (see SocialIcon.astro). On hover
+   it fills with the brand's colour. Hovering the parent link counts too,
+   so a row with a label and a circle reacts as one target. */
+.social-circle {
+  --brand: var(--accent);
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  transition:
+    background var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
+}
+
+.social-circle--sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.9rem;
+}
+
+.social-circle[data-brand='github'] {
+  --brand: #181717;
+}
+
+.social-circle[data-brand='linkedin'] {
+  --brand: #0a66c2;
+}
+
+.social-circle:hover,
+a:hover > .social-circle,
+a:focus-visible > .social-circle {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px -8px var(--brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-circle:hover,
+  a:hover > .social-circle {
+    transform: none;
+  }
+}
+
+/* --- Cursor spotlight ----------------------------------------
+   Add `.spotlight` to a card; effects.ts feeds it the pointer position.
+   The glow sits behind the content, so text keeps full contrast. */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    22rem circle at var(--sx, 50%) var(--sy, 50%),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+  pointer-events: none;
+}
+
+.spotlight:hover::after {
+  opacity: 1;
+}
+
+/* --- Page transitions ----------------------------------------
+   Native cross-document view transitions: pages cross-fade and the
+   header stays put. Browsers without support just navigate. */
+@view-transition {
+  navigation: auto;
+}
+
+.header {
+  view-transition-name: site-header;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
   }
 }

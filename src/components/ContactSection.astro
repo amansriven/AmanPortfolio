@@ -1,16 +1,32 @@
 ---
 import ContactForm from './ContactForm.svelte';
+import SocialIcon from './SocialIcon.astro';
 import { site, socials } from '../lib/site';
 
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+interface Props {
+  standalone?: boolean;
+}
+const { standalone = false } = Astro.props;
 ---
 
-<section class="section contact" id="contact" aria-labelledby="contact-heading">
+<section
+  class:list={['section', 'contact', { standalone }]}
+  id="contact"
+  aria-label={standalone ? 'Contact details' : undefined}
+  aria-labelledby={standalone ? undefined : 'contact-heading'}
+>
   <div class="shell">
     <div class="contact__grid">
       <div class="contact__intro" data-reveal>
-        <p class="eyebrow">Contact</p>
-        <h2 class="contact__heading" id="contact-heading">Let&rsquo;s build something.</h2>
+        <p class="eyebrow">Find me elsewhere</p>
+        {
+          !standalone && (
+            <h2 class="contact__heading" id="contact-heading">
+              Let&rsquo;s build something.
+            </h2>
+          )
+        }
         <p class="contact__body">
           Working on an interesting engineering problem, hiring for one, or want to argue about
           whether the model should be making that decision? I read everything that comes through
@@ -26,28 +42,65 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
                   target={social.href.startsWith('http') ? '_blank' : undefined}
                   rel="noopener"
                 >
+                  <span class="social-circle" data-brand={social.label.toLowerCase()}>
+                    <SocialIcon label={social.label} />
+                  </span>
                   <span class="mono contact__direct-label">{social.label}</span>
                   <span class="contact__direct-value">{social.handle}</span>
                 </a>
+                {social.label === 'Email' && (
+                  <button class="copy" type="button" data-copy={site.email}>
+                    <span data-copy-label>Copy</span>
+                  </button>
+                )}
               </li>
             ))
           }
         </ul>
       </div>
 
-      <div class="contact__form" data-reveal>
+      <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+
+      <div class="contact__form spotlight" data-reveal>
         <ContactForm client:visible siteKey={siteKey} email={site.email} />
       </div>
     </div>
   </div>
 </section>
 
+<script>
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    const label = button.querySelector<HTMLElement>('[data-copy-label]')!;
+    let timer: ReturnType<typeof setTimeout>;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy ?? '');
+        label.textContent = 'Copied';
+        button.classList.add('is-copied');
+        if (status) status.textContent = 'Email address copied to clipboard.';
+      } catch {
+        label.textContent = 'Press ⌘C';
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        label.textContent = 'Copy';
+        button.classList.remove('is-copied');
+      }, 1800);
+    });
+  }
+</script>
+
 <style>
+  .standalone {
+    padding-top: 0;
+  }
+
   .contact {
     position: relative;
   }
 
-  .contact::before {
+  .contact:not(.standalone)::before {
     content: '';
     position: absolute;
     inset: 0 0 auto;
@@ -58,7 +111,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   .contact__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-9) var(--space-11);
+    gap: var(--space-8);
     align-items: start;
   }
 
@@ -88,8 +141,8 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
   .contact__direct a {
     display: flex;
-    align-items: baseline;
-    gap: var(--space-5);
+    align-items: center;
+    gap: var(--space-4);
     padding-block: var(--space-3);
     border-top: 1px solid var(--border);
     font-size: var(--fs-sm);
@@ -114,6 +167,42 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     font-size: var(--fs-micro);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
+  }
+
+  .contact__direct li {
+    position: relative;
+  }
+
+  /* Sits over the right end of the email row, outside the link. */
+  .copy {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    min-width: 4.75rem;
+    min-height: 32px;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    transform: translateY(-50%);
+    transition:
+      color var(--dur-fast),
+      background var(--dur-fast),
+      border-color var(--dur-fast);
+  }
+
+  .copy:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .copy.is-copied {
+    color: var(--on-accent);
+    background: var(--success);
+    border-color: var(--success);
   }
 
   .contact__direct-value {

@@ -305,7 +305,7 @@ const fmt = (v: number) => v.toFixed(4);
     top: 0;
     bottom: 0;
     width: 1px;
-    background: rgb(255 255 255 / 4%);
+    background: var(--surface-raised);
   }
 
   .plot__span {
@@ -316,7 +316,7 @@ const fmt = (v: number) => v.toFixed(4);
     height: 2px;
     margin-top: -1px;
     border-radius: 1px;
-    background: linear-gradient(to right, rgb(255 255 255 / 22%), hsl(var(--atmosphere) / 55%));
+    background: linear-gradient(to right, var(--border-strong), hsl(var(--atmosphere) / 55%));
     transform-origin: left center;
     transition: transform var(--dur-slow) var(--ease-out);
     transition-delay: inherit;

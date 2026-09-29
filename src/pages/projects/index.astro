@@ -1,0 +1,229 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ProjectFeature from '../../components/ProjectFeature.astro';
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+
+/* Technologies for the filter, most used first. Ones shared by two or more
+   projects show up front; the rest sit behind "more". */
+const counts = new Map<string, number>();
+for (const project of projects) {
+  for (const tech of project.data.stack) counts.set(tech, (counts.get(tech) ?? 0) + 1);
+}
+const techs = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+const primary = techs.filter(([, count]) => count > 1);
+const secondary = techs.filter(([, count]) => count === 1);
+---
+
+<BaseLayout
+  title="Projects"
+  description="Software projects by Aman Sriven: AI infrastructure, developer tools, and consumer apps."
+>
+  <PageIntro
+    eyebrow="Selected projects"
+    title="Things I’ve built."
+    description="A collection of products, experiments, and engineering decisions. Here’s what I made, how it works, and what I learned."
+  />
+  <div class="shell page-content">
+    <div class="filter" role="group" aria-label="Filter projects by technology" data-filter>
+      <span class="filter__label mono">Filter</span>
+      <button type="button" class="chip" aria-pressed="true" data-tech="">
+        All <span class="chip__count">{projects.length}</span>
+      </button>
+      {
+        primary.map(([tech, count]) => (
+          <button type="button" class="chip" aria-pressed="false" data-tech={tech}>
+            {tech} <span class="chip__count">{count}</span>
+          </button>
+        ))
+      }
+      {
+        secondary.map(([tech]) => (
+          <button type="button" class="chip chip--extra" aria-pressed="false" data-tech={tech} hidden>
+            {tech}
+          </button>
+        ))
+      }
+      {
+        secondary.length > 0 && (
+          <button type="button" class="chip chip--more" aria-expanded="false" data-more>
+            + {secondary.length} more
+          </button>
+        )
+      }
+    </div>
+    <p class="filter__status" aria-live="polite" data-filter-status></p>
+
+    <div data-projects>
+      {projects.map((project, index) => <ProjectFeature project={project} index={index} />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const filter = document.querySelector<HTMLElement>('[data-filter]');
+  const status = document.querySelector<HTMLElement>('[data-filter-status]');
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-projects] .project')];
+
+  if (filter && status) {
+    const chips = [...filter.querySelectorAll<HTMLButtonElement>('[data-tech]')];
+    const more = filter.querySelector<HTMLButtonElement>('[data-more]');
+
+    const showExtras = (show: boolean) => {
+      filter.querySelectorAll<HTMLElement>('.chip--extra').forEach((chip) => (chip.hidden = !show));
+      if (more) {
+        more.hidden = show;
+        more.setAttribute('aria-expanded', String(show));
+      }
+    };
+
+    const apply = (tech: string, updateUrl = true) => {
+      let shown = 0;
+      for (const card of cards) {
+        const stack: string[] = JSON.parse(card.dataset.stack ?? '[]');
+        const match = !tech || stack.includes(tech);
+        card.hidden = !match;
+        if (match) {
+          shown++;
+          // Replay the entrance so the change is noticeable.
+          card.classList.remove('is-entering');
+          void card.offsetWidth;
+          card.classList.add('is-entering');
+        }
+      }
+      for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.tech === tech));
+      if (tech && filter.querySelector(`.chip--extra[data-tech="${CSS.escape(tech)}"]`)) {
+        showExtras(true);
+      }
+      status.textContent = tech
+        ? `Showing ${shown} of ${cards.length} projects built with ${tech}.`
+        : '';
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        if (tech) url.searchParams.set('tech', tech);
+        else url.searchParams.delete('tech');
+        history.replaceState(null, '', url);
+      }
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener('click', () =>
+        apply(chip.getAttribute('aria-pressed') === 'true' ? '' : chip.dataset.tech ?? ''),
+      );
+    }
+    more?.addEventListener('click', () => {
+      showExtras(true);
+      filter.querySelector<HTMLButtonElement>('.chip--extra')?.focus();
+    });
+
+    // Shared links like /projects?tech=Python open already filtered.
+    const initial = new URLSearchParams(window.location.search).get('tech');
+    if (initial && chips.some((chip) => chip.dataset.tech === initial)) apply(initial, false);
+  }
+</script>
+
+<style>
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .filter__label {
+    margin-right: 0.25rem;
+    color: var(--text-faint);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 36px;
+    padding: 0.3rem 0.85rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    transition:
+      color var(--dur-fast),
+      background var(--dur-fast),
+      border-color var(--dur-fast),
+      transform var(--dur-fast);
+  }
+
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .chip:active {
+    transform: scale(0.97);
+  }
+
+  .chip[aria-pressed='true'] {
+    color: var(--on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .chip__count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.25rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    line-height: 1.5;
+  }
+
+  .chip[aria-pressed='true'] .chip__count {
+    background: rgb(255 255 255 / 20%);
+    color: var(--on-accent);
+  }
+
+  /* `display` on these would otherwise override the hidden attribute. */
+  .chip[hidden],
+  [data-projects] :global(.project[hidden]) {
+    display: none;
+  }
+
+  .chip--more {
+    border-style: dashed;
+    color: var(--text-muted);
+  }
+
+  .filter__status {
+    min-height: 1.5rem;
+    margin-bottom: var(--space-5);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+
+  [data-projects] :global(.project.is-entering) {
+    animation: card-in 420ms var(--ease-out);
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-projects] :global(.project.is-entering) {
+      animation: none;
+    }
+  }
+</style>

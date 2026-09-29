@@ -1,0 +1,154 @@
+---
+interface Props {
+  items: { label: string; href: string }[];
+}
+const { items } = Astro.props;
+---
+
+<!-- Sticks under the header and highlights the section being read. -->
+<nav class="contents" aria-label="On this page" data-contents>
+  <div class="contents__inner shell">
+    <p class="eyebrow contents__label">On this page</p>
+    <ul>
+      {
+        items.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>
+
+<script>
+  for (const nav of document.querySelectorAll<HTMLElement>('[data-contents]')) {
+    const links = [...nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+    const sections = links
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+      .filter((el): el is HTMLElement => el !== null);
+
+    const setActive = (id: string | null) => {
+      for (const link of links) {
+        const on = link.hash.slice(1) === id;
+        if (on) {
+          link.setAttribute('aria-current', 'true');
+          // Keep the active link in view when the row scrolls sideways,
+          // without moving the page itself.
+          const row = link.closest('ul')!;
+          const left = link.offsetLeft - row.offsetLeft;
+          if (left < row.scrollLeft || left + link.offsetWidth > row.scrollLeft + row.clientWidth) {
+            row.scrollTo({ left: left - 16, behavior: 'smooth' });
+          }
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      }
+    };
+
+    // The active section is the last heading that has passed the top third
+    // of the viewport.
+    const update = () => {
+      const line = window.innerHeight * 0.3;
+      let current: string | null = null;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= line) current = section.id;
+      }
+      setActive(current);
+    };
+
+    let queued = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          update();
+        });
+      },
+      { passive: true },
+    );
+    update();
+
+    // A soft edge once the bar is stuck to the header.
+    const sentinel = document.createElement('div');
+    nav.before(sentinel);
+    new IntersectionObserver(
+      ([entry]) => nav.classList.toggle('is-stuck', !entry!.isIntersecting),
+      // rootMargin only accepts px or %, so measure the header directly.
+      { rootMargin: `-${document.querySelector('.header')?.getBoundingClientRect().height ?? 76}px 0px 0px 0px` },
+    ).observe(sentinel);
+  }
+</script>
+
+<style>
+  .contents {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 50;
+    margin-bottom: 2.5rem;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-block: 1px solid var(--border);
+    transition: box-shadow var(--dur) var(--ease-out);
+  }
+
+  .contents.is-stuck {
+    box-shadow: 0 10px 24px -18px rgb(44 38 37 / 35%);
+  }
+
+  .contents__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: 3.25rem;
+  }
+
+  .contents__label {
+    flex-shrink: 0;
+  }
+
+  ul {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-block: 0.4rem;
+  }
+
+  ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  a {
+    position: relative;
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+    transition:
+      color var(--dur-fast),
+      background var(--dur-fast);
+  }
+
+  a:hover {
+    color: var(--text);
+    background: var(--surface-raised);
+  }
+
+  a[aria-current] {
+    color: var(--accent);
+    background: var(--accent-dim);
+    font-weight: 500;
+  }
+
+  @media (max-width: 47.99rem) {
+    .contents__label {
+      display: none;
+    }
+  }
+</style>

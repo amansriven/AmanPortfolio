@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import AboutSection from '../components/AboutSection.astro';
+---
+
+<BaseLayout
+  title="About"
+  description="Meet Aman Sriven, a computer science student at Texas A&M and a software engineer building infrastructure and consumer products."
+>
+  <PageIntro
+    eyebrow="About me"
+    title="Curious by nature."
+    description="A computer science student at Texas A&M, interested in how good engineering becomes something people actually use."
+  />
+  <AboutSection standalone />
+</BaseLayout>

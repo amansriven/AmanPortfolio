@@ -4,39 +4,27 @@
    ============================================================ */
 
 :root {
-  color-scheme: dark;
-
-  /* --- Colour: base surfaces --------------------------------- */
-  --bg: #0a0b0c;
-  --bg-deep: #060708;
-  --surface: #101214;
-  --surface-raised: #16191c;
-  --surface-hover: #1c2024;
-
-  /* --- Colour: line work ------------------------------------- */
-  --border: rgb(255 255 255 / 8%);
-  --border-strong: rgb(255 255 255 / 14%);
-  --border-bright: rgb(255 255 255 / 24%);
-
-  /* --- Colour: type ------------------------------------------ */
-  --text: #eceef0;
-  --text-secondary: #a9afb5;
-  /* Both of these clear WCAG AA (4.5:1) against --bg. The previous values
-     were 4.22 and 2.42, and --text-faint carries 11px mono metadata. */
-  --text-muted: #868d94;
-  --text-faint: #757c84;
-
-  /* --- Colour: accent ---------------------------------------- */
-  --accent: #e2b077;
-  --accent-bright: #f0c48f;
-  --accent-dim: rgb(226 176 119 / 16%);
-
-  /* --- Colour: state ----------------------------------------- */
-  --success: #6fcf97;
-  --danger: #e88a8a;
-
-  /* Per-project atmosphere hue. Overridden on hover/focus. */
-  --atmosphere: 28 70% 58%;
+  color-scheme: light;
+  --bg: #faf8f5;
+  --bg-deep: #f0ebe5;
+  --surface: #ffffff;
+  --surface-raised: #f2eeea;
+  --surface-hover: #eae3de;
+  --border: #ded7d1;
+  --border-strong: #c9beb7;
+  --border-bright: #a9988c;
+  --text: #2c2625;
+  --text-secondary: #554d49;
+  --text-muted: #6f655f;
+  --text-faint: #756960;
+  --accent: #6b2536;
+  --accent-bright: #4e1726;
+  --accent-dim: #eedfe2;
+  --on-accent: #ffffff;
+  --success: #27604f;
+  --danger: #a92a3d;
+  --atmosphere: 345 49% 28%;
+  --font-display: Georgia, 'Times New Roman', serif;
 
   /* --- Type -------------------------------------------------- */
   --font-sans:
@@ -45,11 +33,11 @@
 
   --fs-display: clamp(3.25rem, 11vw, 8.5rem);
   --fs-hero: clamp(2.75rem, 7.5vw, 5.75rem);
-  --fs-h1: clamp(2.5rem, 5.5vw, 4.25rem);
-  --fs-h2: clamp(1.875rem, 3.6vw, 2.75rem);
+  --fs-h1: clamp(2.5rem, 4.5vw, 3.5rem);
+  --fs-h2: clamp(1.6rem, 2.8vw, 2rem);
   --fs-h3: clamp(1.375rem, 2.2vw, 1.75rem);
-  --fs-lead: clamp(1.125rem, 1.6vw, 1.375rem);
-  --fs-body: 1.0625rem;
+  --fs-lead: clamp(1.05rem, 1.4vw, 1.2rem);
+  --fs-body: 1rem;
   --fs-sm: 0.9375rem;
   --fs-xs: 0.8125rem;
   --fs-micro: 0.6875rem;
@@ -79,25 +67,25 @@
   --space-12: 8rem;
 
   /* Vertical rhythm between major page sections. */
-  --section-gap: clamp(5rem, 12vw, 11rem);
+  --section-gap: clamp(3rem, 5vw, 4.5rem);
   --gutter: clamp(1.25rem, 5vw, 3.5rem);
 
   /* --- Measure ----------------------------------------------- */
-  --width-wide: 84rem;
-  --width-content: 72rem;
+  --width-wide: 68rem;
+  --width-content: 68rem;
   --width-prose: 40rem;
 
   /* --- Radius ------------------------------------------------ */
   --radius-sm: 4px;
   --radius: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 10px;
   --radius-full: 999px;
 
   /* --- Depth ------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-  --shadow-md: 0 12px 32px -12px rgb(0 0 0 / 65%);
-  --shadow-lg: 0 40px 80px -32px rgb(0 0 0 / 80%);
+  --shadow-sm: 0 1px 3px rgb(44 38 37 / 5%);
+  --shadow-md: 0 10px 24px -12px rgb(44 38 37 / 16%);
+  --shadow-lg: 0 24px 48px -24px rgb(44 38 37 / 22%);
 
   /* --- Motion ------------------------------------------------ */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -107,7 +95,7 @@
   --dur-slow: 620ms;
 
   /* --- Chrome ------------------------------------------------ */
-  --header-height: 4.5rem;
+  --header-height: 4.75rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -120,6 +108,6 @@
 
 @media (max-width: 55.99rem) {
   :root {
-    --header-height: 7rem;
+    --header-height: 6.5rem;
   }
 }

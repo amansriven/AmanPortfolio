@@ -103,9 +103,7 @@ const cover = resolveImage('/media/research/page-1.png');
     display: block;
     width: 100%;
     height: auto;
-    /* A bright white page in a near-black layout is a hole. Pulled down at
-       rest, released on hover. */
-    filter: brightness(0.88) contrast(1.04) saturate(0.9);
+    filter: none;
     transition: filter var(--dur-slow) var(--ease-out);
   }
 
@@ -130,7 +128,7 @@ const cover = resolveImage('/media/research/page-1.png');
   .cover:hover .cover__page,
   .cover:focus-visible .cover__page {
     transform: rotate(0deg) translateY(-6px);
-    box-shadow: 0 48px 96px -36px rgb(0 0 0 / 85%);
+    box-shadow: var(--shadow-lg);
   }
 
   .cover:hover .cover__page :global(img) {
@@ -179,7 +177,7 @@ const cover = resolveImage('/media/research/page-1.png');
 
   .cover:hover .cover__badge {
     color: var(--text);
-    border-color: hsl(var(--atmosphere) / 55%);
+    border-color: var(--accent);
   }
 
   .cover__badge svg {

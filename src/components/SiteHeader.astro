@@ -1,215 +1,217 @@
 ---
-import Logo from './Logo.astro';
 import { nav, navCta } from '../lib/site';
-
 interface Props {
   isHome?: boolean;
 }
-const { isHome = false } = Astro.props;
-const pathname = Astro.url.pathname;
-const activeSection = pathname.startsWith('/projects/')
-  ? 'work'
-  : pathname.replace(/\/$/, '') === '/research'
-    ? 'research'
-    : undefined;
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
 ---
 
-<header class="header" data-header data-home={isHome}>
-  <div class="header__inner shell shell--wide">
-    <a class="brand" href={isHome ? '#main' : '/'} aria-current={isHome ? 'page' : undefined}>
-      <Logo size={20} class="brand__mark" />
-      <span class="brand__name">Aman Sriven</span>
+<header class="header">
+  <div class="header__inner shell">
+    <a class="identity" href="/" aria-label="Aman Sriven — home">
+      <span class="identity__mark" aria-hidden="true">as.</span>
+      <span>Aman Sriven</span>
     </a>
-
-    <nav class="nav" aria-label="Primary">
-      <ul class="nav__list">
+    <div class="header__end">
+    <nav aria-label="Primary">
+      <ul class="navigation">
         {
-          [...nav, navCta].map((item) => (
-            <li>
-              <a
-                class:list={['nav__link', { 'nav__link--contact': item.section === 'contact' }]}
-                href={isHome ? `#${item.section}` : item.href}
-                data-section={item.section}
-                aria-current={activeSection === item.section ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
+          items.map((item) => {
+            const active =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={{ navigation__contact: item.href === '/contact' }}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
     </nav>
+    <button class="palette-trigger" type="button" data-palette-open aria-label="Open command palette">
+      <span>Search</span>
+      <kbd>⌘K</kbd>
+    </button>
+    </div>
   </div>
+  <!-- Fills as the page scrolls (CSS scroll-driven animation). -->
+  <span class="header__progress" aria-hidden="true"></span>
 </header>
-
-<script>
-  const header = document.querySelector<HTMLElement>('[data-header]');
-  if (header) {
-    const links = [...header.querySelectorAll<HTMLAnchorElement>('[data-section]')];
-    const sections = links
-      .map((link) => document.getElementById(link.dataset.section!))
-      .filter((section): section is HTMLElement => section !== null);
-    let scheduled = false;
-
-    const update = () => {
-      scheduled = false;
-      header.classList.toggle('is-stuck', window.scrollY > 8);
-      if (header.dataset.home !== 'true') return;
-
-      // Follow the section crossing the header, including tall project sections.
-      const offset = header.getBoundingClientRect().bottom + 48;
-      let current: string | undefined;
-      for (const section of sections) {
-        if (section.getBoundingClientRect().top <= offset) current = section.id;
-      }
-      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
-        current = sections.at(-1)?.id;
-      }
-      for (const link of links) {
-        if (link.dataset.section === current) link.setAttribute('aria-current', 'location');
-        else link.removeAttribute('aria-current');
-      }
-    };
-
-    const scheduleUpdate = () => {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', scheduleUpdate, { passive: true });
-    window.addEventListener('resize', scheduleUpdate);
-    window.addEventListener('pageshow', scheduleUpdate);
-    update();
-  }
-</script>
-
 <style>
   .header {
     position: fixed;
     inset: 0 0 auto;
     z-index: 100;
     height: var(--header-height);
-    display: flex;
-    align-items: center;
-    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    background: color-mix(in srgb, var(--bg) 95%, transparent);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(16px);
-    transition:
-      background-color var(--dur) var(--ease-out),
-      box-shadow var(--dur) var(--ease-out);
   }
-
-  .header.is-stuck {
-    background: color-mix(in srgb, var(--bg) 96%, transparent);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
-  }
-
   .header__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-6);
+    gap: 2rem;
+    height: 100%;
   }
-
-  .brand {
+  .identity {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0.7rem;
     font-size: var(--fs-sm);
     font-weight: 600;
-    letter-spacing: var(--tracking-tight);
     white-space: nowrap;
   }
-
-  .brand :global(.brand__mark) {
-    color: var(--accent);
+  .identity__mark {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding-right: 0.15rem;
+    color: var(--on-accent);
+    background: var(--accent);
+    border-radius: 50%;
+    font: italic 1.2rem var(--font-display);
+    letter-spacing: -0.08em;
   }
-
-  .nav {
-    min-width: 0;
-  }
-
-  .nav__list {
+  .header__end {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 0.75rem;
+    min-width: 0;
   }
-
-  .nav__link {
+  nav {
+    min-width: 0;
+  }
+  .palette-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 42px;
+    padding: 0 0.5rem 0 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    transition:
+      border-color var(--dur-fast),
+      color var(--dur-fast),
+      box-shadow var(--dur-fast);
+  }
+  .palette-trigger:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+  .palette-trigger kbd {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+  .header__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff));
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  @supports (animation-timeline: scroll()) {
+    .header__progress {
+      animation: header-progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+  @keyframes header-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .navigation a {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    padding: 0.5rem 1rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius-full);
-    font-size: var(--fs-sm);
-    font-weight: 500;
-    white-space: nowrap;
+    min-height: 42px;
+    padding: 0.6rem 0.8rem;
+    border-radius: 4px;
+    font-size: var(--fs-xs);
     color: var(--text-secondary);
+    white-space: nowrap;
     transition:
-      color var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out);
+      background var(--dur-fast),
+      color var(--dur-fast);
   }
-
-  .nav__link:hover {
-    color: var(--text);
-    background: var(--surface-raised);
-  }
-
-  .nav__link--contact {
-    margin-left: var(--space-3);
-    border-color: var(--border-strong);
-    color: var(--text);
-  }
-
-  .nav__link[aria-current] {
-    color: var(--accent-bright);
+  .navigation a:hover,
+  .navigation a[aria-current] {
+    color: var(--accent);
     background: var(--accent-dim);
-    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
   }
-
+  .navigation a[aria-current] {
+    font-weight: 600;
+  }
+  .navigation .navigation__contact {
+    margin-left: 0.65rem;
+    border: 1px solid var(--border-strong);
+  }
   @media (max-width: 55.99rem) {
     .header__inner {
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
-      gap: var(--space-2);
+      gap: 0.45rem;
     }
-
-    .nav {
+    .identity {
+      font-size: 0.85rem;
+    }
+    .identity__mark {
+      width: 1.8rem;
+      height: 1.8rem;
+      font-size: 1rem;
+    }
+    nav {
       width: 100%;
       overflow-x: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-strong) transparent;
     }
-
-    .nav__list {
+    .navigation {
       width: max-content;
       min-width: 100%;
-      justify-content: space-between;
       padding: 3px;
     }
-
-    .nav__link {
-      padding-inline: 0.7rem;
-      font-size: var(--fs-xs);
+    .navigation a {
+      min-height: 40px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.75rem;
     }
-
-    .nav__link--contact {
+    .navigation .navigation__contact {
       margin-left: 0;
     }
-  }
-
-  @media (max-width: 24rem) {
-    .nav__list {
-      gap: 0;
+    .header__end {
+      width: 100%;
     }
-
-    .nav__link {
-      padding-inline: 0.5rem;
-      font-size: 0.75rem;
+    /* Touch screens have no ⌘K; the palette stays keyboard-only there. */
+    .palette-trigger {
+      display: none;
     }
   }
 </style>

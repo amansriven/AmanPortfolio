@@ -1,24 +1,36 @@
 ---
 import { experience } from '../lib/experience';
 import SectionHead from './SectionHead.astro';
+import CompanyLogo from './CompanyLogo.astro';
+interface Props {
+  standalone?: boolean;
+}
+const { standalone = false } = Astro.props;
 ---
 
-<section class="section experience" id="experience" aria-labelledby="experience-heading">
+<section
+  class:list={['section', 'experience', { standalone }]}
+  id="experience"
+  aria-label={standalone ? 'Experience details' : undefined}
+  aria-labelledby={standalone ? undefined : 'experience-heading'}
+>
   <div class="shell">
-    <SectionHead
-      index="02"
-      title="Experience"
-      meta="Platform · Backend · Quant · Research"
-      id="experience-heading"
-    />
+    {
+      !standalone && (
+        <SectionHead
+          index="02"
+          title="Experience"
+          meta="Platform · Backend · Quant · Research"
+          id="experience-heading"
+        />
+      )
+    }
 
     <ol class="timeline">
       {
         experience.map((role) => (
-          <li class="entry" data-reveal>
-            <p class="entry__year mono" aria-hidden="true">
-              {role.year}
-            </p>
+          <li class="entry spotlight" data-reveal>
+            <CompanyLogo role={role} />
 
             <div class="entry__body">
               <div class="entry__head">
@@ -45,7 +57,7 @@ import SectionHead from './SectionHead.astro';
                 </ul>
               )}
 
-              <ul class="entry__stack mono">
+              <ul class="entry__stack mono" aria-label="Tools">
                 {role.stack.map((tech) => (
                   <li>{tech}</li>
                 ))}
@@ -59,15 +71,19 @@ import SectionHead from './SectionHead.astro';
 </section>
 
 <style>
+  .standalone {
+    padding-top: 0;
+  }
+
   .timeline {
     display: grid;
   }
 
   .entry {
     display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr);
-    gap: var(--space-6);
-    padding-block: var(--space-8);
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--space-5);
+    padding-block: var(--space-6);
     border-top: 1px solid var(--border);
     transition: border-color var(--dur) var(--ease-out);
   }
@@ -80,22 +96,10 @@ import SectionHead from './SectionHead.astro';
     border-top-color: var(--border-strong);
   }
 
-  .entry__year {
-    font-size: clamp(1.5rem, 2.4vw, 2rem);
-    line-height: 1;
-    color: var(--text-faint);
-    letter-spacing: -0.02em;
-    transition: color var(--dur) var(--ease-out);
-  }
-
-  .entry:hover .entry__year {
-    color: var(--accent);
-  }
-
   .entry__body {
     display: grid;
-    gap: var(--space-5);
-    max-width: 46rem;
+    gap: var(--space-4);
+    max-width: 50rem;
   }
 
   .entry__head {
@@ -133,14 +137,16 @@ import SectionHead from './SectionHead.astro';
 
   .entry__summary {
     color: var(--text-secondary);
+    font-size: var(--fs-body);
     text-wrap: pretty;
   }
 
   /* --- Metrics ------------------------------------------------- */
+  /* Equal columns, so the boxes line up from one role to the next. */
   .entry__metrics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 
   .entry__metrics li {
@@ -158,8 +164,9 @@ import SectionHead from './SectionHead.astro';
   }
 
   .entry__metric-value {
-    font-size: var(--fs-sm);
-    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--accent);
   }
 
   .entry__metric-label {
@@ -171,17 +178,27 @@ import SectionHead from './SectionHead.astro';
   .entry__stack {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    color: var(--text-faint);
+    gap: 0.35rem;
     font-size: var(--fs-micro);
-    letter-spacing: 0.04em;
+  }
+
+  .entry__stack li {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text-secondary);
   }
 
   @media (max-width: 47.99rem) {
     .entry {
-      grid-template-columns: 1fr;
+      grid-template-columns: 2.5rem minmax(0, 1fr);
       gap: var(--space-4);
-      padding-block: var(--space-7);
+      padding-block: var(--space-6);
+    }
+
+    .entry :global(.logo) {
+      --size: 2.5rem !important;
     }
 
     .entry__head {
@@ -196,8 +213,8 @@ import SectionHead from './SectionHead.astro';
       gap: var(--space-3);
     }
 
-    .entry__metrics li {
-      flex: 1 1 8rem;
+    .entry__metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 </style>

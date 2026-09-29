@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageContents from '../components/PageContents.astro';
 import SectionHead from '../components/SectionHead.astro';
 import SpecList from '../components/SpecList.astro';
 import ModelDiagram from '../components/ModelDiagram.astro';
@@ -34,7 +35,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     <!-- ============ Masthead ============ -->
     <header class="paper__masthead">
       <div class="shell shell--wide">
-        <a class="paper__back" href="/#research">
+        <a class="paper__back" href="/">
           <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
             <path
               d="M12 7H2M2 7l4-4M2 7l4 4"
@@ -135,6 +136,17 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     </div>
 
     <!-- ============ 01 Abstract ============ -->
+    <PageContents
+      items={[
+        { label: 'Abstract', href: '#abstract-heading' },
+        { label: 'Architecture', href: '#architecture-heading' },
+        { label: 'Results', href: '#results-heading' },
+        { label: 'Comparisons', href: '#comparison-heading' },
+        { label: 'Method', href: '#method-heading' },
+        { label: 'Limits', href: '#limits-heading' },
+        { label: 'Paper & citation', href: '#paper-heading' },
+      ]}
+    />
     <section class="section paper__section" aria-labelledby="abstract-heading">
       <div class="shell shell--wide">
         <SectionHead
@@ -392,7 +404,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
     <!-- ============ Onward ============ -->
     <nav class="paper__next" aria-label="Continue">
-      <a href="/#work">
+      <a href="/projects">
         <div class="shell shell--wide paper__next-inner">
           <div>
             <p class="eyebrow">Back to</p>
@@ -435,7 +447,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   /* --- Masthead --------------------------------------------------- */
   .paper__masthead {
-    padding-top: calc(var(--header-height) + clamp(3rem, 8vw, 6rem));
+    padding-top: clamp(2.5rem, 5vw, 4rem);
     padding-bottom: var(--space-9);
   }
 
@@ -469,13 +481,14 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
   }
 
   .paper__eyebrow {
-    color: hsl(var(--atmosphere) / 92%);
+    color: var(--accent);
   }
 
   .paper__title {
     margin-top: var(--space-3);
     font-size: var(--fs-h1);
-    font-weight: 500;
+    font-family: var(--font-display);
+    font-weight: 400;
     line-height: var(--lh-snug);
     letter-spacing: var(--tracking-display);
     text-wrap: balance;
@@ -489,7 +502,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     font-size: var(--fs-micro);
     letter-spacing: 0.14em;
     vertical-align: baseline;
-    color: hsl(var(--atmosphere) / 95%);
+    color: var(--accent);
     background: hsl(var(--atmosphere) / 12%);
     border: 1px solid hsl(var(--atmosphere) / 32%);
     border-radius: var(--radius-full);
@@ -517,7 +530,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
   }
 
   .author[data-self] {
-    border-left-color: hsl(var(--atmosphere) / 70%);
+    border-left-color: var(--accent);
   }
 
   .author__name {
@@ -527,7 +540,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
   }
 
   .author[data-self] .author__name {
-    color: hsl(var(--atmosphere) / 96%);
+    color: var(--accent);
   }
 
   .author__where {
@@ -567,18 +580,18 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   .action:hover {
     color: var(--text);
-    border-color: hsl(var(--atmosphere) / 55%);
+    border-color: var(--accent);
   }
 
   .action--primary {
     color: var(--text);
     background: hsl(var(--atmosphere) / 14%);
-    border-color: hsl(var(--atmosphere) / 42%);
+    border-color: var(--accent);
   }
 
   .action--primary:hover {
     background: hsl(var(--atmosphere) / 22%);
-    border-color: hsl(var(--atmosphere) / 70%);
+    border-color: var(--accent);
   }
 
   .action svg {
@@ -668,7 +681,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   .paper__lead em {
     font-style: italic;
-    color: hsl(var(--atmosphere) / 92%);
+    color: var(--accent);
   }
 
   .paper__block {
@@ -717,7 +730,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     font-size: 3.1em;
     line-height: 0.86;
     font-weight: 500;
-    color: hsl(var(--atmosphere) / 95%);
+    color: var(--accent);
   }
 
   .abstract__side {
@@ -777,7 +790,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     padding: 0.1rem 0.45rem;
     font-size: var(--fs-micro);
     letter-spacing: 0.06em;
-    color: hsl(var(--atmosphere) / 95%);
+    color: var(--accent);
     background: hsl(var(--atmosphere) / 12%);
     border: 1px solid hsl(var(--atmosphere) / 30%);
     border-radius: var(--radius-full);
@@ -891,7 +904,7 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
   .paper__next a:hover svg {
     transform: translateX(6px);
-    color: hsl(var(--atmosphere) / 95%);
+    color: var(--accent);
   }
 
   /* --- Responsive ------------------------------------------------------- */

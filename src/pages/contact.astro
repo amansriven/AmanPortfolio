@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ContactSection from '../components/ContactSection.astro';
+---
+
+<BaseLayout
+  title="Contact"
+  description="Get in touch with Aman Sriven about software engineering opportunities, projects, or collaboration."
+>
+  <PageIntro
+    eyebrow="Contact"
+    title="Let’s talk."
+    description="Have a project in mind, an opportunity to share, or a question about my work? I’d like to hear from you."
+  />
+  <ContactSection standalone />
+</BaseLayout>

@@ -18,11 +18,11 @@ export const socials = [
 ] as const;
 
 export const nav = [
-  { label: 'Projects', href: '/#work', section: 'work' },
-  { label: 'Experience', href: '/#experience', section: 'experience' },
-  { label: 'Research', href: '/#research', section: 'research' },
-  { label: 'About', href: '/#about', section: 'about' },
+  { label: 'Projects', href: '/projects', section: 'work' },
+  { label: 'Experience', href: '/experience', section: 'experience' },
+  { label: 'Research', href: '/research', section: 'research' },
+  { label: 'About', href: '/about', section: 'about' },
 ] as const;
 
 /** The emphasised contact link in the primary navigation. */
-export const navCta = { label: 'Contact', href: '/#contact', section: 'contact' } as const;
+export const navCta = { label: 'Contact', href: '/contact', section: 'contact' } as const;

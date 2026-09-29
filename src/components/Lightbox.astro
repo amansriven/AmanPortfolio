@@ -1,0 +1,138 @@
+---
+/**
+ * Click-to-zoom for screenshots inside case studies.
+ * Product screenshots are dense; this lets a reader open one at full size.
+ * Project-card thumbnails are excluded because the card itself is a link, and
+ * the research page's page previews already link to the PDF.
+ */
+---
+
+<dialog class="lightbox" aria-label="Enlarged image" data-lightbox>
+  <img alt="" data-lightbox-img />
+  <p class="lightbox__caption" data-lightbox-caption></p>
+  <button class="lightbox__close" type="button" aria-label="Close" data-lightbox-close>
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+      <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+      ></path>
+    </svg>
+  </button>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+  const full = document.querySelector<HTMLImageElement>('[data-lightbox-img]');
+  const caption = document.querySelector<HTMLElement>('[data-lightbox-caption]');
+
+  if (dialog && full && caption) {
+    const images = [
+      ...document.querySelectorAll<HTMLImageElement>('main .figure__well img'),
+    ].filter((img) => !img.closest('.project'));
+
+    const open = (img: HTMLImageElement) => {
+      full.src = img.currentSrc || img.src;
+      full.alt = img.alt;
+      caption.textContent = img.alt;
+      caption.hidden = !img.alt;
+      dialog.showModal();
+    };
+
+    for (const img of images) {
+      img.classList.add('is-zoomable');
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', `Enlarge image${img.alt ? `: ${img.alt}` : ''}`);
+      img.addEventListener('click', () => open(img));
+      img.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          open(img);
+        }
+      });
+    }
+
+    dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    // Any click outside the image itself closes it.
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== full) dialog.close();
+    });
+  }
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(1rem, 4vw, 3rem);
+    border: 0;
+    background: transparent;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: var(--space-4);
+    animation: lightbox-in 220ms var(--ease-out);
+  }
+
+  .lightbox::backdrop {
+    background: rgb(20 16 16 / 82%);
+    backdrop-filter: blur(6px);
+  }
+
+  .lightbox img {
+    max-width: min(100%, 90rem);
+    max-height: calc(100dvh - 9rem);
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 40px 90px -30px rgb(0 0 0 / 70%);
+    cursor: zoom-out;
+  }
+
+  .lightbox__caption {
+    max-width: 48rem;
+    color: rgb(255 255 255 / 78%);
+    font-size: var(--fs-xs);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .lightbox__close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid rgb(255 255 255 / 25%);
+    border-radius: 50%;
+    color: #fff;
+    background: rgb(255 255 255 / 8%);
+    transition: background var(--dur-fast);
+  }
+
+  .lightbox__close:hover {
+    background: rgb(255 255 255 / 18%);
+  }
+
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+
+  :global(.is-zoomable) {
+    cursor: zoom-in;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox[open] {
+      animation: none;
+    }
+  }
+</style>

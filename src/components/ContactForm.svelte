@@ -78,7 +78,7 @@
       sitekey: siteKey,
       execution: 'execute',
       appearance: 'interaction-only',
-      theme: 'dark',
+      theme: 'light',
       callback: (token: string) => resolveToken?.(token),
       'error-callback': () => rejectToken?.(new Error('Verification failed.')),
       'timeout-callback': () => rejectToken?.(new Error('Verification timed out.')),
@@ -312,9 +312,7 @@
     gap: var(--space-6);
   }
 
-  /* --- Fields ---------------------------------------------------
-     Underline inputs rather than boxes — quieter, and it keeps the
-     column of labels doing the structural work. */
+  /* --- Fields --------------------------------------------------- */
   .field {
     display: grid;
     gap: var(--space-2);
@@ -338,13 +336,12 @@
   input,
   textarea {
     width: 100%;
-    padding: var(--space-3) 0;
+    padding: var(--space-3);
     font-size: var(--fs-body);
     color: var(--text);
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--border-strong);
-    border-radius: 0;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
     transition:
       border-color var(--dur) var(--ease-out),
       background-color var(--dur) var(--ease-out);
@@ -422,8 +419,8 @@
     padding: 0.8rem 1.5rem;
     font-size: var(--fs-sm);
     font-weight: 500;
-    color: var(--bg-deep);
-    background: var(--text);
+    color: var(--on-accent);
+    background: var(--accent);
     border-radius: var(--radius-full);
     transition:
       background-color var(--dur) var(--ease-out),
@@ -432,7 +429,7 @@
   }
 
   .submit:hover:not(:disabled) {
-    background: #fff;
+    background: var(--accent-bright);
     transform: translateY(-1px);
   }
 

@@ -1,390 +1,310 @@
 ---
 import Figure from './Figure.astro';
+import SocialIcon from './SocialIcon.astro';
 import { projectLinks } from '../lib/links';
 import type { CollectionEntry } from 'astro:content';
-
 interface Props {
   project: CollectionEntry<'projects'>;
   index: number;
-  /** `lead` is the full-width opener; the others alternate sides. */
-  layout: 'lead' | 'split' | 'split-reverse';
+  compact?: boolean;
 }
-
-const { project, index, layout } = Astro.props;
+const { project, compact = false } = Astro.props;
 const { data } = project;
 const href = `/projects/${project.id}`;
-const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const links = projectLinks(data);
+
+/* A short, readable stack beats a wrapped wall of names. */
+const maxTags = compact ? 3 : 4;
+const tags = data.stack.slice(0, maxTags);
+const extraTags = data.stack.length - tags.length;
+
+/* Status is free text; this only picks the colour of its dot. */
+const tone = /development|progress/i.test(data.status)
+  ? 'building'
+  : /\b(1st|2nd|3rd|place|award)\b/i.test(data.status)
+    ? 'award'
+    : 'live';
 ---
 
-<article class="feature" data-layout={layout} style={`--atmosphere: ${data.accent}`} data-reveal>
-  <div class="feature__glow" aria-hidden="true"></div>
-
-  <div class="feature__media">
+<article
+  class:list={['project', 'spotlight', { 'project--compact': compact }]}
+  style={`--tint: ${data.accent}`}
+  data-stack={JSON.stringify(data.stack)}
+>
+  <div class="project__visual" data-fit={data.heroFit}>
     <Figure
       src={data.heroImage}
-      alt={data.heroAlt}
-      frame={data.heroFrame}
-      url={data.heroFrame === 'browser' ? displayUrl : undefined}
-      ratio={data.heroFit === 'contain' ? data.heroRatio : layout === 'lead' ? '16 / 9' : '4 / 3'}
+      alt=""
+      frame="plain"
+      ratio="16 / 9"
       fit={data.heroFit}
-      priority={index === 0}
     />
   </div>
-
-  <div class="feature__body">
-    <header class="feature__head">
-      <p class="feature__index mono">
-        <span>{String(index + 1).padStart(2, '0')}</span>
-        <span class="feature__status">{data.status}</span>
-      </p>
-      <h3 class="feature__title">
-        <a href={href}>{data.title}</a>
-      </h3>
-      <p class="feature__tagline">{data.tagline}</p>
-    </header>
-
-    <div class="feature__detail">
-      <p class="feature__summary">{data.summary}</p>
-
+  <div class="project__body">
+    <p class="project__meta">
+      <span class="project__status" data-tone={tone}>{data.status}</span>
+      <span class="mono">{data.year}</span>
+    </p>
+    <h3><a class="project__link" href={href}>{data.title}</a></h3>
+    <p class="project__description">{data.tagline}</p>
+    {
+      !compact && data.metrics.length > 0 && (
+        <dl class="project__metrics">
+          {data.metrics.map((metric) => (
+            <div>
+              <dt>{metric.label}</dt>
+              <dd>{metric.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    <ul class="project__stack" aria-label="Technologies">
+      {tags.map((tech) => <li>{tech}</li>)}
       {
-        data.metrics.length > 0 && (
-          <ul class="feature__metrics">
-            {data.metrics.map((metric) => (
-              <li>
-                <span class="feature__metric-value">{metric.value}</span>
-                <span class="feature__metric-label">{metric.label}</span>
-              </li>
-            ))}
-          </ul>
+        extraTags > 0 && (
+          <li class="project__more" title={data.stack.slice(maxTags).join(', ')}>
+            +{extraTags}
+          </li>
         )
       }
-
-      <footer class="feature__foot">
-        <ul class="feature__stack mono">
-          {data.stack.map((tech) => <li>{tech}</li>)}
-        </ul>
-        <ul class="feature__actions">
-          {
-            links.map((link) => (
-              <li>
-                <a
-                  class:list={[
-                    'feature__action',
-                    { 'feature__action--primary': link.kind === 'live' },
-                  ]}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={`${data.title} — ${link.label}`}
-                >
-                  {link.kind === 'source' ? (
-                    <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
-                      <path
-                        d="M8 .8a7.2 7.2 0 0 0-2.28 14.03c.36.07.49-.16.49-.35v-1.23c-2 .43-2.42-.97-2.42-.97-.33-.83-.8-1.05-.8-1.05-.66-.45.05-.44.05-.44.72.05 1.1.74 1.1.74.65 1.1 1.7.79 2.11.6.07-.47.25-.79.46-.97-1.6-.18-3.28-.8-3.28-3.56 0-.79.28-1.43.74-1.93-.07-.18-.32-.92.07-1.91 0 0 .6-.19 1.98.74a6.9 6.9 0 0 1 3.6 0c1.37-.93 1.98-.74 1.98-.74.39.99.14 1.73.07 1.91.46.5.74 1.14.74 1.93 0 2.77-1.69 3.38-3.3 3.56.26.22.49.66.49 1.33v1.98c0 .19.13.42.5.35A7.2 7.2 0 0 0 8 .8Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
-                      <path
-                        d="M3 9L9 3M9 3H4.5M9 3v4.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.3"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  )}
-                  <span>{link.label}</span>
-                </a>
-              </li>
-            ))
-          }
-          <li>
-            <a class="feature__action feature__action--quiet" href={href}>
-              <span>Case study</span>
-              <svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true">
-                <path
-                  d="M2 7h10M12 7l-4-4M12 7l-4 4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.4"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-              </svg>
-            </a>
-          </li>
-        </ul>
-      </footer>
-    </div>
+    </ul>
+    {
+      !compact && (
+        <div class="project__links">
+          <span class="text-link project__cta" aria-hidden="true">
+            Read case study <span>→</span>
+          </span>
+          {links.length > 0 && (
+            <ul class="project__external">
+              {links.map((link) => (
+                <li>
+                  <a href={link.href} target="_blank" rel="noopener">
+                    {link.kind === 'source' ? (
+                      <span class="social-circle social-circle--sm" data-brand="github">
+                        <SocialIcon label="GitHub" />
+                      </span>
+                    ) : null}
+                    {link.label} <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )
+    }
   </div>
 </article>
-
 <style>
-  .feature {
+  .project {
     position: relative;
     display: grid;
-    gap: var(--space-7);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 2rem;
     align-items: center;
+    padding-block: 2rem;
+    border-bottom: 1px solid var(--border);
   }
-
-  /* --- Ambient tint -------------------------------------------
-     A very low-opacity wash keyed to the project, bleeding past the
-     card edges so the surrounding page shifts rather than the card. */
-  .feature__glow {
-    position: absolute;
-    inset: -18% -14%;
-    z-index: -1;
-    background: radial-gradient(
-      52% 58% at 50% 42%,
-      hsl(var(--atmosphere) / 11%) 0%,
-      transparent 70%
-    );
-    opacity: 0;
-    transition: opacity var(--dur-slow) var(--ease-out);
-    pointer-events: none;
+  .project:first-child {
+    padding-top: 0;
   }
-
-  .feature:hover .feature__glow,
-  .feature:focus-within .feature__glow {
-    opacity: 1;
+  .project__visual {
+    display: block;
+    padding: 0.6rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color var(--dur) var(--ease-out);
   }
-
-  /* --- Media --------------------------------------------------- */
-  .feature__media {
+  .project__visual :global(.figure__frame) {
+    border-radius: 3px;
+    box-shadow: none;
+    border: 0;
+  }
+  /* Screenshots fill the frame from the top instead of shrinking inside it. */
+  .project__visual :global(.figure__well img) {
     transition: transform var(--dur-slow) var(--ease-out);
   }
-
-  .feature:hover .feature__media {
-    transform: translateY(-6px);
+  /* Portrait shots stay whole, on a panel tinted with the project's colour
+     rather than empty beige bands. */
+  .project__visual[data-fit='contain'] :global(.figure__well) {
+    background: hsl(var(--tint) / 16%);
   }
-
-  .feature__media :global(.figure__frame) {
-    transition:
-      border-color var(--dur-slow) var(--ease-out),
-      box-shadow var(--dur-slow) var(--ease-out);
+  .project:hover .project__visual {
+    border-color: var(--border-strong);
   }
-
-  .feature:hover .feature__media :global(.figure__frame) {
-    border-color: hsl(var(--atmosphere) / 32%);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .feature__media :global(.figure__well img) {
-    transition: transform var(--dur-slow) var(--ease-out);
-  }
-
-  .feature:hover .feature__media :global(.figure__well img) {
+  .project:hover .project__visual :global(.figure__well img) {
     transform: scale(1.02);
   }
-
-  /* --- Body ---------------------------------------------------- */
-  .feature__body {
-    display: grid;
-    gap: var(--space-5);
-    align-content: start;
-  }
-
-  /* Transparent in the split layouts so the body grid still spaces each
-     child directly; becomes a real column in `lead` below. */
-  .feature__detail {
-    display: contents;
-  }
-
-  .feature__index {
+  .project__meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3);
-    color: var(--text-faint);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    font-size: var(--fs-micro);
+    gap: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.7rem;
   }
-
-  .feature__status {
-    padding: 0.15rem 0.55rem;
-    color: hsl(var(--atmosphere) / 95%);
-    background: hsl(var(--atmosphere) / 12%);
-    border-radius: var(--radius-full);
+  .project__meta .mono {
+    font-size: 0.7rem;
   }
-
-  .feature__title {
-    margin-top: var(--space-3);
-    font-size: var(--fs-h2);
-    font-weight: 500;
-    letter-spacing: var(--tracking-display);
+  .project__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0.55rem 0.15rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-secondary);
   }
-
-  /* One anchor per card, stretched across the whole article. */
-  .feature__title a::after {
+  .project__status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+  .project__status[data-tone='building']::before {
+    background: #b7791f;
+  }
+  .project__status[data-tone='award']::before {
+    background: var(--accent);
+  }
+  h3 {
+    margin-top: 0.7rem;
+    font: 400 1.75rem var(--font-display);
+    letter-spacing: -0.03em;
+  }
+  /* The title link covers the whole card: one target, one tab stop. */
+  .project__link::after {
     content: '';
     position: absolute;
     inset: 0;
+    z-index: 1;
   }
-
-  .feature__tagline {
-    margin-top: var(--space-2);
-    font-size: var(--fs-lead);
-    line-height: 1.45;
-    color: var(--text-secondary);
-    text-wrap: pretty;
+  .project:hover h3 {
+    color: var(--accent);
   }
-
-  .feature__summary {
-    max-width: 44rem;
-    color: var(--text-muted);
+  .project:has(.project__link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+  .project__link:focus-visible {
+    outline: none;
+  }
+  .project__description {
+    margin-top: 0.7rem;
     font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    line-height: 1.7;
   }
-
-  /* --- Metrics -------------------------------------------------- */
-  .feature__metrics {
+  /* Fixed columns, so values line up from one card to the next. */
+  .project__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .project__metrics div {
+    display: flex;
+    flex-direction: column-reverse;
+    /* column-reverse flips the axis: this pins values to the top. */
+    justify-content: flex-end;
+    gap: 0.2rem;
+  }
+  .project__metrics dd {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .project__metrics dt {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+  .project__stack {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-6);
-    padding-top: var(--space-2);
+    gap: 0.35rem;
+    margin-top: 1rem;
   }
-
-  .feature__metrics li {
-    display: grid;
-    gap: 2px;
-  }
-
-  .feature__metric-value {
+  .project__stack li {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 1.0625rem;
-    color: var(--text);
+    font-size: 0.7rem;
+    letter-spacing: 0;
   }
-
-  .feature__metric-label {
-    font-size: var(--fs-xs);
+  .project__stack .project__more {
     color: var(--text-muted);
   }
-
-  /* --- Footer --------------------------------------------------- */
-  .feature__foot {
+  .project__links {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
-    padding-top: var(--space-5);
-    border-top: 1px solid var(--border);
+    gap: 0.5rem 1.2rem;
+    margin-top: 1.25rem;
   }
-
-  .feature__stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    color: var(--text-faint);
-    font-size: var(--fs-micro);
-    letter-spacing: 0.04em;
-  }
-
-  /* --- Actions --------------------------------------------------
-     Real buttons, lifted above the stretched title anchor so each one is
-     its own click target rather than falling through to the case study. */
-  .feature__actions {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .feature__action {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.45rem 0.9rem;
-    font-size: var(--fs-xs);
-    font-weight: 500;
-    white-space: nowrap;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-full);
-    transition:
-      color var(--dur) var(--ease-out),
-      border-color var(--dur) var(--ease-out),
-      background-color var(--dur) var(--ease-out);
-  }
-
-  .feature__action:hover {
-    color: var(--text);
-    border-color: hsl(var(--atmosphere) / 55%);
-    background: hsl(var(--atmosphere) / 8%);
-  }
-
-  .feature__action--primary {
-    color: var(--bg-deep);
-    background: var(--text);
-    border-color: var(--text);
-  }
-
-  .feature__action--primary:hover {
-    color: var(--bg-deep);
-    background: #fff;
-    border-color: #fff;
-  }
-
-  .feature__action--quiet {
-    border-color: transparent;
-  }
-
-  .feature__action svg {
-    flex-shrink: 0;
-    transition: transform var(--dur) var(--ease-out);
-  }
-
-  .feature__action:not(.feature__action--quiet):hover svg {
-    transform: translate(1px, -1px);
-  }
-
-  .feature__action--quiet:hover svg {
+  .project:hover .project__cta span {
     transform: translateX(3px);
   }
-
-  /* --- Layouts -------------------------------------------------- */
-  @media (min-width: 62rem) {
-    .feature[data-layout='lead'] {
-      gap: var(--space-8);
-    }
-
-    .feature[data-layout='lead'] .feature__body {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-      column-gap: var(--space-9);
-      align-items: start;
-    }
-
-    .feature[data-layout='lead'] .feature__detail {
-      display: grid;
-      gap: var(--space-5);
-      align-content: start;
-    }
-
-    .feature[data-layout='lead'] .feature__title {
-      font-size: var(--fs-h1);
-    }
-
-    .feature[data-layout='split'],
-    .feature[data-layout='split-reverse'] {
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      gap: var(--space-9);
-    }
-
-    .feature[data-layout='split-reverse'] .feature__media {
-      order: 2;
-    }
-
-    .feature[data-layout='split-reverse'] .feature__body {
-      order: 1;
+  .project__cta span {
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .project__external {
+    display: flex;
+    gap: 1.2rem;
+  }
+  /* External links sit above the card-wide link. */
+  .project__external a {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 36px;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    transition: color var(--dur-fast);
+  }
+  .project__external a:hover {
+    color: var(--text);
+  }
+  .project--compact {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 1.75rem;
+    padding-block: 1.5rem;
+  }
+  .project--compact h3 {
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  .project--compact .project__description {
+    font-size: var(--fs-xs);
+    margin-top: 0.4rem;
+  }
+  .project--compact .project__stack {
+    margin-top: 0.75rem;
+  }
+  @media (max-width: 47.99rem) {
+    .project,
+    .project--compact {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
     }
   }
-
-  @media (max-width: 61.99rem) {
-    .feature__metrics {
-      gap: var(--space-5);
+  @media (prefers-reduced-motion: reduce) {
+    .project:hover .project__visual :global(.figure__well img) {
+      transform: none;
     }
   }
 </style>
