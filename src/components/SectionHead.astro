@@ -1,7 +1,6 @@
 ---
 /**
- * Section label. Deliberately small and quiet — these are signposts, not
- * content, and they should never compete with a project title for weight.
+ * Consistent numbered headings make the page sections easy to scan.
  */
 interface Props {
   index: string;
@@ -35,11 +34,10 @@ const { index, title, meta, id } = Astro.props;
     display: flex;
     align-items: baseline;
     gap: var(--space-4);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
+    font-family: var(--font-sans);
+    font-size: var(--fs-h2);
     font-weight: 500;
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
+    letter-spacing: var(--tracking-tight);
     color: var(--text);
   }
 

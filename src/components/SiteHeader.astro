@@ -1,17 +1,22 @@
 ---
 import Logo from './Logo.astro';
-import MobileNav from './MobileNav.svelte';
 import { nav, navCta } from '../lib/site';
 
 interface Props {
   isHome?: boolean;
 }
 const { isHome = false } = Astro.props;
+const pathname = Astro.url.pathname;
+const activeSection = pathname.startsWith('/projects/')
+  ? 'work'
+  : pathname.replace(/\/$/, '') === '/research'
+    ? 'research'
+    : undefined;
 ---
 
-<header class="header" data-header>
+<header class="header" data-header data-home={isHome}>
   <div class="header__inner shell shell--wide">
-    <a class="brand" href="/" aria-current={isHome ? 'page' : undefined}>
+    <a class="brand" href={isHome ? '#main' : '/'} aria-current={isHome ? 'page' : undefined}>
       <Logo size={20} class="brand__mark" />
       <span class="brand__name">Aman Sriven</span>
     </a>
@@ -19,45 +24,62 @@ const { isHome = false } = Astro.props;
     <nav class="nav" aria-label="Primary">
       <ul class="nav__list">
         {
-          nav.map((item) => (
+          [...nav, navCta].map((item) => (
             <li>
-              <a class="nav__link" href={item.href}>
+              <a
+                class:list={['nav__link', { 'nav__link--contact': item.section === 'contact' }]}
+                href={isHome ? `#${item.section}` : item.href}
+                data-section={item.section}
+                aria-current={activeSection === item.section ? 'page' : undefined}
+              >
                 {item.label}
               </a>
             </li>
           ))
         }
       </ul>
-      <a class="nav__cta" href={navCta.href}>
-        {navCta.label}
-        <svg viewBox="0 0 14 14" aria-hidden="true" width="11" height="11">
-          <path
-            d="M2 7h10M12 7l-4-4M12 7l-4 4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </a>
     </nav>
-
-    <MobileNav client:idle items={[...nav]} cta={{ ...navCta }} />
   </div>
 </header>
 
 <script>
-  // Adds a backdrop to the header once the page has scrolled past the hero lip.
-  const header = document.querySelector('[data-header]');
+  const header = document.querySelector<HTMLElement>('[data-header]');
   if (header) {
-    const sentinel = document.createElement('div');
-    sentinel.setAttribute('aria-hidden', 'true');
-    sentinel.style.cssText = 'position:absolute;top:0;height:1px;width:1px;';
-    document.body.prepend(sentinel);
-    new IntersectionObserver(
-      ([entry]) => header.classList.toggle('is-stuck', !entry!.isIntersecting),
-      { threshold: 0 },
-    ).observe(sentinel);
+    const links = [...header.querySelectorAll<HTMLAnchorElement>('[data-section]')];
+    const sections = links
+      .map((link) => document.getElementById(link.dataset.section!))
+      .filter((section): section is HTMLElement => section !== null);
+    let scheduled = false;
+
+    const update = () => {
+      scheduled = false;
+      header.classList.toggle('is-stuck', window.scrollY > 8);
+      if (header.dataset.home !== 'true') return;
+
+      // Follow the section crossing the header, including tall project sections.
+      const offset = header.getBoundingClientRect().bottom + 48;
+      let current: string | undefined;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= offset) current = section.id;
+      }
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+        current = sections.at(-1)?.id;
+      }
+      for (const link of links) {
+        if (link.dataset.section === current) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+    };
+
+    const scheduleUpdate = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('pageshow', scheduleUpdate);
+    update();
   }
 </script>
 
@@ -69,17 +91,17 @@ const { isHome = false } = Astro.props;
     height: var(--header-height);
     display: flex;
     align-items: center;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
     transition:
       background-color var(--dur) var(--ease-out),
-      border-color var(--dur) var(--ease-out),
-      backdrop-filter var(--dur) var(--ease-out);
-    border-bottom: 1px solid transparent;
+      box-shadow var(--dur) var(--ease-out);
   }
 
   .header.is-stuck {
-    background-color: color-mix(in srgb, var(--bg) 72%, transparent);
-    backdrop-filter: blur(16px) saturate(140%);
-    border-bottom-color: var(--border);
+    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
   }
 
   .header__inner {
@@ -89,100 +111,105 @@ const { isHome = false } = Astro.props;
     gap: var(--space-6);
   }
 
-  /* --- Brand ------------------------------------------------- */
   .brand {
     display: inline-flex;
     align-items: center;
     gap: var(--space-3);
     font-size: var(--fs-sm);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: var(--tracking-tight);
     white-space: nowrap;
   }
 
   .brand :global(.brand__mark) {
     color: var(--accent);
-    transition:
-      transform var(--dur) var(--ease-out),
-      color var(--dur) var(--ease-out);
   }
 
-  .brand:hover :global(.brand__mark) {
-    transform: translateY(-1px);
-    color: var(--accent-bright);
-  }
-
-  /* --- Desktop nav ------------------------------------------- */
   .nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
+    min-width: 0;
   }
 
   .nav__list {
     display: flex;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-1);
   }
 
   .nav__link {
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
     font-size: var(--fs-sm);
+    font-weight: 500;
+    white-space: nowrap;
     color: var(--text-secondary);
-    transition: color var(--dur-fast) var(--ease-out);
-  }
-
-  .nav__link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -5px;
-    width: 100%;
-    height: 1px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--dur) var(--ease-out);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
   }
 
   .nav__link:hover {
     color: var(--text);
+    background: var(--surface-raised);
   }
 
-  .nav__link:hover::after {
-    transform: scaleX(1);
-  }
-
-  .nav__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.4rem 0.85rem;
-    font-size: var(--fs-sm);
+  .nav__link--contact {
+    margin-left: var(--space-3);
+    border-color: var(--border-strong);
     color: var(--text);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-full);
-    transition:
-      border-color var(--dur) var(--ease-out),
-      background-color var(--dur) var(--ease-out);
   }
 
-  .nav__cta:hover {
-    border-color: var(--accent);
+  .nav__link[aria-current] {
+    color: var(--accent-bright);
     background: var(--accent-dim);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
-  .nav__cta svg {
-    transition: transform var(--dur) var(--ease-out);
-  }
+  @media (max-width: 55.99rem) {
+    .header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: var(--space-2);
+    }
 
-  .nav__cta:hover svg {
-    transform: translateX(3px);
-  }
-
-  @media (max-width: 47.99rem) {
     .nav {
-      display: none;
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .nav__list {
+      width: max-content;
+      min-width: 100%;
+      justify-content: space-between;
+      padding: 3px;
+    }
+
+    .nav__link {
+      padding-inline: 0.7rem;
+      font-size: var(--fs-xs);
+    }
+
+    .nav__link--contact {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 24rem) {
+    .nav__list {
+      gap: 0;
+    }
+
+    .nav__link {
+      padding-inline: 0.5rem;
+      font-size: 0.75rem;
     }
   }
 </style>

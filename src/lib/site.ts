@@ -18,11 +18,11 @@ export const socials = [
 ] as const;
 
 export const nav = [
-  { label: 'Work', href: '/#work' },
-  { label: 'Experience', href: '/#experience' },
-  { label: 'Research', href: '/research' },
-  { label: 'About', href: '/#about' },
+  { label: 'Projects', href: '/#work', section: 'work' },
+  { label: 'Experience', href: '/#experience', section: 'experience' },
+  { label: 'Research', href: '/#research', section: 'research' },
+  { label: 'About', href: '/#about', section: 'about' },
 ] as const;
 
-/** The emphasised nav action, rendered as a button rather than a link. */
-export const navCta = { label: 'Contact', href: '/#contact' } as const;
+/** The emphasised contact link in the primary navigation. */
+export const navCta = { label: 'Contact', href: '/#contact', section: 'contact' } as const;
