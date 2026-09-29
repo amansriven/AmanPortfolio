@@ -252,7 +252,7 @@ for (const file of (await readdir(CONTENT)).filter((f) => f.endsWith('.mdx'))) {
   );
   cards.push({
     name: file.replace(/\.mdx$/, ''),
-    eyebrow: 'Case Study',
+    eyebrow: 'Project',
     title,
     tagline,
     accent: hslToHex(accent),

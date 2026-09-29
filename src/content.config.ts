@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { glob } from 'astro/loaders';
 
 /**
- * Project case studies.
+ * Projects, each with its own page.
  *
  * Add a project by dropping a new `.mdx` file into `src/content/projects/`.
  * The filename becomes the route: `roleward.mdx` -> `/projects/roleward`.
@@ -44,7 +44,7 @@ const projects = defineCollection({
     heroFit: z.enum(['cover', 'contain']).default('cover'),
     /** CSS aspect-ratio for the hero well. */
     heroRatio: z.string().default('16 / 9'),
-    /** Optional supporting shots shown inside the case study. */
+    /** Optional supporting shots shown on the project page. */
     gallery: z
       .array(z.object({ src: z.string(), alt: z.string(), caption: z.string().optional() }))
       .default([]),
