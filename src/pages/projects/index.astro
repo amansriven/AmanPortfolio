@@ -40,7 +40,13 @@ const secondary = techs.filter(([, count]) => count === 1);
       }
       {
         secondary.map(([tech]) => (
-          <button type="button" class="chip chip--extra" aria-pressed="false" data-tech={tech} hidden>
+          <button
+            type="button"
+            class="chip chip--extra"
+            aria-pressed="false"
+            data-tech={tech}
+            hidden
+          >
             {tech}
           </button>
         ))
@@ -92,7 +98,8 @@ const secondary = techs.filter(([, count]) => count === 1);
           card.classList.add('is-entering');
         }
       }
-      for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.tech === tech));
+      for (const chip of chips)
+        chip.setAttribute('aria-pressed', String(chip.dataset.tech === tech));
       if (tech && filter.querySelector(`.chip--extra[data-tech="${CSS.escape(tech)}"]`)) {
         showExtras(true);
       }
@@ -110,7 +117,7 @@ const secondary = techs.filter(([, count]) => count === 1);
 
     for (const chip of chips) {
       chip.addEventListener('click', () =>
-        apply(chip.getAttribute('aria-pressed') === 'true' ? '' : chip.dataset.tech ?? ''),
+        apply(chip.getAttribute('aria-pressed') === 'true' ? '' : (chip.dataset.tech ?? '')),
       );
     }
     more?.addEventListener('click', () => {

@@ -85,8 +85,12 @@ async function dataUri(path, width, height) {
 
 /** Viewfinder brackets around a box, as on the landing-page portrait. */
 function brackets(x, y, w, h, gap = 14, len = 22) {
-  const c = (d) => `<path d="${d}" fill="none" stroke="${ACCENT}" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.75"/>`;
-  const l = x - gap, t = y - gap, r = x + w + gap, b = y + h + gap;
+  const c = (d) =>
+    `<path d="${d}" fill="none" stroke="${ACCENT}" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.75"/>`;
+  const l = x - gap,
+    t = y - gap,
+    r = x + w + gap,
+    b = y + h + gap;
   return [
     c(`M${l} ${t + len}V${t}H${l + len}`),
     c(`M${r - len} ${t}H${r}V${t + len}`),

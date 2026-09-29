@@ -1,9 +1,9 @@
 ---
-import { nav, navCta } from '../lib/site';
+import { cleanPath, nav, navCta } from '../lib/site';
 interface Props {
   isHome?: boolean;
 }
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pathname = cleanPath(Astro.url.pathname);
 const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
 ---
 
@@ -14,33 +14,38 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
       <span>Aman Sriven</span>
     </a>
     <div class="header__end">
-    <nav aria-label="Primary">
-      <ul class="navigation">
-        {
-          items.map((item) => {
-            const active =
-              item.href === '/'
-                ? pathname === '/'
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <li>
-                <a
-                  href={item.href}
-                  class:list={{ navigation__contact: item.href === '/contact' }}
-                  aria-current={active ? 'page' : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            );
-          })
-        }
-      </ul>
-    </nav>
-    <button class="palette-trigger" type="button" data-palette-open aria-label="Open command palette">
-      <span>Search</span>
-      <kbd>⌘K</kbd>
-    </button>
+      <nav aria-label="Primary">
+        <ul class="navigation">
+          {
+            items.map((item) => {
+              const active =
+                item.href === '/'
+                  ? pathname === '/'
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    class:list={{ navigation__contact: item.href === '/contact' }}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+      <button
+        class="palette-trigger"
+        type="button"
+        data-palette-open
+        aria-label="Open command palette"
+      >
+        <span>Search</span>
+        <kbd>⌘K</kbd>
+      </button>
     </div>
   </div>
   <!-- Fills as the page scrolls (CSS scroll-driven animation). -->

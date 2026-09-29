@@ -78,7 +78,9 @@ const { items } = Astro.props;
     new IntersectionObserver(
       ([entry]) => nav.classList.toggle('is-stuck', !entry!.isIntersecting),
       // rootMargin only accepts px or %, so measure the header directly.
-      { rootMargin: `-${document.querySelector('.header')?.getBoundingClientRect().height ?? 76}px 0px 0px 0px` },
+      {
+        rootMargin: `-${document.querySelector('.header')?.getBoundingClientRect().height ?? 76}px 0px 0px 0px`,
+      },
     ).observe(sentinel);
   }
 </script>

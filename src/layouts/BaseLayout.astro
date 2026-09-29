@@ -5,7 +5,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Lightbox from '../components/Lightbox.astro';
 import BackToTop from '../components/BackToTop.astro';
-import { site } from '../lib/site';
+import { cleanPath, site } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -27,7 +27,7 @@ const {
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.name}` : site.title;
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site.url).href;
+const canonical = new URL(cleanPath(Astro.url.pathname), site.url).href;
 const ogImageUrl = new URL(ogImage, site.url).href;
 
 const personSchema = {

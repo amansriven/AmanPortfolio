@@ -26,3 +26,17 @@ export const nav = [
 
 /** The emphasised contact link in the primary navigation. */
 export const navCta = { label: 'Contact', href: '/contact', section: 'contact' } as const;
+
+/**
+ * The public form of a page path. With `build.format: 'file'`, Astro reports
+ * paths like `/projects.html` at build time; links, canonicals, and the nav's
+ * active state all use `/projects`.
+ */
+export function cleanPath(pathname: string): string {
+  return (
+    pathname
+      .replace(/\.html$/, '')
+      .replace(/\/index$/, '')
+      .replace(/\/$/, '') || '/'
+  );
+}

@@ -167,9 +167,9 @@ const groups = [...new Set(commands.map((command) => command.group))];
       }
     });
 
-    document.querySelectorAll('[data-palette-open]').forEach((button) =>
-      button.addEventListener('click', open),
-    );
+    document
+      .querySelectorAll('[data-palette-open]')
+      .forEach((button) => button.addEventListener('click', open));
 
     input.addEventListener('input', filter);
     input.addEventListener('keydown', (event) => {

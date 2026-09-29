@@ -18,7 +18,11 @@ export default defineConfig({
   }),
   integrations: [svelte(), mdx(), sitemap()],
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
-  build: { inlineStylesheets: 'auto' },
+  // Pages build as `projects.html`, not `projects/index.html`, so Cloudflare
+  // serves `/projects` directly instead of 307-redirecting to `/projects/`.
+  // Links, canonical URLs, and the sitemap all use the no-slash form.
+  trailingSlash: 'never',
+  build: { inlineStylesheets: 'auto', format: 'file' },
   vite: {
     build: { cssCodeSplit: false },
   },
