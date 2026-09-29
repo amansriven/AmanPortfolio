@@ -75,7 +75,7 @@ const circumference = +(2 * Math.PI * r).toFixed(2);
     color: var(--accent);
     background: color-mix(in srgb, var(--surface) 88%, transparent);
     backdrop-filter: blur(10px);
-    box-shadow: 0 10px 24px -12px rgb(44 38 37 / 40%);
+    box-shadow: 0 10px 24px -12px rgb(var(--shadow-rgb) / 40%);
     opacity: 0;
     transform: translateY(12px) scale(0.9);
     pointer-events: none;

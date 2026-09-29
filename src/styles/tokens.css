@@ -23,7 +23,16 @@
   --on-accent: #ffffff;
   --success: #27604f;
   --danger: #a92a3d;
+  --warning: #b7791f;
   --atmosphere: 345 49% 28%;
+  /* Filled accent surfaces (buttons, the logo mark, selected chips) that carry
+     --on-accent text. Same as --accent in light; deeper than it in dark. */
+  --accent-fill: #6b2536;
+  --accent-fill-hover: #4e1726;
+  /* Shadows are rgb(var(--shadow-rgb) / alpha) so they deepen in dark mode. */
+  --shadow-rgb: 44 38 37;
+  --brand-github: #181717;
+  --brand-github-fg: #ffffff;
   --font-display: Georgia, 'Times New Roman', serif;
 
   /* --- Type -------------------------------------------------- */
@@ -109,5 +118,77 @@
 @media (max-width: 55.99rem) {
   :root {
     --header-height: 6.5rem;
+  }
+}
+
+/* --- Dark theme ------------------------------------------------
+   Warm espresso, not black, with a terracotta accent that sits between the
+   light theme's maroon and orange: brick for filled surfaces, a lighter clay
+   for links and highlights. (Maroon itself reads as pink on this background.) Applies when the
+   visitor picks it (data-theme, set by the toggle) or, with no choice saved,
+   when their system prefers dark. The two blocks must stay identical. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #1b1617;
+  --bg-deep: #151112;
+  --surface: #231d1e;
+  --surface-raised: #2b2324;
+  --surface-hover: #33292a;
+  --border: #3a3031;
+  --border-strong: #4d4142;
+  --border-bright: #6e5f5d;
+  --text: #f1e9e4;
+  --text-secondary: #cdc1bb;
+  --text-muted: #a3968f;
+  --text-faint: #8f837d;
+  --accent: #e8946e;
+  --accent-bright: #f0ac8c;
+  --accent-dim: #3d2620;
+  --on-accent: #ffffff;
+  --success: #6cc3a0;
+  --danger: #f0826c;
+  --warning: #e0a846;
+  --atmosphere: 17 70% 67%;
+  --accent-fill: #a8432a;
+  --accent-fill-hover: #923a24;
+  --shadow-rgb: 0 0 0;
+  --brand-github: #f0f6fc;
+  --brand-github-fg: #181717;
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 30%);
+  --shadow-md: 0 10px 24px -12px rgb(0 0 0 / 55%);
+  --shadow-lg: 0 24px 48px -24px rgb(0 0 0 / 65%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #1b1617;
+    --bg-deep: #151112;
+    --surface: #231d1e;
+    --surface-raised: #2b2324;
+    --surface-hover: #33292a;
+    --border: #3a3031;
+    --border-strong: #4d4142;
+    --border-bright: #6e5f5d;
+    --text: #f1e9e4;
+    --text-secondary: #cdc1bb;
+    --text-muted: #a3968f;
+    --text-faint: #8f837d;
+    --accent: #e8946e;
+    --accent-bright: #f0ac8c;
+    --accent-dim: #3d2620;
+    --on-accent: #ffffff;
+    --success: #6cc3a0;
+    --danger: #f0826c;
+    --warning: #e0a846;
+    --atmosphere: 17 70% 67%;
+    --accent-fill: #a8432a;
+    --accent-fill-hover: #923a24;
+    --shadow-rgb: 0 0 0;
+    --brand-github: #f0f6fc;
+    --brand-github-fg: #181717;
+    --shadow-sm: 0 1px 3px rgb(0 0 0 / 30%);
+    --shadow-md: 0 10px 24px -12px rgb(0 0 0 / 55%);
+    --shadow-lg: 0 24px 48px -24px rgb(0 0 0 / 65%);
   }
 }

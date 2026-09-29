@@ -53,7 +53,7 @@ const extraTags = data.stack.length - tags.length;
   .tile:hover {
     transform: translateY(-4px);
     border-color: var(--border-strong);
-    box-shadow: 0 22px 40px -28px rgb(44 38 37 / 45%);
+    box-shadow: 0 22px 40px -28px rgb(var(--shadow-rgb) / 45%);
   }
 
   .tile:has(.tile__link:focus-visible) {
@@ -113,7 +113,7 @@ const extraTags = data.stack.length - tags.length;
   }
 
   .tile__status[data-tone='building']::before {
-    background: #b7791f;
+    background: var(--warning);
   }
 
   .tile__status[data-tone='award']::before {

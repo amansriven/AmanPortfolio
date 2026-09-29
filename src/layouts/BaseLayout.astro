@@ -58,6 +58,32 @@ const personSchema = {
     <link rel="manifest" href="/site.webmanifest?v=2" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#faf8f5" />
+    <!-- Sets the theme before first paint so dark-mode visitors never see a white
+         flash. Saved choice wins; otherwise follow the system, live. Keep the
+         colours in step with src/lib/theme.ts. -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        const saved = () => {
+          try {
+            const t = localStorage.getItem('theme');
+            return t === 'light' || t === 'dark' ? t : null;
+          } catch {
+            return null;
+          }
+        };
+        const set = (theme) => {
+          root.dataset.theme = theme;
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = theme === 'dark' ? '#1b1617' : '#faf8f5';
+        };
+        set(saved() ?? (media.matches ? 'dark' : 'light'));
+        media.addEventListener('change', (e) => {
+          if (!saved()) set(e.matches ? 'dark' : 'light');
+        });
+      })();
+    </script>
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />

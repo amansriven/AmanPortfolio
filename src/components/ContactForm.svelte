@@ -78,7 +78,7 @@
       sitekey: siteKey,
       execution: 'execute',
       appearance: 'interaction-only',
-      theme: 'light',
+      theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
       callback: (token: string) => resolveToken?.(token),
       'error-callback': () => rejectToken?.(new Error('Verification failed.')),
       'timeout-callback': () => rejectToken?.(new Error('Verification timed out.')),
@@ -420,7 +420,7 @@
     font-size: var(--fs-sm);
     font-weight: 500;
     color: var(--on-accent);
-    background: var(--accent);
+    background: var(--accent-fill);
     border-radius: var(--radius-full);
     transition:
       background-color var(--dur) var(--ease-out),
@@ -429,7 +429,7 @@
   }
 
   .submit:hover:not(:disabled) {
-    background: var(--accent-bright);
+    background: var(--accent-fill-hover);
     transform: translateY(-1px);
   }
 

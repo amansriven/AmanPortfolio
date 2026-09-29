@@ -216,7 +216,7 @@ const { standalone = false } = Astro.props;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
-    box-shadow: 0 24px 48px -32px rgb(44 38 37 / 45%);
+    box-shadow: 0 24px 48px -32px rgb(var(--shadow-rgb) / 45%);
   }
 
   .about__portrait :global(img) {

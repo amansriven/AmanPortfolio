@@ -208,16 +208,16 @@ main {
   gap: 1.25rem;
   min-height: 44px;
   padding: 0.7rem 1rem;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--on-accent);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--accent-fill);
   border-radius: 4px;
   font-size: var(--fs-xs);
   font-weight: 500;
   transition: background var(--dur-fast);
 }
 .button-primary:hover {
-  background: var(--accent-bright);
+  background: var(--accent-fill-hover);
 }
 .text-link {
   display: inline-flex;
@@ -266,7 +266,8 @@ main {
 }
 
 .social-circle[data-brand='github'] {
-  --brand: #181717;
+  --brand: var(--brand-github);
+  --brand-fg: var(--brand-github-fg);
 }
 
 .social-circle[data-brand='linkedin'] {
@@ -278,7 +279,7 @@ a:hover > .social-circle,
 a:focus-visible > .social-circle {
   background: var(--brand);
   border-color: var(--brand);
-  color: #fff;
+  color: var(--brand-fg, #fff);
   transform: translateY(-2px);
   box-shadow: 0 8px 18px -8px var(--brand);
 }
@@ -338,4 +339,40 @@ a:focus-visible > .social-circle {
   @view-transition {
     navigation: none;
   }
+}
+
+/* --- Theme switching -----------------------------------------
+   Toggling the theme (src/lib/theme.ts) runs a view transition in which the
+   new theme spreads out in a circle from the toggle. The header joins the
+   root snapshot so it changes with everything else. */
+html.theme-switching .header {
+  view-transition-name: none;
+}
+
+html.theme-switching::view-transition-old(root) {
+  animation: none;
+}
+
+html.theme-switching::view-transition-new(root) {
+  animation: theme-reveal 600ms var(--ease-in-out);
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 0));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 0));
+  }
+}
+
+/* Fallback where view transitions are unsupported: a short cross-fade. */
+html.theme-fade,
+html.theme-fade * {
+  transition:
+    background-color 300ms var(--ease-out),
+    color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    fill 300ms var(--ease-out),
+    stroke 300ms var(--ease-out) !important;
 }

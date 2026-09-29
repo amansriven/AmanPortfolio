@@ -16,13 +16,27 @@ const { label = 'Decision', title } = Astro.props;
 </aside>
 
 <style>
+  /* A quiet card with a slim accent bar: stands out from the prose without
+     competing with it. */
   .callout {
+    position: relative;
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
     padding: var(--space-5) var(--space-6);
-    border-left: 1px solid var(--accent);
-    background: linear-gradient(90deg, var(--accent-dim), transparent 70%);
-    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .callout::before {
+    content: '';
+    position: absolute;
+    top: var(--space-5);
+    bottom: var(--space-5);
+    left: -1px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--accent);
   }
 
   .callout__label {
@@ -30,15 +44,18 @@ const { label = 'Decision', title } = Astro.props;
   }
 
   .callout__title {
-    font-size: 1.0625rem;
-    font-weight: 500;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
     color: var(--text);
     letter-spacing: var(--tracking-tight);
     text-wrap: pretty;
   }
 
   .callout__body {
-    font-size: var(--fs-sm);
+    margin-top: var(--space-1);
+    font-size: 0.975rem;
+    line-height: 1.7;
     color: var(--text-secondary);
   }
 

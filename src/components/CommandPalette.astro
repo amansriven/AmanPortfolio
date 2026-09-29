@@ -14,7 +14,7 @@ interface Command {
   label: string;
   hint?: string;
   href?: string;
-  action?: 'copy-email';
+  action?: 'copy-email' | 'toggle-theme';
   external?: boolean;
 }
 
@@ -35,6 +35,7 @@ const commands: Command[] = [
     external: social.href.startsWith('http'),
   })),
   { group: 'Actions', label: 'Copy email address', hint: site.email, action: 'copy-email' },
+  { group: 'Actions', label: 'Toggle theme', hint: 'Light / dark', action: 'toggle-theme' },
 ];
 const groups = [...new Set(commands.map((command) => command.group))];
 ---
@@ -84,7 +85,13 @@ const groups = [...new Set(commands.map((command) => command.group))];
                     <span class="palette__label">{command.label}</span>
                     {command.hint && <span class="palette__hint">{command.hint}</span>}
                     <span class="palette__arrow" aria-hidden="true">
-                      {command.external ? '↗' : command.action ? '⧉' : '→'}
+                      {command.external
+                        ? '↗'
+                        : command.action === 'toggle-theme'
+                          ? '◐'
+                          : command.action
+                            ? '⧉'
+                            : '→'}
                     </span>
                   </a>
                 </li>
@@ -144,6 +151,11 @@ const groups = [...new Set(commands.map((command) => command.group))];
     };
 
     const run = async (item: HTMLAnchorElement) => {
+      if (item.dataset.action === 'toggle-theme') {
+        dialog.close();
+        document.dispatchEvent(new CustomEvent('theme:toggle'));
+        return;
+      }
       if (item.dataset.action === 'copy-email') {
         await navigator.clipboard?.writeText(item.dataset.email ?? '');
         const label = item.querySelector('.palette__label')!;
@@ -214,7 +226,7 @@ const groups = [...new Set(commands.map((command) => command.group))];
     border-radius: 14px;
     box-shadow:
       0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent),
-      0 40px 80px -30px rgb(44 38 37 / 45%);
+      0 40px 80px -30px rgb(var(--shadow-rgb) / 45%);
     backdrop-filter: blur(16px);
   }
 
@@ -225,7 +237,7 @@ const groups = [...new Set(commands.map((command) => command.group))];
   }
 
   .palette::backdrop {
-    background: rgb(44 38 37 / 28%);
+    background: rgb(var(--shadow-rgb) / 35%);
     backdrop-filter: blur(3px);
   }
 
