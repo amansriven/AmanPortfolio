@@ -1,7 +1,7 @@
 ---
 import Figure from './Figure.astro';
 import SocialIcon from './SocialIcon.astro';
-import { projectLinks } from '../lib/links';
+import { projectLinks, statusTone } from '../lib/links';
 import type { CollectionEntry } from 'astro:content';
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -18,12 +18,7 @@ const maxTags = compact ? 3 : 4;
 const tags = data.stack.slice(0, maxTags);
 const extraTags = data.stack.length - tags.length;
 
-/* Status is free text; this only picks the colour of its dot. */
-const tone = /development|progress/i.test(data.status)
-  ? 'building'
-  : /\b(1st|2nd|3rd|place|award)\b/i.test(data.status)
-    ? 'award'
-    : 'live';
+const tone = statusTone(data.status);
 ---
 
 <article

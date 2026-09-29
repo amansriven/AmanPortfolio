@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import portrait from '../assets/portrait/aman.jpg';
+// Pre-cropped to 4:5 around the face; the landing page keeps the studio headshot.
+import portrait from '../assets/portrait/aman-lake.jpg';
 import { socials } from '../lib/site';
 import SectionHead from './SectionHead.astro';
 import SocialIcon from './SocialIcon.astro';
@@ -67,6 +68,7 @@ const { standalone = false } = Astro.props;
       )
     }
 
+    <!-- Bio beside the portrait -->
     <div class="about__grid">
       <div class="about__prose" data-reveal>
         <p class="about__lead">
@@ -85,39 +87,44 @@ const { standalone = false } = Astro.props;
           making failure legible, and giving whoever is on the other end enough evidence to disagree
           with the machine.
         </p>
-
-        <section class="interests" aria-labelledby="interests-heading">
-          <h2 id="interests-heading">Away from the keyboard</h2><p>
-            I enjoy a good true-crime mystery, the Marvel universe, and strategy and role-playing
-            games.
-          </p>
-        </section>
       </div>
 
-      <aside class="about__side" data-reveal>
-        <figure class="about__portrait">
-          <Image
-            src={portrait}
-            alt="Aman Sriven"
-            widths={[320, 480, 720]}
-            sizes="(max-width: 62rem) 60vw, 22rem"
-          />
-        </figure>
+      <figure class="about__portrait" data-reveal>
+        <Image
+          src={portrait}
+          alt="Aman Sriven smiling on a lakeside deck, with boats docked behind him"
+          widths={[320, 480, 720, 960]}
+          sizes="(max-width: 61.99rem) 70vw, 20rem"
+        />
+      </figure>
+    </div>
 
-        <div class="currently-block">
-          <p class="eyebrow currently__title">Currently</p>
-          <dl class="currently">
-            {
-              currently.map((item) => (
-                <div class="currently__row">
-                  <dt class="mono">{item.label}</dt>
-                  <dd>{item.value}</dd>
-                </div>
-              ))
-            }
-          </dl>
-        </div>
+    <!-- Three equal cards: what I'm doing, who I am off-hours, where to find me -->
+    <div class="about__cards" data-reveal>
+      <section class="card" aria-labelledby="currently-heading">
+        <h2 class="card__title" id="currently-heading">Currently</h2>
+        <dl class="currently">
+          {
+            currently.map((item) => (
+              <div class="currently__row">
+                <dt>{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
 
+      <section class="card" aria-labelledby="interests-heading">
+        <h2 class="card__title" id="interests-heading">Away from the keyboard</h2>
+        <p class="card__text">
+          I enjoy a good true-crime mystery, the Marvel universe, and strategy and role-playing
+          games.
+        </p>
+      </section>
+
+      <section class="card" aria-labelledby="elsewhere-heading">
+        <h2 class="card__title" id="elsewhere-heading">Elsewhere</h2>
         <ul class="about__links">
           {
             socials.map((social) => (
@@ -133,26 +140,35 @@ const { standalone = false } = Astro.props;
                   >
                     <SocialIcon label={social.label} />
                   </span>
-                  <span class="about__label">{social.label}</span>
-                  <span class="mono about__handle">{social.handle}</span>
+                  <span class="about__link-text">
+                    <span class="about__label">{social.label}</span>
+                    <span class="mono about__handle">{social.handle}</span>
+                  </span>
                 </a>
               </li>
             ))
           }
         </ul>
-      </aside>
+      </section>
     </div>
 
+    <!-- Toolkit: one card per layer, each technology as a tag -->
     <section class="toolkit" data-reveal aria-labelledby="toolkit-heading">
       <h2 id="toolkit-heading">Toolkit</h2>
-      {
-        toolkit.map((group) => (
-          <div class="toolkit__group">
-            <p class="eyebrow">{group.label}</p>
-            <p class="toolkit__items mono">{group.items.join('  ·  ')}</p>
-          </div>
-        ))
-      }
+      <div class="toolkit__grid">
+        {
+          toolkit.map((group) => (
+            <div class="card">
+              <h3 class="card__title">{group.label}</h3>
+              <ul class="toolkit__tags">
+                {group.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
     </section>
   </div>
 </section>
@@ -161,57 +177,39 @@ const { standalone = false } = Astro.props;
   .standalone {
     padding-top: 0;
   }
-  .interests {
-    margin-top: var(--space-4);
-    padding-top: var(--space-5);
-    border-top: 1px solid var(--border);
-  }
-  .interests h2,
-  .toolkit h2 {
-    font: 400 1.6rem var(--font-display);
-  }
-  .interests p {
-    margin-top: 0.7rem;
-    color: var(--text-secondary);
-    font-size: var(--fs-sm);
-  }
 
+  /* --- Bio + portrait ---------------------------------------------- */
   .about__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: var(--space-9);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    /* Photo sits level with the middle of the bio rather than hanging off its top. */
+    align-items: center;
   }
 
   .about__prose {
     display: grid;
     gap: var(--space-5);
-    max-width: 42rem;
+    max-width: 40rem;
     font-size: var(--fs-sm);
+    line-height: 1.8;
     color: var(--text-secondary);
   }
 
   .about__lead {
     font-size: var(--fs-lead);
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--text);
     letter-spacing: var(--tracking-tight);
-    text-wrap: pretty;
-  }
-
-  /* --- Side rail ------------------------------------------------ */
-  .about__side {
-    display: grid;
-    gap: var(--space-7);
   }
 
   .about__portrait {
-    position: relative;
     margin: 0;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
+    box-shadow: 0 24px 48px -32px rgb(44 38 37 / 45%);
   }
 
   .about__portrait :global(img) {
@@ -219,13 +217,43 @@ const { standalone = false } = Astro.props;
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
-    object-position: center 22%;
-    filter: none;
-    transition: filter var(--dur-slow) var(--ease-out);
+    /* The file is already cropped around the face. */
+    object-position: center;
   }
 
-  .about__portrait:hover :global(img) {
-    filter: saturate(1) contrast(1) brightness(1);
+  /* --- Shared card -------------------------------------------------- */
+  .card {
+    padding: var(--space-5) var(--space-5) var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .card__title {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .card__text {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.75;
+  }
+
+  /* --- Info cards --------------------------------------------------- */
+  /* "Currently" holds the longest lines, so it gets a little more room. */
+  .about__cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    margin-top: clamp(3rem, 6vw, 4.5rem);
   }
 
   .currently {
@@ -233,100 +261,110 @@ const { standalone = false } = Astro.props;
     gap: var(--space-3);
   }
 
-  .currently__title {
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--border);
-  }
-
   .currently__row {
     display: grid;
-    grid-template-columns: 5.5rem minmax(0, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: var(--space-3);
     align-items: baseline;
   }
 
   .currently__row dt {
-    color: var(--text-faint);
-    font-size: var(--fs-micro);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
   }
 
   .currently__row dd {
     margin: 0;
+    color: var(--text);
     font-size: var(--fs-sm);
-    color: var(--text-secondary);
+    line-height: 1.5;
   }
 
   .about__links {
     display: grid;
+    gap: var(--space-3);
   }
 
   .about__links a {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding-block: var(--space-3);
-    border-top: 1px solid var(--border);
-    font-size: var(--fs-sm);
+    min-width: 0;
     color: var(--text-secondary);
-    transition: color var(--dur) var(--ease-out);
-  }
-
-  .about__links li:last-child a {
-    border-bottom: 1px solid var(--border);
+    transition: color var(--dur-fast);
   }
 
   .about__links a:hover {
     color: var(--text);
   }
 
+  .about__link-text {
+    display: grid;
+    min-width: 0;
+  }
+
   .about__label {
-    flex: 1;
+    font-size: var(--fs-sm);
+    line-height: 1.3;
   }
 
   .about__handle {
-    color: var(--text-faint);
-    font-size: var(--fs-micro);
-    text-align: right;
     overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* --- Toolkit -------------------------------------------------- */
-  .toolkit {
-    display: grid;
-    gap: var(--space-5);
-    margin-top: var(--space-9);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--border);
-  }
-
-  .toolkit__group {
-    display: grid;
-    grid-template-columns: 12rem minmax(0, 1fr);
-    gap: var(--space-4);
-    align-items: baseline;
-  }
-
-  .toolkit__items {
     color: var(--text-muted);
-    font-size: var(--fs-xs);
-    line-height: 1.9;
-    text-wrap: pretty;
+    font-size: var(--fs-micro);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
+  /* --- Toolkit ------------------------------------------------------ */
+  .toolkit {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .toolkit h2 {
+    margin-bottom: var(--space-5);
+    font: 400 1.6rem var(--font-display);
+  }
+
+  .toolkit__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .toolkit__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .toolkit__tags li {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  /* --- Responsive --------------------------------------------------- */
   @media (max-width: 61.99rem) {
     .about__grid {
       grid-template-columns: 1fr;
-      gap: var(--space-8);
     }
 
     .about__portrait {
+      width: 100%;
       max-width: 20rem;
+      justify-self: center;
+      grid-row: 1;
     }
 
-    .toolkit__group {
+    .about__cards,
+    .toolkit__grid {
       grid-template-columns: 1fr;
-      gap: var(--space-2);
     }
   }
 </style>

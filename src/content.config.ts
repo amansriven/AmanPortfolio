@@ -26,6 +26,7 @@ const projects = defineCollection({
      * Keep these desaturated — they are rendered at single-digit opacity.
      */
     accent: z.string(),
+    /** Shown on the homepage. Keep it to two; /projects lists everything. */
     featured: z.boolean().default(false),
     /** Controls homepage ordering, low to high. */
     order: z.number(),

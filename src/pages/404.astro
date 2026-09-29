@@ -2,9 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const projects = (await getCollection('projects'))
-  .filter((project) => project.data.featured)
-  .sort((a, b) => a.data.order - b.data.order);
+// Every project, featured or not: the copy promises "everything that does exist".
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout title="Not found" description="That page does not exist on amansriven.com.">

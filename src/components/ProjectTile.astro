@@ -1,0 +1,199 @@
+---
+/**
+ * Image-first project card for the homepage grid. The whole tile links to
+ * the case study; ProjectFeature is the larger row layout.
+ */
+import Figure from './Figure.astro';
+import { statusTone } from '../lib/links';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { data } = project;
+const href = `/projects/${project.id}`;
+const tags = data.stack.slice(0, 3);
+const extraTags = data.stack.length - tags.length;
+---
+
+<article class="tile spotlight" style={`--tint: ${data.accent}`}>
+  <div class="tile__media">
+    <Figure src={data.heroImage} alt="" frame="plain" ratio="16 / 9" fit="cover" />
+  </div>
+  <div class="tile__body">
+    <p class="tile__meta">
+      <span class="tile__status" data-tone={statusTone(data.status)}>{data.status}</span>
+      <span class="mono">{data.year}</span>
+    </p>
+    <h3><a class="tile__link" href={href}>{data.title}</a></h3>
+    <p class="tile__tagline">{data.tagline}</p>
+    <ul class="tile__stack" aria-label="Technologies">
+      {tags.map((tech) => <li>{tech}</li>)}
+      {extraTags > 0 && <li class="tile__more">+{extraTags}</li>}
+    </ul>
+    <span class="tile__cta" aria-hidden="true">Read case study <span>→</span></span>
+  </div>
+</article>
+
+<style>
+  .tile {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition:
+      transform var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  .tile:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: 0 22px 40px -28px rgb(44 38 37 / 45%);
+  }
+
+  .tile:has(.tile__link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  .tile__media {
+    margin: 0.55rem 0.55rem 0;
+    padding: 0.45rem;
+    background: hsl(var(--tint) / 12%);
+    border-radius: 7px;
+  }
+
+  .tile__media :global(.figure__frame) {
+    border: 0;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+
+  .tile__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.1rem 1.25rem 1.25rem;
+  }
+
+  .tile__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  .tile__meta .mono {
+    font-size: 0.7rem;
+  }
+
+  .tile__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0.55rem 0.15rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .tile__status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+
+  .tile__status[data-tone='building']::before {
+    background: #b7791f;
+  }
+
+  .tile__status[data-tone='award']::before {
+    background: var(--accent);
+  }
+
+  h3 {
+    margin-top: 0.75rem;
+    font: 400 1.5rem var(--font-display);
+    letter-spacing: -0.03em;
+    transition: color var(--dur-fast);
+  }
+
+  .tile:hover h3 {
+    color: var(--accent);
+  }
+
+  /* One link, stretched over the whole tile. */
+  .tile__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .tile__link:focus-visible {
+    outline: none;
+  }
+
+  .tile__tagline {
+    display: -webkit-box;
+    margin-top: 0.45rem;
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    line-height: 1.65;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .tile__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+  }
+
+  .tile__stack li {
+    padding: 0.12rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+
+  .tile__stack .tile__more {
+    color: var(--text-muted);
+  }
+
+  .tile__cta {
+    margin-top: auto;
+    padding-top: 1rem;
+    color: var(--accent);
+    font-size: var(--fs-xs);
+  }
+
+  .tile__cta span {
+    display: inline-block;
+    margin-left: 0.3rem;
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .tile:hover .tile__cta span {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile:hover {
+      transform: none;
+    }
+  }
+</style>

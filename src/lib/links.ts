@@ -23,3 +23,12 @@ export function projectLinks(data: { liveUrl?: string; githubUrl?: string }): Pr
   if (data.githubUrl) links.push({ label: 'GitHub', href: data.githubUrl, kind: 'source' });
   return links;
 }
+
+export type StatusTone = 'live' | 'building' | 'award';
+
+/** Status is free text; this only picks the colour of its dot. */
+export function statusTone(status: string): StatusTone {
+  if (/development|progress/i.test(status)) return 'building';
+  if (/\b(1st|2nd|3rd|place|award)\b/i.test(status)) return 'award';
+  return 'live';
+}
