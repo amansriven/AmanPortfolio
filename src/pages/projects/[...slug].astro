@@ -558,6 +558,17 @@ const sections = headings.filter((heading) => heading.depth === 2);
     background: hsl(var(--atmosphere) / 80%);
   }
 
+  /* base.css strips list markers; numbered steps get theirs back. */
+  .case__body > :global(ol) {
+    list-style: decimal;
+  }
+
+  .case__body > :global(ol) :global(li)::marker {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
   .case__body :global(a) {
     color: var(--accent);
     text-decoration: underline;
