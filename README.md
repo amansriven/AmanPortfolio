@@ -43,16 +43,23 @@ src/pages/api/contact.ts  The only server route; everything else is static
 
 Copy `.env.example` → `.env` and `.dev.vars.example` → `.dev.vars` for local work.
 
-| Variable                    | Where                                                    |
-| --------------------------- | -------------------------------------------------------- |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Build variable (safe to expose)                          |
-| `TURNSTILE_SECRET_KEY`      | Worker secret                                            |
-| `RESEND_API_KEY`            | Worker secret                                            |
-| `CONTACT_TO_EMAIL`          | Worker secret                                            |
-| `CONTACT_FROM_EMAIL`        | Worker secret, e.g. `Portfolio <contact@amansriven.com>` |
+| Variable                       | Where                                                     |
+| ------------------------------ | --------------------------------------------------------- |
+| `PUBLIC_TURNSTILE_SITE_KEY`    | Build variable (safe to expose)                           |
+| `PUBLIC_POSTHOG_PROJECT_TOKEN` | Build variable, optional; analytics is off without it     |
+| `PUBLIC_POSTHOG_HOST`          | Build variable, optional; e.g. `https://us.i.posthog.com` |
+| `TURNSTILE_SECRET_KEY`         | Worker secret                                             |
+| `RESEND_API_KEY`               | Worker secret                                             |
+| `CONTACT_TO_EMAIL`             | Worker secret                                             |
+| `CONTACT_FROM_EMAIL`           | Worker secret, e.g. `Portfolio <contact@amansriven.com>`  |
 
 Set secrets in production with `wrangler secret put <NAME>`. The contact form
 uses Cloudflare Turnstile for spam protection and Resend to deliver email.
+
+Analytics (PostHog) only runs in production builds with both `PUBLIC_POSTHOG_*`
+build variables set. Open the site once with `?notrack` to exclude your own
+browser; `?track` undoes it. Short links such as `/cv` and `/li` live in
+`public/_redirects` and show up in PostHog as the `source` property.
 
 ## Deployment
 

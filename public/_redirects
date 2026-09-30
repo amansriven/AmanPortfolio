@@ -1,0 +1,12 @@
+# Short links to hand out. Each lands on the homepage and is counted in PostHog
+# with `source` set to the ref (see src/components/PostHog.astro).
+#
+#   amansriven.com/cv          on the résumé
+#   amansriven.com/cv/stripe   on the résumé sent to one company
+#   amansriven.com/li          on LinkedIn
+#   amansriven.com/gh          on GitHub
+
+/cv    /?ref=cv          302
+/cv/*  /?ref=cv-:splat   302
+/li    /?ref=linkedin    302
+/gh    /?ref=github      302

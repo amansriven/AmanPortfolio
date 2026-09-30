@@ -24,6 +24,10 @@ declare module 'cloudflare:workers' {
 
 interface ImportMetaEnv {
   readonly PUBLIC_TURNSTILE_SITE_KEY: string;
+  /** PostHog project token. Public by design; analytics is off without it. */
+  readonly PUBLIC_POSTHOG_PROJECT_TOKEN?: string;
+  /** e.g. https://us.i.posthog.com. Analytics is off without it. */
+  readonly PUBLIC_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {

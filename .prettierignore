@@ -3,3 +3,6 @@ dist
 .wrangler
 node_modules
 package-lock.json
+
+# Vendor snippet, kept byte-for-byte as PostHog publishes it
+src/components/PostHog.astro

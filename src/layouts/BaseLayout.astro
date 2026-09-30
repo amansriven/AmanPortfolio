@@ -5,6 +5,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Lightbox from '../components/Lightbox.astro';
 import BackToTop from '../components/BackToTop.astro';
+import PostHog from '../components/PostHog.astro';
 import { cleanPath, site } from '../lib/site';
 
 interface Props {
@@ -29,6 +30,10 @@ const {
 const pageTitle = title ? `${title} — ${site.name}` : site.title;
 const canonical = new URL(cleanPath(Astro.url.pathname), site.url).href;
 const ogImageUrl = new URL(ogImage, site.url).href;
+/* Analytics is optional and production-only, so dev visits never count and a
+   fork without PostHog builds fine. */
+const posthogKey = import.meta.env.PROD ? import.meta.env.PUBLIC_POSTHOG_PROJECT_TOKEN : undefined;
+const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST;
 
 const personSchema = {
   '@context': 'https://schema.org',
@@ -103,12 +108,7 @@ const personSchema = {
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
 
-    <!-- Cloudflare Web Analytics. Replace the token, then remove this comment.
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "REPLACE_WITH_YOUR_CLOUDFLARE_ANALYTICS_TOKEN"}'></script>
-    -->
+    {posthogKey && posthogHost && <PostHog apiKey={posthogKey} apiHost={posthogHost} />}
   </head>
 
   <body>
