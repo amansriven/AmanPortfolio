@@ -6,9 +6,8 @@
     "strictNullChecks": true,
     "allowJs": true,
     "types": ["astro/client"],
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   }
 }
