@@ -329,7 +329,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        Open in my mail app
+        Open in mail app
       </a>
 
       {#if status === 'error'}
