@@ -6,7 +6,11 @@
 #   amansriven.com/li          on LinkedIn
 #   amansriven.com/gh          on GitHub
 
-/cv    /?ref=cv          302
-/cv/*  /?ref=cv-:splat   302
-/li    /?ref=linkedin    302
-/gh    /?ref=github      302
+/cv            /?ref=cv              302
+/cv/           /?ref=cv              302
+# A stray trailing slash (/cv/stripe/) would otherwise reach the splat as
+# `stripe/`, which PostHog.astro rejects. First match wins, so this goes first.
+/cv/:company/  /?ref=cv-:company     302
+/cv/*          /?ref=cv-:splat       302
+/li            /?ref=linkedin        302
+/gh            /?ref=github          302
