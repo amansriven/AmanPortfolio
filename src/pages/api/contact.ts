@@ -3,7 +3,6 @@ import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
-const MESSAGE_MIN = 20;
 const MESSAGE_MAX = 4000;
 const NAME_MAX = 100;
 const EMAIL_MAX = 200;
@@ -92,7 +91,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (!email) fields.email = 'Please add an email so I can reply.';
   else if (!EMAIL_PATTERN.test(email)) fields.email = 'That address looks incomplete.';
   if (!message) fields.message = 'Please add a message.';
-  else if (message.length < MESSAGE_MIN) fields.message = 'That message is too short.';
   else if (message.length > MESSAGE_MAX) fields.message = 'That message is too long.';
   if (hasHeaderInjection(name) || hasHeaderInjection(email)) {
     fields.email = 'That input is not valid.';

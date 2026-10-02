@@ -56,13 +56,27 @@ const { standalone = false } = Astro.props;
               </li>
             ))
           }
+          <li>
+            <a href={site.phone.href}>
+              <span class="social-circle" data-brand="phone">
+                <SocialIcon label="Phone" />
+              </span>
+              <span class="mono contact__direct-label">Phone</span>
+              <span class="contact__direct-value">{site.phone.display}</span>
+            </a>
+          </li>
         </ul>
       </div>
 
       <p class="visually-hidden" aria-live="polite" data-copy-status></p>
 
       <div class="contact__form spotlight" data-reveal>
-        <ContactForm client:visible siteKey={siteKey} email={site.email} />
+        <ContactForm
+          client:visible
+          siteKey={siteKey}
+          email={site.email}
+          phone={site.phone.display}
+        />
       </div>
     </div>
   </div>

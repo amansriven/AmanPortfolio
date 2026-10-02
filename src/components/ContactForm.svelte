@@ -4,9 +4,11 @@
     siteKey: string;
     /** Fallback shown if the form endpoint is unreachable. */
     email: string;
+    /** Shown on the success screen for anything time-sensitive. */
+    phone: string;
   }
 
-  let { siteKey, email }: Props = $props();
+  let { siteKey, email, phone }: Props = $props();
 
   type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -24,8 +26,18 @@
   let resolveToken: ((token: string) => void) | undefined;
   let rejectToken: ((reason: Error) => void) | undefined;
 
-  const MESSAGE_MIN = 20;
   const MESSAGE_MAX = 4000;
+
+  /** Who the success screen thanks, kept after the fields are cleared. */
+  let sent = $state({ name: '', email: '' });
+
+  /** Hands off to the visitor's own mail app, carrying over anything already typed. */
+  const mailtoHref = $derived.by(() => {
+    const params = new URLSearchParams({ subject: 'Hello from amansriven.com' });
+    const body = values.message.trim();
+    if (body) params.set('body', body);
+    return `mailto:${email}?${params.toString().replace(/\+/g, '%20')}`;
+  });
 
   function validateField(field: keyof typeof values, value: string): string {
     const trimmed = value.trim();
@@ -39,8 +51,6 @@
     }
     if (field === 'message') {
       if (!trimmed) return 'Please add a message.';
-      if (trimmed.length < MESSAGE_MIN)
-        return `A little more detail, please — at least ${MESSAGE_MIN} characters.`;
       if (trimmed.length > MESSAGE_MAX) return `Please keep it under ${MESSAGE_MAX} characters.`;
     }
     return '';
@@ -159,6 +169,7 @@
         throw new Error(result.error || 'Something went wrong sending that.');
       }
 
+      sent = { name: values.name.trim().split(/\s+/)[0], email: values.email.trim() };
       status = 'success';
     } catch (error) {
       status = 'error';
@@ -191,10 +202,10 @@
         />
       </svg>
     </p>
-    <h3 class="sent__title">Message sent</h3>
+    <h3 class="sent__title">Thanks, {sent.name}. Your message is in.</h3>
     <p class="sent__body">
-      Thanks for reaching out — it landed in my inbox. I read everything and usually reply within a
-      couple of days.
+      It went straight to my inbox, and I'll write back to <strong>{sent.email}</strong> myself. If
+      it's time-sensitive, call or text me at <span class="sent__phone">{phone}</span>.
     </p>
     <button class="sent__again" type="button" onclick={reset}>Send another</button>
   </div>
@@ -296,6 +307,30 @@
           </svg>
         {/if}
       </button>
+
+      <a class="mailapp" href={mailtoHref}>
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <rect
+            x="3"
+            y="5"
+            width="18"
+            height="14"
+            rx="2.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+          <path
+            d="m4 7 8 6 8-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Open in my mail app
+      </a>
 
       {#if status === 'error'}
         <p class="form__error" role="alert">
@@ -407,9 +442,32 @@
 
   /* --- Submit ---------------------------------------------------- */
   .form__foot {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-4);
-    justify-items: start;
+  }
+
+  .mailapp {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.8rem 1.25rem;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full);
+    transition:
+      color var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .mailapp:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
   }
 
   .submit {
@@ -462,6 +520,7 @@
   }
 
   .form__error {
+    flex-basis: 100%;
     font-size: var(--fs-xs);
     color: var(--danger);
   }
@@ -508,6 +567,13 @@
     max-width: 32rem;
     color: var(--text-secondary);
     font-size: var(--fs-sm);
+  }
+
+  .sent__body strong,
+  .sent__phone {
+    color: var(--text);
+    font-weight: 500;
+    white-space: nowrap;
   }
 
   .sent__again {

@@ -7,6 +7,7 @@ export const site = {
   description:
     'Software engineer building infrastructure and products people actually use. Computer science at Texas A&M. Previously software engineering at Humana and JAGGAER.',
   email: 'sriven.aman@gmail.com',
+  phone: { display: '(214) 991-3721', href: 'tel:+12149913721' },
   location: 'College Station, TX',
   school: 'Texas A&M University',
 } as const;
