@@ -1,11 +1,22 @@
 ---
-import { experience } from '../lib/experience';
+import { defaultFocus, experience, focuses, type Focus, type RoleStory } from '../lib/experience';
 import SectionHead from './SectionHead.astro';
 import CompanyLogo from './CompanyLogo.astro';
 interface Props {
   standalone?: boolean;
 }
 const { standalone = false } = Astro.props;
+
+/* One row per distinct story. A role that tells the same story to both
+   readers shares one object, so it renders once and stays put on a switch. */
+const rows = experience.flatMap((role) => {
+  const byStory = new Map<RoleStory, Focus[]>();
+  for (const { id } of focuses) {
+    const story = role.story[id];
+    if (story) byStory.set(story, [...(byStory.get(story) ?? []), id]);
+  }
+  return [...byStory].map(([story, foci]) => ({ role, story, foci }));
+});
 ---
 
 <section
@@ -26,10 +37,38 @@ const { standalone = false } = Astro.props;
       )
     }
 
+    <div
+      class="focus"
+      role="group"
+      aria-label="Show experience for"
+      data-focus-switch
+      data-default={defaultFocus}
+    >
+      <span class="focus__label mono">Show</span>
+      {
+        focuses.map(({ id, label }) => (
+          <button
+            type="button"
+            class="chip"
+            aria-pressed={id === defaultFocus ? 'true' : 'false'}
+            data-focus={id}
+          >
+            {label}
+          </button>
+        ))
+      }
+    </div>
+    <p class="visually-hidden" aria-live="polite" data-focus-status></p>
+
     <ol class="timeline">
       {
-        experience.map((role) => (
-          <li class="entry spotlight" data-reveal>
+        rows.map(({ role, story, foci }) => (
+          <li
+            class="entry spotlight"
+            data-reveal
+            data-foci={foci.join(' ')}
+            hidden={!foci.includes(defaultFocus)}
+          >
             <CompanyLogo role={role} />
 
             <div class="entry__body">
@@ -44,11 +83,11 @@ const { standalone = false } = Astro.props;
                 </p>
               </div>
 
-              <p class="entry__summary">{role.summary}</p>
+              <p class="entry__summary">{story.summary}</p>
 
-              {role.metrics && (
+              {story.metrics && (
                 <ul class="entry__metrics">
-                  {role.metrics.map((metric) => (
+                  {story.metrics.map((metric) => (
                     <li>
                       <span class="entry__metric-value mono">{metric.value}</span>
                       <span class="entry__metric-label">{metric.label}</span>
@@ -58,7 +97,7 @@ const { standalone = false } = Astro.props;
               )}
 
               <ul class="entry__stack mono" aria-label="Tools">
-                {role.stack.map((tech) => (
+                {story.stack.map((tech) => (
                   <li>{tech}</li>
                 ))}
               </ul>
@@ -70,13 +109,112 @@ const { standalone = false } = Astro.props;
   </div>
 </section>
 
+<script>
+  const toggle = document.querySelector<HTMLElement>('[data-focus-switch]');
+  const status = document.querySelector<HTMLElement>('[data-focus-status]');
+  const entries = [...document.querySelectorAll<HTMLElement>('[data-foci]')];
+
+  if (toggle && status) {
+    const buttons = [...toggle.querySelectorAll<HTMLButtonElement>('[data-focus]')];
+    const defaultFocus = toggle.dataset.default;
+    const buttonFor = (id: string | null) => buttons.find((button) => button.dataset.focus === id);
+
+    const apply = (id: string, updateUrl = true) => {
+      const chosen = buttonFor(id);
+      if (!chosen) return;
+      for (const entry of entries) entry.hidden = !entry.dataset.foci!.split(' ').includes(id);
+      for (const button of buttons) button.setAttribute('aria-pressed', String(button === chosen));
+      status.textContent = `Showing the ${chosen.textContent!.trim()} version of my experience.`;
+
+      if (updateUrl) {
+        // `focus`, not `track`: PostHog.astro reads `?track` as an opt-in.
+        const url = new URL(window.location.href);
+        if (id === defaultFocus) url.searchParams.delete('focus');
+        else url.searchParams.set('focus', id);
+        history.replaceState(history.state, '', url);
+      }
+    };
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const id = button.dataset.focus!;
+        if (button.getAttribute('aria-pressed') === 'true') return;
+        apply(id);
+        window.posthog?.capture('experience_focus_changed', { focus: id });
+      });
+    }
+
+    // Links like /experience?focus=ml open on that résumé.
+    const initial = new URLSearchParams(window.location.search).get('focus');
+    if (initial && initial !== defaultFocus) apply(initial, false);
+  }
+</script>
+
 <style>
   .standalone {
     padding-top: 0;
   }
 
+  /* --- Focus switch -------------------------------------------- */
+  /* Same pill as the project filter, so the two read as one control. */
+  .focus {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .focus__label {
+    margin-right: var(--space-2);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.3rem 0.85rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    transition:
+      color var(--dur-fast),
+      background var(--dur-fast),
+      border-color var(--dur-fast),
+      transform var(--dur-fast);
+  }
+
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .chip:active {
+    transform: scale(0.97);
+  }
+
+  .chip[aria-pressed='true'] {
+    color: var(--on-accent);
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+  }
+
+  /* The bottom rule sits on the list, not the last entry, because the last
+     entry may be one the current focus hides. */
   .timeline {
     display: grid;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* `display: grid` below would otherwise override the hidden attribute. */
+  .entry[hidden] {
+    display: none;
   }
 
   .entry {
@@ -86,10 +224,6 @@ const { standalone = false } = Astro.props;
     padding-block: var(--space-6);
     border-top: 1px solid var(--border);
     transition: border-color var(--dur) var(--ease-out);
-  }
-
-  .entry:last-child {
-    border-bottom: 1px solid var(--border);
   }
 
   .entry:hover {

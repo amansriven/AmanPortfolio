@@ -54,4 +54,6 @@ interface Turnstile {
 
 interface Window {
   turnstile?: Turnstile;
+  /** Set by PostHog.astro; absent when analytics is off. */
+  posthog?: { capture(event: string, properties?: Record<string, unknown>): void };
 }
