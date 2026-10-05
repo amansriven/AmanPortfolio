@@ -2,15 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageContents from '../components/PageContents.astro';
 import SectionHead from '../components/SectionHead.astro';
-import SpecList from '../components/SpecList.astro';
 import ModelDiagram from '../components/ModelDiagram.astro';
 import MetricSpans from '../components/MetricSpans.astro';
-import EgaComparison from '../components/EgaComparison.astro';
-import BaselineCards from '../components/BaselineCards.astro';
 import PaperCover from '../components/PaperCover.astro';
 import PaperShelf from '../components/PaperShelf.astro';
 import CiteBlock from '../components/CiteBlock.astro';
-import { paper, headline, dataset, training, ablation, classes } from '../lib/research';
+import { paper, headline, macro, ablation } from '../lib/research';
 
 const facts = [
   { label: 'Period', value: paper.period },
@@ -19,8 +16,8 @@ const facts = [
   { label: 'Recognition', value: paper.award },
 ];
 
-/* Stated rather than asserted: the reader can check it in the table below. */
-const above88 = classes.filter((c) => c.f1 >= 0.88).length;
+/* Quoted in Results; read from the data so the two can't drift apart. */
+const singleModel = ablation.find((row) => row.name === 'Single model')!;
 ---
 
 <BaseLayout
@@ -135,49 +132,88 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
       </ul>
     </div>
 
-    <!-- ============ 01 Abstract ============ -->
+    <!-- ============ Contents ============ -->
+    <!-- The page is the short version. Dataset and training details, the
+         ablation table, and the cross-corpus comparisons live in the paper. -->
     <PageContents
       items={[
-        { label: 'Abstract', href: '#abstract-heading' },
-        { label: 'Architecture', href: '#architecture-heading' },
+        { label: 'In brief', href: '#summary-heading' },
         { label: 'Results', href: '#results-heading' },
-        { label: 'Comparisons', href: '#comparison-heading' },
-        { label: 'Method', href: '#method-heading' },
+        { label: 'Architecture', href: '#architecture-heading' },
         { label: 'Limits', href: '#limits-heading' },
         { label: 'Paper & citation', href: '#paper-heading' },
       ]}
     />
-    <section class="section paper__section" aria-labelledby="abstract-heading">
+
+    <!-- ============ 01 Summary ============ -->
+    <section class="section paper__section paper__section--first" aria-labelledby="summary-heading">
       <div class="shell shell--wide">
         <SectionHead
           index="01"
-          title="Abstract"
+          title="In brief"
           meta={paper.indexTerms.slice(0, 3).join(' · ')}
-          id="abstract-heading"
+          id="summary-heading"
         />
 
-        <div class="abstract">
-          <p class="abstract__text" data-reveal>{paper.abstract}</p>
-
-          <div class="abstract__side" data-reveal>
-            <p class="eyebrow">Index terms</p>
-            <ul class="terms mono">
-              {paper.indexTerms.map((term) => <li>{term}</li>)}
-            </ul>
-          </div>
-        </div>
-
-        <div class="paper__block paper__block--measure" data-reveal>
-          <SpecList title="The dataset" items={[...dataset]} />
+        <div class="abstract__body" data-reveal>
+          <p class="abstract__text">
+            SCRAN reads a Solidity smart contract, reduced to 240 static features, and flags which
+            of eleven vulnerability classes it contains. A contract can carry several at once, so
+            each class gets its own independent answer.
+          </p>
+          <p class="abstract__more">
+            The hard part is imbalance: some classes appear in under one percent of the 111,897
+            contracts in BCCC-SCsVul-2024. Focal loss, oversampling, and per-class thresholds do
+            most of the work, and a three-model ensemble steadies the result. On a held-out test
+            split that never saw resampling or threshold tuning, it reaches a macro F1 of {
+              macro.f1.toFixed(4)
+            } and a macro AUC of {macro.auc.toFixed(4)}.
+          </p>
         </div>
       </div>
     </section>
 
-    <!-- ============ 02 Architecture ============ -->
-    <section class="section paper__section" aria-labelledby="architecture-heading">
+    <!-- ============ 02 Results ============ -->
+    <section class="section paper__section" aria-labelledby="results-heading">
       <div class="shell shell--wide">
         <SectionHead
           index="02"
+          title="Results"
+          meta="Held-out test split · 20% of the corpus"
+          id="results-heading"
+        />
+
+        <div class="paper__block" data-reveal>
+          <MetricSpans />
+        </div>
+
+        <div class="paper__prose" data-reveal>
+          <p>
+            The shape of that chart is the finding. Recall never drops below 0.89, so the model
+            rarely misses a vulnerability that is present. Precision is what varies, and every long
+            span is a class the model over-reports. Timestamp dependence is the worst at 0.5434
+            precision: close to one wrong flag for every right one.
+          </p>
+          <p>
+            AUC stays above 0.99 everywhere, including those weak classes. The ranking is good even
+            where the decision is not, so the failure is in where the threshold lands rather than in
+            what the network learned.
+          </p>
+          <p>
+            One trade is worth stating: a single model scores a slightly higher macro F1 ({
+              singleModel.f1?.toFixed(4)
+            }) than the ensemble ({macro.f1.toFixed(4)}). The ensemble was kept for its higher AUC
+            and steadier behaviour on the rare classes.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 Architecture ============ -->
+    <section class="section paper__section" aria-labelledby="architecture-heading">
+      <div class="shell shell--wide">
+        <SectionHead
+          index="03"
           title="Architecture"
           meta="Residual · Attention · Class-specific heads"
           id="architecture-heading"
@@ -195,141 +231,11 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
       </div>
     </section>
 
-    <!-- ============ 03 Results ============ -->
-    <section class="section paper__section" aria-labelledby="results-heading">
-      <div class="shell shell--wide">
-        <SectionHead
-          index="03"
-          title="Results"
-          meta="Held-out test split · 20% of the corpus"
-          id="results-heading"
-        />
-
-        <div class="paper__block" data-reveal>
-          <MetricSpans />
-        </div>
-
-        <div class="paper__prose" data-reveal>
-          <p>
-            The shape of that chart is the finding. Recall never drops below 0.89 — the model very
-            rarely misses a vulnerability that is present. Precision runs from 0.98 down to 0.54,
-            and every long span in the plot is a class the model over-reports. Those two facts are
-            the same fact: thresholds were selected to hold recall above 0.5 on the imbalanced
-            classes, and a model tuned that way buys its coverage with false positives.
-          </p>
-          <p>
-            Timestamp dependence is the worst of it at 0.5434 precision — close to one wrong flag
-            for every right one. Transaction order dependence is not much better. Both are
-            vulnerabilities whose signature is contextual rather than structural, and 240 static
-            features are a thin description of context.
-            {' '}
-            {above88} of the twelve classes clear an F1 of 0.88; the macro average of 0.8703 sits just
-            under it, pulled down by exactly those two.
-          </p>
-          <p>
-            The AUC column is worth reading separately. It stays above 0.99 everywhere, including
-            for the two weak classes. The ranking is good even where the decision is not, which says
-            the failure is in where the threshold lands rather than in what the network learned —
-            and that is a much more tractable problem than the alternative.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 04 Comparison ============ -->
-    <section class="section paper__section" aria-labelledby="comparison-heading">
-      <div class="shell shell--wide">
-        <SectionHead
-          index="04"
-          title="Against prior work"
-          meta="One same-dataset baseline · Four from the literature"
-          id="comparison-heading"
-        />
-
-        <div class="paper__block" data-reveal>
-          <EgaComparison />
-        </div>
-
-        <div class="paper__block paper__block--tight" data-reveal>
-          <BaselineCards />
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 05 Method ============ -->
-    <section class="section paper__section" aria-labelledby="method-heading">
-      <div class="shell shell--wide">
-        <SectionHead
-          index="05"
-          title="Method"
-          meta="Imbalance · Objective · Aggregation"
-          id="method-heading"
-        />
-
-        <p class="paper__lead" data-reveal>
-          Almost everything below exists to survive one property of the data: some vulnerability
-          classes appear in well under one percent of contracts. Train naively against that and the
-          network learns to answer <em>no</em> to everything and still score well.
-        </p>
-
-        <div class="paper__block paper__block--measure" data-reveal>
-          <SpecList title="Training" items={[...training]} />
-        </div>
-
-        <div class="ablation" data-reveal>
-          <p class="eyebrow ablation__title">Ablation</p>
-          <ul class="ablation__list">
-            {
-              ablation.map((row) => (
-                <li class="ablation__row" data-shipped={row.shipped ? '' : undefined}>
-                  <div class="ablation__head">
-                    <p class="ablation__name">
-                      {row.name}
-                      {row.shipped && <span class="ablation__tag mono">shipped</span>}
-                    </p>
-                    <p class="ablation__detail">{row.detail}</p>
-                  </div>
-
-                  {row.f1 !== null && row.auc !== null ? (
-                    <div class="ablation__scores">
-                      <span class="ablation__score">
-                        <span class="ablation__score-value mono">{row.f1.toFixed(4)}</span>
-                        <span class="ablation__score-label mono">F1</span>
-                      </span>
-                      <span class="ablation__score">
-                        <span class="ablation__score-value mono">{row.auc.toFixed(4)}</span>
-                        <span class="ablation__score-label mono">AUC</span>
-                      </span>
-                    </div>
-                  ) : (
-                    <div class="ablation__scores">
-                      <span class="ablation__score">
-                        <span class="ablation__score-value mono">−30%</span>
-                        <span class="ablation__score-label mono">minority recall</span>
-                      </span>
-                    </div>
-                  )}
-                </li>
-              ))
-            }
-          </ul>
-
-          <p class="ablation__note">
-            The second row is the uncomfortable one: a single model scores a higher macro F1 than
-            the ensemble it was averaged into. What the ensemble buys is AUC and stability across
-            the rare classes — better ranking everywhere rather than a better score on the metric
-            being quoted. It is a defensible trade and it is still a trade, so it is printed rather
-            than omitted.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 06 Limits ============ -->
+    <!-- ============ 04 Limits ============ -->
     <section class="section paper__section" aria-labelledby="limits-heading">
       <div class="shell shell--wide">
         <SectionHead
-          index="06"
+          index="04"
           title="Limits"
           meta="And what I would do next"
           id="limits-heading"
@@ -337,36 +243,25 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
         <div class="paper__prose" data-reveal>
           <p>
-            The model never sees a contract. It sees 240 numbers extracted from one, which is why
-            the vulnerabilities it struggles with are precisely the ones defined by execution
-            context rather than by structure. Dynamic traces or a graph encoder over the
-            control-flow graph would give it the thing it is currently missing, and that is the
-            first change I would make.
+            The model never sees a contract, only 240 numbers extracted from one. That is why the
+            classes it struggles with are the ones defined by execution context rather than
+            structure. Dynamic traces or a graph encoder over the control-flow graph would give it
+            what it is missing, and that is the first change I would make.
           </p>
           <p>
-            Every number on this page comes from one corpus. BCCC-SCsVul-2024 is large and it is
-            labelled, but a model evaluated on a single dataset has demonstrated competence at that
-            dataset. The comparisons in the previous section are drawn across different corpora and
-            are indicative at best — the honest version of that section is that SCRAN is ahead on
-            most of the rows shown, behind on timestamp dependence, and untested against any of
-            these models on shared ground.
-          </p>
-          <p>
-            The last limit is one the previous model handled better. The genetic-algorithm approach
-            could point at the source attributes behind a flag. SCRAN cannot; the class-specific
-            attention heads say which feature dimensions mattered, which is not the same as a reason
-            an auditor can act on. Buying accuracy with explainability is a reasonable trade for a
-            queue-ranking tool and a bad one for a system that is supposed to justify itself.
+            Every number here comes from one corpus, and SCRAN trades away some explainability: its
+            attention heads say which features mattered, which is not a reason an auditor can act
+            on. The paper covers both, along with the comparisons against prior work.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- ============ 07 The paper ============ -->
+    <!-- ============ 05 The paper ============ -->
     <section class="section paper__section" aria-labelledby="paper-heading">
       <div class="shell shell--wide">
         <SectionHead
-          index="07"
+          index="05"
           title="The paper"
           meta={`${paper.pages} pages · PDF`}
           id="paper-heading"
@@ -666,8 +561,20 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
   }
 
   /* --- Section scaffolding ------------------------------------------ */
+  /* One gap between sections rather than one from each side, sized to match
+     the space between sections on the homepage (~110px on a laptop). */
   .paper__section {
-    padding-block: clamp(4rem, 9vw, 7.5rem);
+    padding-block: calc(var(--section-gap) * 1.75);
+  }
+
+  .paper__section + .paper__section {
+    padding-top: 0;
+  }
+
+  /* The contents bar above already separates the first section from the
+     headline numbers. */
+  .paper__section--first {
+    padding-top: 0;
   }
 
   .paper__lead {
@@ -688,16 +595,6 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     margin-top: var(--space-8);
   }
 
-  .paper__block--tight {
-    margin-top: var(--space-9);
-  }
-
-  /* Definition lists have no natural measure. At the wide shell they run past
-     100 characters a line, so they get one. */
-  .paper__block--measure {
-    max-width: 58rem;
-  }
-
   .paper__prose {
     display: grid;
     gap: var(--space-5);
@@ -706,12 +603,18 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     color: var(--text-secondary);
   }
 
-  /* --- Abstract ------------------------------------------------------ */
-  .abstract {
+  /* Blocks carry a top margin for spacing them after other content. Straight
+     under a section heading they sit at the heading's own 32px instead. */
+  :global(.head) + .paper__block,
+  :global(.head) + .paper__prose {
+    margin-top: 0;
+  }
+
+  /* --- Summary ------------------------------------------------------ */
+  .abstract__body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 14rem;
-    gap: var(--space-9);
-    align-items: start;
+    gap: var(--space-5);
+    max-width: 42rem;
   }
 
   .abstract__text {
@@ -733,105 +636,9 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
     color: var(--accent);
   }
 
-  .abstract__side {
-    display: grid;
-    gap: var(--space-3);
-    padding-top: var(--space-2);
-  }
-
-  .terms {
-    display: grid;
-    gap: var(--space-2);
-  }
-
-  .terms li {
-    padding-block: var(--space-2);
-    font-size: var(--fs-micro);
-    color: var(--text-muted);
-    border-top: 1px solid var(--border);
-  }
-
-  /* --- Ablation ------------------------------------------------------- */
-  .ablation {
-    margin-top: var(--space-10);
-  }
-
-  .ablation__title {
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .ablation__row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4) var(--space-6);
-    padding-block: var(--space-5);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .ablation__row[data-shipped] {
-    background: linear-gradient(90deg, hsl(var(--atmosphere) / 6%), transparent 60%);
-    box-shadow: inset 2px 0 0 -1px hsl(var(--atmosphere) / 70%);
-    padding-left: var(--space-4);
-  }
-
-  .ablation__name {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--fs-sm);
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .ablation__tag {
-    padding: 0.1rem 0.45rem;
-    font-size: var(--fs-micro);
-    letter-spacing: 0.06em;
-    color: var(--accent);
-    background: hsl(var(--atmosphere) / 12%);
-    border: 1px solid hsl(var(--atmosphere) / 30%);
-    border-radius: var(--radius-full);
-  }
-
-  .ablation__detail {
-    margin-top: 2px;
-    font-size: var(--fs-xs);
-    color: var(--text-muted);
-    max-width: 40rem;
-  }
-
-  .ablation__scores {
-    display: flex;
-    gap: var(--space-6);
-  }
-
-  .ablation__score {
-    display: grid;
-    gap: 1px;
-    text-align: right;
-  }
-
-  .ablation__score-value {
-    font-size: var(--fs-sm);
-    color: var(--text);
-  }
-
-  .ablation__score-label {
-    font-size: var(--fs-micro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
-
-  .ablation__note {
-    margin-top: var(--space-6);
-    max-width: 42rem;
-    font-size: var(--fs-xs);
-    line-height: 1.8;
-    color: var(--text-muted);
+  .abstract__more {
+    color: var(--text-secondary);
+    line-height: 1.75;
   }
 
   /* --- Closing --------------------------------------------------------- */
@@ -921,11 +728,6 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
       padding-right: 0;
     }
 
-    .abstract {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-7);
-    }
-
     .facts,
     .headline {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -934,10 +736,6 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
 
     .paper__closing {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .ablation__scores {
-      gap: var(--space-5);
     }
   }
 
@@ -948,18 +746,6 @@ const above88 = classes.filter((c) => c.f1 >= 0.88).length;
       margin-top: var(--space-3);
       display: block;
       width: fit-content;
-    }
-
-    .ablation__row {
-      align-items: flex-start;
-    }
-
-    .ablation__scores {
-      justify-content: flex-start;
-    }
-
-    .ablation__score {
-      text-align: left;
     }
   }
 </style>

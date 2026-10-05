@@ -20,6 +20,12 @@ const pct = (v: number) => ((v - MIN) / (1 - MIN)) * 100;
 const ticks = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 const rows = [...classes].sort((a, b) => b.f1 - a.f1);
 const fmt = (v: number) => v.toFixed(4);
+/* Where F1 sits along the precision-recall span, as a percentage of the span.
+   The span grows outward from this point when its row reveals. */
+const origin = (row: { precision: number; recall: number; f1: number }) =>
+  row.recall === row.precision
+    ? 50
+    : ((row.f1 - row.precision) / (row.recall - row.precision)) * 100;
 ---
 
 <figure class="spans">
@@ -74,7 +80,7 @@ const fmt = (v: number) => v.toFixed(4);
               </th>
 
               <td class="spans__plot">
-                <span class="plot" aria-hidden="true">
+                <span class="plot" aria-hidden="true" style={`--f1:${pct(row.f1)}%`}>
                   <span class="plot__grid">
                     {ticks.slice(1, -1).map((t) => (
                       <span style={`--x:${pct(t)}%`} />
@@ -82,7 +88,7 @@ const fmt = (v: number) => v.toFixed(4);
                   </span>
                   <span
                     class="plot__span"
-                    style={`--from:${pct(row.precision)}%; --to:${pct(row.recall)}%`}
+                    style={`--from:${pct(row.precision)}%; --to:${pct(row.recall)}%; --origin:${origin(row)}%`}
                   />
                   <span
                     class="plot__dot plot__dot--precision"
@@ -317,9 +323,9 @@ const fmt = (v: number) => v.toFixed(4);
     margin-top: -1px;
     border-radius: 1px;
     background: linear-gradient(to right, var(--border-strong), hsl(var(--atmosphere) / 55%));
-    transform-origin: left center;
+    transform-origin: var(--origin, 0%) center;
     transition: transform var(--dur-slow) var(--ease-out);
-    transition-delay: inherit;
+    transition-delay: var(--reveal-delay, 0ms);
   }
 
   .plot__dot {
@@ -358,7 +364,9 @@ const fmt = (v: number) => v.toFixed(4);
     margin-top: -10px;
   }
 
-  /* The span draws itself in as the row reveals. */
+  /* As a row reveals, its span grows outward from the F1 tick and the
+     precision and recall dots ride out to either end: each class opens up
+     around its F1 score. */
   @media (prefers-reduced-motion: no-preference) {
     [data-reveal] .plot__span {
       transform: scaleX(0);
@@ -366,6 +374,28 @@ const fmt = (v: number) => v.toFixed(4);
 
     [data-reveal].is-revealed .plot__span {
       transform: scaleX(1);
+    }
+
+    [data-reveal] .plot__dot {
+      left: var(--f1);
+      transition: left var(--dur-slow) var(--ease-out);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    [data-reveal].is-revealed .plot__dot {
+      left: var(--x);
+    }
+  }
+
+  /* Hovering a class fades the other rows' plots so one span can be read
+     against the axis without the rest competing for attention. */
+  @media (hover: hover) {
+    .plot {
+      transition: opacity var(--dur) var(--ease-out);
+    }
+
+    .spans__table tbody:hover tr:not(:hover) .plot {
+      opacity: 0.28;
     }
   }
 
