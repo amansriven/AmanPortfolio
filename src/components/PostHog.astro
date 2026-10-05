@@ -23,7 +23,9 @@ const { apiKey, apiHost } = Astro.props;
   const url = new URL(window.location.href);
   const optingOut = url.searchParams.has('notrack');
   const optingIn = url.searchParams.has('track');
-  const ref = url.searchParams.get('ref');
+  // Cloudflare sends /cv/stripe/ to the `/cv/*` splat, so the ref arrives as
+  // `cv-stripe/`. Drop the stray slash rather than lose the source.
+  const ref = url.searchParams.get('ref')?.replace(/\/+$/, '');
   const source = ref && /^[a-z0-9-]{1,40}$/i.test(ref) ? ref.toLowerCase() : null;
 
   // Keep the address bar clean: amansriven.com, not amansriven.com/?ref=cv.
