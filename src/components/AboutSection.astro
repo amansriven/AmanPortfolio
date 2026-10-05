@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
 // Pre-cropped to 4:5 around the face; the landing page keeps the studio headshot.
 import portrait from '../assets/portrait/aman-lake.jpg';
 import { socials } from '../lib/site';
@@ -10,7 +11,7 @@ const currently = [
   { label: 'Building', value: 'Roleward' },
   { label: 'Studying', value: 'CS + Math, Texas A&M ’28' },
   { label: 'Also', value: 'Software developer, Sinn Fund' },
-  { label: 'Shipping', value: 'Maroon Rides, Aggie Coding Club' },
+  { label: 'Shipping', value: 'Delta Code' },
   { label: 'Aiming', value: 'Quantitative software engineering' },
 ];
 
@@ -50,6 +51,21 @@ const toolkit = [
     ],
   },
 ];
+/* Hovering a toolkit tag lists the projects whose stack includes it, so every
+   claim points at real work. Names match loosely (Next.js = NextJS); AWS also
+   covers the individual AWS services a project lists. */
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const key = (name: string) => name.toLowerCase().replace(/[^a-z0-9+#]/g, '');
+const aliases: Record<string, string[]> = {
+  aws: ['awslambda', 's3', 'dynamodb', 'cognito'],
+};
+function usedIn(tool: string): string[] {
+  const keys = [key(tool), ...(aliases[key(tool)] ?? [])];
+  return projects
+    .filter((project) => project.data.stack.some((tech) => keys.includes(key(tech))))
+    .map((project) => project.data.title);
+}
+
 interface Props {
   standalone?: boolean;
 }
@@ -108,7 +124,7 @@ const { standalone = false } = Astro.props;
 
     <!-- Three equal cards: what I'm doing, who I am off-hours, where to find me -->
     <div class="about__cards" data-reveal>
-      <section class="card" aria-labelledby="currently-heading">
+      <section class="card spotlight" aria-labelledby="currently-heading">
         <h2 class="card__title" id="currently-heading">Currently</h2>
         <dl class="currently">
           {
@@ -122,7 +138,7 @@ const { standalone = false } = Astro.props;
         </dl>
       </section>
 
-      <section class="card" aria-labelledby="interests-heading">
+      <section class="card spotlight" aria-labelledby="interests-heading">
         <h2 class="card__title" id="interests-heading">Away from the keyboard</h2>
         <p class="card__text">
           I enjoy a good true-crime mystery, the Marvel universe, and strategy and role-playing
@@ -130,7 +146,7 @@ const { standalone = false } = Astro.props;
         </p>
       </section>
 
-      <section class="card" aria-labelledby="elsewhere-heading">
+      <section class="card spotlight" aria-labelledby="elsewhere-heading">
         <h2 class="card__title" id="elsewhere-heading">Elsewhere</h2>
         <ul class="about__links">
           {
@@ -165,12 +181,22 @@ const { standalone = false } = Astro.props;
       <div class="toolkit__grid">
         {
           toolkit.map((group) => (
-            <div class="card">
+            <div class="card spotlight">
               <h3 class="card__title">{group.label}</h3>
               <ul class="toolkit__tags">
-                {group.items.map((item) => (
-                  <li>{item}</li>
-                ))}
+                {group.items.map((item) => {
+                  const used = usedIn(item);
+                  return used.length > 0 ? (
+                    <li class="toolkit__tag--used">
+                      {item}
+                      <span class="toolkit__tip">
+                        <span class="visually-hidden">: </span>Used in {used.join(', ')}
+                      </span>
+                    </li>
+                  ) : (
+                    <li>{item}</li>
+                  );
+                })}
               </ul>
             </div>
           ))
@@ -226,6 +252,11 @@ const { standalone = false } = Astro.props;
     object-fit: cover;
     /* The file is already cropped around the face. */
     object-position: center;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .about__portrait:hover :global(img) {
+    transform: scale(1.04);
   }
 
   /* --- Shared card -------------------------------------------------- */
@@ -234,6 +265,12 @@ const { standalone = false } = Astro.props;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  /* No lift: these cards aren't links, so they only light up. */
+  .card:hover {
+    border-color: var(--border-strong);
   }
 
   .card__title {
@@ -346,6 +383,7 @@ const { standalone = false } = Astro.props;
   }
 
   .toolkit__tags li {
+    position: relative;
     padding: 0.2rem 0.55rem;
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -354,6 +392,77 @@ const { standalone = false } = Astro.props;
     font-family: var(--font-mono);
     font-size: 0.7rem;
     white-space: nowrap;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  /* A dot marks the tools that appear in a project on this site. */
+  .toolkit__tag--used::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    background: var(--accent);
+    vertical-align: middle;
+  }
+
+  /* Visually a tooltip; for screen readers it is read inline after the name. */
+  .toolkit__tip {
+    position: absolute;
+    bottom: calc(100% + 0.45rem);
+    left: 50%;
+    z-index: 2;
+    /* Long lists (TypeScript is in every project) wrap instead of running
+       past the card. */
+    width: max-content;
+    max-width: 14rem;
+    padding: 0.35rem 0.6rem;
+    white-space: normal;
+    line-height: 1.4;
+    border-radius: 4px;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-sans);
+    font-size: var(--fs-micro);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 4px);
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .toolkit__tags li:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .toolkit__tag--used:hover {
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      color: var(--accent);
+    }
+
+    .toolkit__tag--used:hover .toolkit__tip {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  /* Touch screens have no hover, so the tip would never show; keep it out of
+     the layout entirely. Screen readers still get the text. */
+  @media (hover: none) {
+    .toolkit__tip {
+      clip-path: inset(50%);
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
   }
 
   /* --- Responsive --------------------------------------------------- */

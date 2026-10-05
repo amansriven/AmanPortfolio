@@ -335,6 +335,32 @@ a:focus-visible > .social-circle {
   animation-duration: 260ms;
 }
 
+/* A project card's image and title morph into the project page's hero and
+   back (names from src/lib/transitions.ts). Slower than the page cross-fade
+   so the move reads as one object travelling. */
+::view-transition-group(*.project-media),
+::view-transition-group(*.project-title) {
+  animation-duration: 460ms;
+  animation-timing-function: var(--ease-in-out);
+}
+
+/* The card image is 16:9 and the page hero may not be: crop rather than
+   stretch while the frame changes shape. */
+::view-transition-old(*.project-media),
+::view-transition-new(*.project-media) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text scales with the group's height instead of stretching to its width,
+   so the title grows without distorting. */
+::view-transition-old(*.project-title),
+::view-transition-new(*.project-title) {
+  width: auto;
+  height: 100%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   @view-transition {
     navigation: none;

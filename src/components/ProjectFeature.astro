@@ -2,6 +2,7 @@
 import Figure from './Figure.astro';
 import SocialIcon from './SocialIcon.astro';
 import { projectLinks, statusTone } from '../lib/links';
+import { projectTransition } from '../lib/transitions';
 import type { CollectionEntry } from 'astro:content';
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -19,6 +20,7 @@ const tags = data.stack.slice(0, maxTags);
 const extraTags = data.stack.length - tags.length;
 
 const tone = statusTone(data.status);
+const transition = projectTransition(project.id);
 ---
 
 <article
@@ -26,7 +28,7 @@ const tone = statusTone(data.status);
   style={`--tint: ${data.accent}`}
   data-stack={JSON.stringify(data.stack)}
 >
-  <div class="project__visual" data-fit={data.heroFit}>
+  <div class="project__visual" data-fit={data.heroFit} style={transition.media}>
     <Figure src={data.heroImage} alt="" frame="plain" ratio="16 / 9" fit={data.heroFit} />
   </div>
   <div class="project__body">
@@ -34,7 +36,7 @@ const tone = statusTone(data.status);
       <span class="project__status" data-tone={tone}>{data.status}</span>
       <span class="mono">{data.year}</span>
     </p>
-    <h3><a class="project__link" href={href}>{data.title}</a></h3>
+    <h3 style={transition.title}><a class="project__link" href={href}>{data.title}</a></h3>
     <p class="project__description">{data.tagline}</p>
     {
       !compact && data.metrics.length > 0 && (

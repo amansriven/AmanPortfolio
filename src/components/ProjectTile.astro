@@ -5,6 +5,7 @@
  */
 import Figure from './Figure.astro';
 import { statusTone } from '../lib/links';
+import { projectTransition } from '../lib/transitions';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -15,10 +16,11 @@ const { data } = project;
 const href = `/projects/${project.id}`;
 const tags = data.stack.slice(0, 3);
 const extraTags = data.stack.length - tags.length;
+const transition = projectTransition(project.id);
 ---
 
 <article class="tile spotlight" style={`--tint: ${data.accent}`}>
-  <div class="tile__media">
+  <div class="tile__media" style={transition.media}>
     <Figure src={data.heroImage} alt="" frame="plain" ratio="16 / 9" fit="cover" />
   </div>
   <div class="tile__body">
@@ -26,7 +28,7 @@ const extraTags = data.stack.length - tags.length;
       <span class="tile__status" data-tone={statusTone(data.status)}>{data.status}</span>
       <span class="mono">{data.year}</span>
     </p>
-    <h3><a class="tile__link" href={href}>{data.title}</a></h3>
+    <h3 style={transition.title}><a class="tile__link" href={href}>{data.title}</a></h3>
     <p class="tile__tagline">{data.tagline}</p>
     <ul class="tile__stack" aria-label="Technologies">
       {tags.map((tech) => <li>{tech}</li>)}

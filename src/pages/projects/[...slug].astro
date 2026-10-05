@@ -5,6 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Figure from '../../components/Figure.astro';
 import SocialIcon from '../../components/SocialIcon.astro';
 import { projectLinks, statusTone } from '../../lib/links';
+import { projectTransition } from '../../lib/transitions';
 
 export const getStaticPaths = (async () => {
   const projects = await getCollection('projects');
@@ -28,6 +29,7 @@ const links = projectLinks(data);
 /* Host only: an App Store path is too long to sit inside a button. */
 const liveHost = data.liveUrl ? new URL(data.liveUrl).hostname : undefined;
 const sections = headings.filter((heading) => heading.depth === 2);
+const transition = projectTransition(project.id);
 ---
 
 <BaseLayout
@@ -59,7 +61,7 @@ const sections = headings.filter((heading) => heading.depth === 2);
           <span class="case__status" data-tone={statusTone(data.status)}>{data.status}</span>
           <span class="case__year mono">{data.year}</span>
         </p>
-        <h1 class="case__title">{data.title}</h1>
+        <h1 class="case__title" style={transition.title}>{data.title}</h1>
         <p class="case__tagline">{data.tagline}</p>
 
         {
@@ -87,7 +89,7 @@ const sections = headings.filter((heading) => heading.depth === 2);
         }
       </div>
 
-      <div class="case__visual">
+      <div class="case__visual" style={transition.media}>
         <Figure
           src={data.heroImage}
           alt={data.heroAlt}
