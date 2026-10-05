@@ -26,7 +26,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
   ogImage="/og/research.png"
   type="article"
 >
-  <article class="paper" style={`--atmosphere: ${paper.accent}`}>
+  <article class="paper" style={`--atmo-dark: ${paper.accent}; --atmo-light: ${paper.accentLight}`}>
     <div class="paper__glow" aria-hidden="true"></div>
 
     <!-- ============ Masthead ============ -->
@@ -324,6 +324,22 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
 </BaseLayout>
 
 <style>
+  /* Mirrors the selector order in tokens.css: light by default, dark when the
+     visitor has chosen it or the system asks and they have not chosen light. */
+  .paper {
+    --atmosphere: var(--atmo-light);
+  }
+
+  :global(:root[data-theme='dark']) .paper {
+    --atmosphere: var(--atmo-dark);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .paper {
+      --atmosphere: var(--atmo-dark);
+    }
+  }
+
   .paper {
     position: relative;
   }

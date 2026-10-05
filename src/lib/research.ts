@@ -49,6 +49,10 @@ export const paper = {
   /* Violet. Distinct from the four project accents, and it reads as ink on a
      dark page rather than as a product brand colour. */
   accent: '264 44% 66%',
+  /* The same hue, taken down for light mode. At 66% lightness it only reaches
+     3:1 on a near-white page — the bare minimum for a graphic, and a fail for
+     the text this colour is also used on. */
+  accentLight: '264 48% 45%',
   authors: [
     {
       name: 'Aman Sriven',
