@@ -65,5 +65,8 @@ browser; `?track` undoes it. Short links such as `/cv` and `/li` live in
 
 The repo is connected to Cloudflare Workers: pushes to `main` deploy to
 production, and other branches get preview URLs. Build command `npm run build`,
-with `PUBLIC_TURNSTILE_SITE_KEY` set under build variables. To deploy by hand,
-run `npm run deploy`.
+with `PUBLIC_TURNSTILE_SITE_KEY`, `PUBLIC_POSTHOG_PROJECT_TOKEN` and
+`PUBLIC_POSTHOG_HOST` set under build variables. A build without the PostHog
+pair ships with analytics silently off, even though local builds (which read
+`.env`) include it. To deploy by hand,
+run `npm run deploy` (this reads your local `.env`).
