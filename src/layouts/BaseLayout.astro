@@ -34,6 +34,13 @@ const ogImageUrl = new URL(ogImage, site.url).href;
    fork without PostHog builds fine. */
 const posthogKey = import.meta.env.PROD ? import.meta.env.PUBLIC_POSTHOG_PROJECT_TOKEN : undefined;
 const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST;
+/* Optional by design, but a production build without it is almost always a
+   missing build variable, so say so in the build log. */
+if (import.meta.env.PROD && !(posthogKey && posthogHost)) {
+  console.warn(
+    '[analytics] PUBLIC_POSTHOG_PROJECT_TOKEN / PUBLIC_POSTHOG_HOST not set: this build has no PostHog.',
+  );
+}
 
 const personSchema = {
   '@context': 'https://schema.org',

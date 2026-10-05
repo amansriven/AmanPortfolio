@@ -4,6 +4,16 @@ import SocialIcon from './SocialIcon.astro';
 import { site, socials } from '../lib/site';
 
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+
+/* Without the key the form can never pass the server's Turnstile check, so a
+   production build missing it fails here and the last good deploy stays live.
+   (It went missing once when deploys moved from GitHub Actions to Workers
+   Builds, and every message was rejected for hours before anyone noticed.) */
+if (import.meta.env.PROD && !siteKey) {
+  throw new Error(
+    "PUBLIC_TURNSTILE_SITE_KEY is not set for this build. The contact form would reject every message. Add it under the Worker's Settings → Build → Variables and secrets.",
+  );
+}
 interface Props {
   standalone?: boolean;
 }

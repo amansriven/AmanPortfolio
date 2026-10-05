@@ -79,6 +79,23 @@
   /* --- Turnstile ------------------------------------------------
      Rendered in `execute` mode with an interaction-only appearance, so
      it stays invisible unless Cloudflare decides a human check is needed. */
+
+  /* Shown when the widget never arrives. Ad blockers, privacy extensions, and
+     some networks block challenges.cloudflare.com; "try again" can't help. */
+  const TURNSTILE_UNAVAILABLE =
+    'The spam check couldn’t load (an ad blocker or network filter is usually blocking Cloudflare), so the form can’t send. Your message is still here to copy.';
+  const TURNSTILE_WAIT_MS = 10_000;
+
+  /* Settles once the widget is rendered, or fails if its script can't load.
+     Submitting waits on this instead of sending an empty token. */
+  let markReady: () => void = () => {};
+  let markUnavailable: () => void = () => {};
+  const turnstileReady = new Promise<void>((resolve, reject) => {
+    markReady = resolve;
+    markUnavailable = () => reject(new Error(TURNSTILE_UNAVAILABLE));
+  });
+  turnstileReady.catch(() => {}); // Surfaced when the visitor submits.
+
   function mountTurnstile() {
     if (!siteKey || !turnstileEl || widgetId !== undefined) return;
     const turnstile = window.turnstile;
@@ -93,6 +110,7 @@
       'error-callback': () => rejectToken?.(new Error('Verification failed.')),
       'timeout-callback': () => rejectToken?.(new Error('Verification timed out.')),
     });
+    markReady();
   }
 
   $effect(() => {
@@ -106,6 +124,7 @@
     const existing = document.querySelector<HTMLScriptElement>('script[data-turnstile]');
     if (existing) {
       existing.addEventListener('load', mountTurnstile, { once: true });
+      existing.addEventListener('error', markUnavailable, { once: true });
       return;
     }
 
@@ -115,11 +134,35 @@
     script.defer = true;
     script.dataset.turnstile = '';
     script.addEventListener('load', mountTurnstile, { once: true });
+    script.addEventListener('error', markUnavailable, { once: true });
     document.head.appendChild(script);
   });
 
-  function getTurnstileToken(): Promise<string> {
-    if (!siteKey || widgetId === undefined || !window.turnstile) return Promise.resolve('');
+  /** Waits (up to TURNSTILE_WAIT_MS) for the widget rather than failing fast. */
+  async function whenTurnstileReady(): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        turnstileReady,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error(TURNSTILE_UNAVAILABLE)), TURNSTILE_WAIT_MS);
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function getTurnstileToken(): Promise<string> {
+    // Production builds can't ship without a key (ContactSection fails the
+    // build), so this is local development without one. Say so plainly rather
+    // than send an empty token the server would reject as "still loading".
+    if (!siteKey) {
+      throw new Error('The contact form isn’t set up right now, so it can’t send.');
+    }
+    // Until now this sent an empty token if the widget hadn't loaded yet, and
+    // the server answered "still loading, try again" forever.
+    await whenTurnstileReady();
 
     return new Promise<string>((resolve, reject) => {
       resolveToken = resolve;
