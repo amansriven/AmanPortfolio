@@ -171,9 +171,13 @@
 
       sent = { name: values.name.trim().split(/\s+/)[0], email: values.email.trim() };
       status = 'success';
+      // Autocapture only sees the submit attempt; this marks a delivered message.
+      // Nothing the visitor typed is sent to PostHog.
+      window.posthog?.capture('contact_form_submitted');
     } catch (error) {
       status = 'error';
       formError = error instanceof Error ? error.message : 'Something went wrong sending that.';
+      window.posthog?.capture('contact_form_failed', { reason: formError });
     }
   }
 
