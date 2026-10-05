@@ -21,7 +21,8 @@ npm run dev          # http://localhost:4321
 ## Where things live
 
 ```
-src/content/projects/   One .mdx per project; the filename is the URL
+src/content/projects/   One .mdx per project; the filename is the URL.
+                        Frontmatter only — project pages carry no write-up.
 src/lib/                site.ts (name, nav, socials), experience.ts, research.ts
 src/assets/             Portraits, company logos, project screenshots
 src/styles/tokens.css   Every colour, size, and spacing value
@@ -33,6 +34,9 @@ src/pages/api/contact.ts  The only server route; everything else is static
 - **Add a project:** drop an `.mdx` file into `src/content/projects/`. The schema
   in `src/content.config.ts` validates the frontmatter. Set `featured: true` to
   show it on the homepage (keep that to two); `/projects` lists everything.
+  A project page is the frontmatter and nothing else — hero, summary, metrics,
+  stack, and outbound links. Depth lives in the repo you link to, not here. If a
+  file grows a body, nothing renders it.
 - **Add a role:** edit `src/lib/experience.ts`. Logos go in `src/assets/logos/`.
 - **Share images:** after changing a project, run `node scripts/generate-og.mjs`
   to regenerate the cards in `public/og/`.

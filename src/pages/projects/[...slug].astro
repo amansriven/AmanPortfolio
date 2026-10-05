@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Figure from '../../components/Figure.astro';
@@ -22,13 +22,11 @@ export const getStaticPaths = (async () => {
 
 const { project, next } = Astro.props;
 const { data } = project;
-const { Content, headings } = await render(project);
 
 const displayUrl = data.liveUrl?.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const links = projectLinks(data);
 /* Host only: an App Store path is too long to sit inside a button. */
 const liveHost = data.liveUrl ? new URL(data.liveUrl).hostname : undefined;
-const sections = headings.filter((heading) => heading.depth === 2);
 const transition = projectTransition(project.id);
 ---
 
@@ -87,8 +85,6 @@ const transition = projectTransition(project.id);
             </div>
           )
         }
-
-        {data.sourceNote && <p class="case__source-note">{data.sourceNote}</p>}
       </div>
 
       <div class="case__visual" style={transition.media}>
@@ -120,12 +116,8 @@ const transition = projectTransition(project.id);
     }
 
     <div class="shell shell--wide case__layout">
-      <div class="case__body">
-        <Content />
-      </div>
+      <p class="case__summary">{data.summary}</p>
 
-      <!-- Sticky on wide screens: project facts and a section list that
-           highlights the section being read. -->
       <aside class="case__aside" aria-label="Project details">
         <dl class="case__facts">
           <div>
@@ -141,21 +133,6 @@ const transition = projectTransition(project.id);
             </dd>
           </div>
         </dl>
-
-        {
-          sections.length > 1 && (
-            <nav class="case__toc" aria-label="On this page" data-toc>
-              <p class="case__toc-label">On this page</p>
-              <ol>
-                {sections.map((section) => (
-                  <li>
-                    <a href={`#${section.slug}`}>{section.text}</a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          )
-        }
       </aside>
     </div>
 
@@ -181,41 +158,6 @@ const transition = projectTransition(project.id);
     </nav>
   </article>
 </BaseLayout>
-
-<script>
-  // Highlight the section being read: the last heading above the top third.
-  const toc = document.querySelector<HTMLElement>('[data-toc]');
-  if (toc) {
-    const links = [...toc.querySelectorAll<HTMLAnchorElement>('a')];
-    const targets = links
-      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
-      .filter((el): el is HTMLElement => el !== null);
-    let queued = false;
-    const update = () => {
-      queued = false;
-      const line = window.innerHeight * 0.3;
-      let current: string | null = null;
-      for (const target of targets) {
-        if (target.getBoundingClientRect().top <= line) current = target.id;
-      }
-      for (const link of links) {
-        if (link.hash.slice(1) === current) link.setAttribute('aria-current', 'true');
-        else link.removeAttribute('aria-current');
-      }
-    };
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!queued) {
-          queued = true;
-          requestAnimationFrame(update);
-        }
-      },
-      { passive: true },
-    );
-    update();
-  }
-</script>
 
 <style>
   /* Full site width throughout. The header pairs the overview with the
@@ -368,14 +310,6 @@ const transition = projectTransition(project.id);
     font-size: 1rem;
   }
 
-  .case__source-note {
-    margin-top: var(--space-3);
-    max-width: 34rem;
-    font-size: var(--fs-xs);
-    line-height: 1.6;
-    color: var(--text-muted);
-  }
-
   .case__link-host {
     padding-left: 0.55rem;
     border-left: 1px solid rgb(255 255 255 / 30%);
@@ -417,6 +351,15 @@ const transition = projectTransition(project.id);
   }
 
   /* --- Body + sidebar ------------------------------------------------ */
+  .case__summary {
+    min-width: 0;
+    max-width: 44rem;
+    font-size: var(--fs-lead);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
   .case__layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 15rem;
@@ -428,8 +371,6 @@ const transition = projectTransition(project.id);
   }
 
   .case__aside {
-    position: sticky;
-    top: calc(var(--header-height) + var(--space-6));
     display: grid;
     gap: var(--space-6);
   }
@@ -437,12 +378,9 @@ const transition = projectTransition(project.id);
   .case__facts {
     display: grid;
     gap: var(--space-5);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--border);
   }
 
-  .case__facts dt,
-  .case__toc-label {
+  .case__facts dt {
     margin-bottom: var(--space-2);
     color: var(--text-muted);
     font-size: var(--fs-xs);
@@ -470,158 +408,6 @@ const transition = projectTransition(project.id);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     line-height: 1.6;
-  }
-
-  .case__toc ol {
-    display: grid;
-    border-left: 1px solid var(--border);
-  }
-
-  .case__toc a {
-    display: block;
-    margin-left: -1px;
-    padding: 0.35rem 0 0.35rem var(--space-4);
-    border-left: 2px solid transparent;
-    color: var(--text-muted);
-    font-size: var(--fs-xs);
-    line-height: 1.4;
-    transition:
-      color var(--dur-fast),
-      border-color var(--dur-fast);
-  }
-
-  .case__toc a:hover {
-    color: var(--text);
-  }
-
-  .case__toc a[aria-current] {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    font-weight: 500;
-  }
-
-  .case__body {
-    min-width: 0;
-    font-size: 1.0625rem;
-    line-height: 1.75;
-  }
-
-  .case__body > :global(* + *) {
-    margin-top: var(--space-5);
-  }
-
-  /* 64px between write-up sections on a laptop, easing to 48px on a phone so
-     they never sit further apart than the page's own sections (56px there). */
-  .case__body > :global(h2) {
-    margin-top: clamp(var(--space-8), 5vw, var(--space-9));
-    margin-bottom: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 2.6vw, 2rem);
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    scroll-margin-top: calc(var(--header-height) + var(--space-6));
-  }
-
-  .case__body > :global(h2:first-child) {
-    margin-top: 0;
-  }
-
-  .case__body > :global(h2 + *) {
-    margin-top: var(--space-4);
-  }
-
-  .case__body > :global(h3) {
-    margin-top: var(--space-7);
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .case__body > :global(h3 + *) {
-    margin-top: var(--space-2);
-  }
-
-  .case__body > :global(p) {
-    color: var(--text-secondary);
-    text-wrap: pretty;
-  }
-
-  .case__body :global(strong) {
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .case__body > :global(ul),
-  .case__body > :global(ol) {
-    display: grid;
-    gap: var(--space-2);
-    padding-left: var(--space-5);
-    color: var(--text-secondary);
-  }
-
-  .case__body :global(ul > li) {
-    position: relative;
-  }
-
-  .case__body > :global(ul) :global(li)::before {
-    content: '';
-    position: absolute;
-    left: calc(-1 * var(--space-5) + 2px);
-    top: 0.8em;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: hsl(var(--atmosphere) / 80%);
-  }
-
-  /* base.css strips list markers; numbered steps get theirs back. */
-  .case__body > :global(ol) {
-    list-style: decimal;
-  }
-
-  .case__body > :global(ol) :global(li)::marker {
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-  }
-
-  .case__body :global(a) {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    text-underline-offset: 3px;
-    transition: text-decoration-color var(--dur) var(--ease-out);
-  }
-
-  .case__body :global(a:hover) {
-    text-decoration-color: var(--accent);
-  }
-
-  .case__body :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-    padding: 0.15em 0.4em;
-    border-radius: var(--radius-sm);
-    background: var(--surface-raised);
-    color: var(--accent);
-  }
-
-  .case__body > :global(.callout) {
-    margin-top: var(--space-6);
-  }
-
-  .case__body > :global(.callout + .callout) {
-    margin-top: var(--space-4);
-  }
-
-  .case__body > :global(.figure),
-  .case__body > :global(.tree),
-  .case__body > :global(.pipeline),
-  .case__body > :global(.spec) {
-    margin-top: var(--space-7);
-    margin-bottom: var(--space-3);
   }
 
   /* --- Next ---------------------------------------------------------- */
@@ -682,14 +468,9 @@ const transition = projectTransition(project.id);
       grid-template-columns: 1fr;
     }
 
-    /* Details come before the write-up; the section list is dropped. */
+    /* Details sit above the summary once the columns collapse. */
     .case__aside {
-      position: static;
       grid-row: 1;
-    }
-
-    .case__toc {
-      display: none;
     }
   }
 
@@ -699,8 +480,8 @@ const transition = projectTransition(project.id);
       padding: var(--space-4);
     }
 
-    .case__body {
-      font-size: 1rem;
+    .case__summary {
+      font-size: var(--fs-body);
     }
 
     .case__next a {

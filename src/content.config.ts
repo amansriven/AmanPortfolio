@@ -33,12 +33,6 @@ const projects = defineCollection({
     liveUrl: z.string().url().optional(),
     githubUrl: z.string().url().optional(),
     /**
-     * One short line under the links, for when `githubUrl` does not point at
-     * the source — a showcase repo for a closed codebase, say. Say what the
-     * link is rather than apologising for what it isn't.
-     */
-    sourceNote: z.string().optional(),
-    /**
      * Path under `public/`. If the file is not there yet, the site renders a
      * labelled placeholder telling you exactly where to drop it.
      */
@@ -50,10 +44,6 @@ const projects = defineCollection({
     heroFit: z.enum(['cover', 'contain']).default('cover'),
     /** CSS aspect-ratio for the hero well. */
     heroRatio: z.string().default('16 / 9'),
-    /** Optional supporting shots shown on the project page. */
-    gallery: z
-      .array(z.object({ src: z.string(), alt: z.string(), caption: z.string().optional() }))
-      .default([]),
     /** Only real, verifiable numbers. Leave empty rather than inventing any. */
     metrics: z.array(z.object({ value: z.string(), label: z.string() })).default([]),
     seo: z.object({ title: z.string().optional(), description: z.string().optional() }).optional(),
