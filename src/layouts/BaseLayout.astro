@@ -114,7 +114,9 @@ const personSchema = {
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <SiteHeader isHome={isHome} />
-    <main id="main">
+    <!-- tabindex lets "Skip to content" move keyboard focus here in every
+         browser (Safari otherwise only scrolls). -->
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />

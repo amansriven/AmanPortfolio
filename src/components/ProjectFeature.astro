@@ -36,7 +36,7 @@ const transition = projectTransition(project.id);
       <span class="project__status" data-tone={tone}>{data.status}</span>
       <span class="mono">{data.year}</span>
     </p>
-    <h3 style={transition.title}><a class="project__link" href={href}>{data.title}</a></h3>
+    <h2 style={transition.title}><a class="project__link" href={href}>{data.title}</a></h2>
     <p class="project__description">{data.tagline}</p>
     {
       !compact && data.metrics.length > 0 && (
@@ -162,7 +162,7 @@ const transition = projectTransition(project.id);
   .project__status[data-tone='award']::before {
     background: var(--accent);
   }
-  h3 {
+  h2 {
     margin-top: 0.7rem;
     font: 400 1.75rem var(--font-display);
     letter-spacing: -0.03em;
@@ -174,7 +174,7 @@ const transition = projectTransition(project.id);
     inset: 0;
     z-index: 1;
   }
-  .project:hover h3 {
+  .project:hover h2 {
     color: var(--accent);
   }
   .project:has(.project__link:focus-visible) {
@@ -275,7 +275,7 @@ const transition = projectTransition(project.id);
     gap: 1.75rem;
     padding-block: 1.5rem;
   }
-  .project--compact h3 {
+  .project--compact h2 {
     font-size: 1.5rem;
     margin-top: 0.5rem;
   }

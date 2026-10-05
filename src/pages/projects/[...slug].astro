@@ -370,7 +370,9 @@ const transition = projectTransition(project.id);
     padding-left: 0.55rem;
     border-left: 1px solid rgb(255 255 255 / 30%);
     font-size: var(--fs-micro);
-    opacity: 0.8;
+    /* Quieter than the label, but still 4.5:1 on the accent fill (0.8 gave
+       4.43:1 at this size). */
+    opacity: 0.9;
   }
 
   /* --- Metrics ------------------------------------------------------- */
@@ -410,7 +412,9 @@ const transition = projectTransition(project.id);
     grid-template-columns: minmax(0, 1fr) 15rem;
     align-items: start;
     gap: clamp(2.5rem, 6vw, 5rem);
-    padding-bottom: var(--space-10);
+    /* Same space before the "Next project" band as before the research
+       page's closing band. */
+    padding-bottom: var(--section-space);
   }
 
   .case__aside {
@@ -496,8 +500,10 @@ const transition = projectTransition(project.id);
     margin-top: var(--space-5);
   }
 
+  /* 64px between write-up sections on a laptop, easing to 48px on a phone so
+     they never sit further apart than the page's own sections (56px there). */
   .case__body > :global(h2) {
-    margin-top: var(--space-9);
+    margin-top: clamp(var(--space-8), 5vw, var(--space-9));
     margin-bottom: 0;
     font-family: var(--font-display);
     font-size: clamp(1.6rem, 2.6vw, 2rem);

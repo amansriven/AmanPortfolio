@@ -201,6 +201,12 @@ main {
   flex: 1;
   min-width: 0;
 }
+
+/* Focus lands on <main> only via the skip link; the region itself needs no
+   ring, the next Tab continues from inside it. */
+main:focus {
+  outline: none;
+}
 .button-primary {
   display: inline-flex;
   align-items: center;
@@ -317,6 +323,31 @@ a:focus-visible > .social-circle {
 
 .spotlight:hover::after {
   opacity: 1;
+}
+
+/* --- Sideways-scrolling rows -------------------------------
+   Fades whichever edge has items hidden past it; trackScrollEdges() in
+   src/lib/effects.ts sets the attributes. */
+.scroll-fade {
+  --fade: 2.5rem;
+}
+
+.scroll-fade[data-more-end] {
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--fade)), transparent);
+}
+
+.scroll-fade[data-more-start] {
+  mask-image: linear-gradient(to left, #000 calc(100% - var(--fade)), transparent);
+}
+
+.scroll-fade[data-more-start][data-more-end] {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent
+  );
 }
 
 /* --- Page transitions ----------------------------------------

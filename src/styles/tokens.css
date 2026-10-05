@@ -77,6 +77,10 @@
 
   /* Vertical rhythm between major page sections. */
   --section-gap: clamp(3rem, 5vw, 4.5rem);
+  /* Space between the large, numbered blocks of a page (homepage sections,
+     research sections) and before a page's closing "next" band. One value so
+     every page breathes the same: 56px on a phone, 88px on a laptop. */
+  --section-space: clamp(3.5rem, 7vw, 5.5rem);
   --gutter: clamp(1.25rem, 5vw, 3.5rem);
 
   /* --- Measure ----------------------------------------------- */
@@ -140,7 +144,9 @@
   --text: #f1e9e4;
   --text-secondary: #cdc1bb;
   --text-muted: #a3968f;
-  --text-faint: #8f837d;
+  /* 4.6:1 on --surface-raised (WCAG AA for body text), still ~18% dimmer than
+     --text-muted. #8f837d was 4.17:1 there. */
+  --text-faint: #978b84;
   --accent: #e8946e;
   --accent-bright: #f0ac8c;
   --accent-dim: #3d2620;
@@ -173,7 +179,7 @@
     --text: #f1e9e4;
     --text-secondary: #cdc1bb;
     --text-muted: #a3968f;
-    --text-faint: #8f837d;
+    --text-faint: #978b84;
     --accent: #e8946e;
     --accent-bright: #f0ac8c;
     --accent-dim: #3d2620;

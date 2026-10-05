@@ -47,8 +47,13 @@ const groups = [...new Set(commands.map((command) => command.group))];
       <path d="m14 14 3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
       ></path>
     </svg>
+    <!-- Combobox pattern: focus stays in the input while the arrow keys move
+         the highlighted option, which aria-activedescendant announces. -->
     <input
       type="text"
+      role="combobox"
+      aria-expanded="true"
+      aria-autocomplete="list"
       placeholder="Jump to a page, project, or profile…"
       aria-label="Search commands"
       aria-controls="palette-list"
@@ -56,7 +61,7 @@ const groups = [...new Set(commands.map((command) => command.group))];
       spellcheck="false"
       data-palette-input
     />
-    <kbd>esc</kbd>
+    <kbd class="palette__esc">esc</kbd>
   </div>
 
   <ul class="palette__list" id="palette-list" role="listbox" data-palette-list>
@@ -106,11 +111,17 @@ const groups = [...new Set(commands.map((command) => command.group))];
   <footer class="palette__foot mono" aria-hidden="true">
     <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
     <span><kbd>↵</kbd> open</span>
-    <span><kbd>⌘</kbd><kbd>K</kbd> toggle</span>
+    <span><kbd data-mod-key>⌘</kbd><kbd>K</kbd> toggle</span>
   </footer>
 </dialog>
 
 <script>
+  import { modKey } from '../lib/platform';
+
+  document
+    .querySelectorAll<HTMLElement>('[data-mod-key]')
+    .forEach((kbd) => (kbd.textContent = modKey));
+
   const dialog = document.querySelector<HTMLDialogElement>('[data-palette]');
   const input = document.querySelector<HTMLInputElement>('[data-palette-input]');
   const empty = document.querySelector<HTMLElement>('[data-palette-empty]');
@@ -120,13 +131,20 @@ const groups = [...new Set(commands.map((command) => command.group))];
     const groups = [...dialog.querySelectorAll<HTMLElement>('.palette__group')];
     let active = 0;
 
+    // Options need ids for aria-activedescendant.
+    items.forEach((item, i) => (item.id ||= `palette-option-${i}`));
+
     const visible = () => items.filter((item) => !item.closest('li')!.hidden);
 
     const setActive = (index: number) => {
       const list = visible();
-      if (!list.length) return;
+      if (!list.length) {
+        input.removeAttribute('aria-activedescendant');
+        return;
+      }
       active = (index + list.length) % list.length;
       list.forEach((item, i) => item.setAttribute('aria-selected', String(i === active)));
+      input.setAttribute('aria-activedescendant', list[active]!.id);
       list[active]!.scrollIntoView({ block: 'nearest' });
     };
 
@@ -255,6 +273,13 @@ const groups = [...new Set(commands.map((command) => command.group))];
     padding: var(--space-4) var(--space-5);
     color: var(--text-muted);
     border-bottom: 1px solid var(--border);
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+
+  /* The input drops its own outline (it fills the row edge to edge), so the
+     row's rule shows focus instead: a caret alone isn't a focus indicator. */
+  .palette__search:focus-within {
+    border-bottom-color: var(--accent);
   }
 
   .palette__search input {
@@ -358,6 +383,24 @@ const groups = [...new Set(commands.map((command) => command.group))];
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
+  }
+
+  /* Phones: sit near the top and stop at roughly half the screen, so the
+     field and the first results stay above the on-screen keyboard. Tapping
+     the backdrop below closes it. */
+  @media (max-width: 47.99rem) {
+    .palette {
+      margin-top: var(--space-4);
+      max-height: min(32rem, 55dvh);
+    }
+  }
+
+  /* Keyboard hints mean nothing without a keyboard. */
+  @media (pointer: coarse) and (hover: none) {
+    .palette__foot,
+    .palette__esc {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

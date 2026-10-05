@@ -11,8 +11,12 @@ const kind = node.kind ?? 'default';
 <li class="node" data-kind={kind}>
   <div class="node__row">
     <span class="node__dot" aria-hidden="true"></span>
-    <span class="node__label">{node.label}</span>
-    {node.note && <span class="node__note mono">{node.note}</span>}
+    <!-- Label and note wrap together, so a note that drops to a second line
+         lines up with the label and detail rather than under the dot. -->
+    <span class="node__text">
+      <span class="node__label">{node.label}</span>
+      {node.note && <span class="node__note mono">{node.note}</span>}
+    </span>
   </div>
 
   {node.detail && <p class="node__detail">{node.detail}</p>}
@@ -36,9 +40,16 @@ const kind = node.kind ?? 'default';
 
   .node__row {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
     gap: var(--space-3);
+  }
+
+  .node__text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem var(--space-3);
+    min-width: 0;
   }
 
   .node__dot {

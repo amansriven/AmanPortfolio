@@ -102,7 +102,7 @@ const projects = (await getCollection('projects'))
 </script>
 <style>
   .home-section {
-    padding-bottom: clamp(3.5rem, 7vw, 5.5rem);
+    padding-bottom: var(--section-space);
   }
   .section-heading {
     display: flex;
@@ -166,7 +166,7 @@ const projects = (await getCollection('projects'))
   }
   /* --- Closing panel ------------------------------------------------ */
   .closing-wrap {
-    padding-bottom: clamp(3.5rem, 7vw, 5.5rem);
+    padding-bottom: var(--section-space);
   }
   .closing {
     position: relative;

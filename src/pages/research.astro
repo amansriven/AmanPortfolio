@@ -561,10 +561,10 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
   }
 
   /* --- Section scaffolding ------------------------------------------ */
-  /* One gap between sections rather than one from each side, sized to match
-     the space between sections on the homepage (~110px on a laptop). */
+  /* One gap between sections rather than one from each side: the same
+     --section-space the homepage uses. */
   .paper__section {
-    padding-block: calc(var(--section-gap) * 1.75);
+    padding-block: var(--section-space);
   }
 
   .paper__section + .paper__section {

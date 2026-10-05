@@ -26,7 +26,10 @@
   if (dialog && full && caption) {
     const images = [
       ...document.querySelectorAll<HTMLImageElement>('main .figure__well img'),
-    ].filter((img) => !img.closest('.project'));
+      // Thumbnails inside a project card (homepage tile or /projects row) are
+      // part of the card's link; zooming them would hijack the click and add
+      // a second tab stop per card.
+    ].filter((img) => !img.closest('.project, .tile'));
 
     const open = (img: HTMLImageElement) => {
       full.src = img.currentSrc || img.src;

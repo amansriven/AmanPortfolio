@@ -7,13 +7,14 @@ interface Props {
 const { label = 'Decision', title } = Astro.props;
 ---
 
-<aside class="callout">
+<!-- A note within the write-up, not a page-level landmark like <aside>. -->
+<div class="callout" role="note">
   <p class="eyebrow callout__label">{label}</p>
   {title && <p class="callout__title">{title}</p>}
   <div class="callout__body">
     <slot />
   </div>
-</aside>
+</div>
 
 <style>
   /* A quiet card with a slim accent bar: stands out from the prose without

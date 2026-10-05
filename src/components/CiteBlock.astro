@@ -32,7 +32,14 @@ import { citation } from '../lib/research';
     </button>
   </div>
 
-  <pre class="cite__code mono" data-cite-source>{citation}</pre>
+  <!-- Scrolls sideways on narrow screens, so it takes focus (arrow keys
+       scroll it) and needs a name to be announced by. -->
+  <pre
+    class="cite__code mono"
+    data-cite-source
+    tabindex="0"
+    role="region"
+    aria-label="BibTeX citation">{citation}</pre>
 </div>
 
 <script>

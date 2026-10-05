@@ -9,7 +9,7 @@ const { items } = Astro.props;
 <nav class="contents" aria-label="On this page" data-contents>
   <div class="contents__inner shell">
     <p class="eyebrow contents__label">On this page</p>
-    <ul>
+    <ul class="scroll-fade">
       {
         items.map((item) => (
           <li>
@@ -22,8 +22,11 @@ const { items } = Astro.props;
 </nav>
 
 <script>
+  import { trackScrollEdges } from '../lib/effects';
+
   for (const nav of document.querySelectorAll<HTMLElement>('[data-contents]')) {
     const links = [...nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+    trackScrollEdges(nav.querySelector('ul')!);
     const sections = links
       .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
       .filter((el): el is HTMLElement => el !== null);

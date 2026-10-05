@@ -14,7 +14,7 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
       <span>Aman Sriven</span>
     </a>
     <div class="header__end">
-      <nav aria-label="Primary">
+      <nav class="scroll-fade" aria-label="Primary" data-nav>
         <ul class="navigation">
           {
             items.map((item) => {
@@ -37,14 +37,28 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
           }
         </ul>
       </nav>
+      <!-- Named by its visible "Search" (no aria-label that says something
+           else); the shortcut is announced via aria-keyshortcuts. On narrow
+           screens it collapses to an icon beside the theme toggle. -->
       <button
         class="palette-trigger"
         type="button"
         data-palette-open
-        aria-label="Open command palette"
+        aria-keyshortcuts="Meta+K Control+K"
       >
-        <span>Search</span>
-        <kbd>⌘K</kbd>
+        <svg
+          class="palette-trigger__icon"
+          viewBox="0 0 20 20"
+          width="16"
+          height="16"
+          aria-hidden="true"
+        >
+          <circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+          <path d="m14 14 3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          ></path>
+        </svg>
+        <span class="palette-trigger__label">Search</span>
+        <kbd aria-hidden="true" data-shortcut-hint>⌘K</kbd>
       </button>
       <button
         class="theme-toggle"
@@ -89,6 +103,8 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
 </header>
 <script>
   import { toggleTheme } from '../lib/theme';
+  import { trackScrollEdges } from '../lib/effects';
+  import { shortcut } from '../lib/platform';
 
   const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
   const label = () => {
@@ -97,8 +113,23 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
   };
   label();
   button?.addEventListener('click', () => toggleTheme(button).then(label));
+  // The markup says ⌘K; off Apple platforms the hint should say Ctrl+K.
+  const hint = document.querySelector<HTMLElement>('[data-shortcut-hint]');
+  if (hint) hint.textContent = shortcut('K');
+
   // The ⌘K palette's "Toggle theme" command.
   document.addEventListener('theme:toggle', () => toggleTheme(button).then(label));
+
+  /* On narrow screens the nav is a sideways-scrolling row: start it scrolled
+     so the current page's link is in view, and fade the edges with more. */
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  if (nav) {
+    const current = nav.querySelector<HTMLElement>('[aria-current="page"]');
+    if (current && nav.scrollWidth > nav.clientWidth) {
+      nav.scrollLeft = current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+    }
+    trackScrollEdges(nav);
+  }
 </script>
 <style>
   .header {
@@ -169,6 +200,15 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
     color: var(--text);
     border-color: var(--border-strong);
     box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+  .palette-trigger__icon {
+    display: none;
+  }
+  /* No keyboard shortcut to hint at on touch-only devices (an iPad, say). */
+  @media (pointer: coarse) and (hover: none) {
+    .palette-trigger kbd {
+      display: none;
+    }
   }
   .palette-trigger kbd {
     padding: 0.1rem 0.4rem;
@@ -335,6 +375,12 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
     nav {
       width: 100%;
       overflow-x: auto;
+      /* The row scrolls by swipe, trackpad, or Tab; a scrollbar under it just
+         reads as a stray rule. .scroll-fade marks the edges with more. */
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar {
+      display: none;
     }
     .navigation {
       width: max-content;
@@ -352,8 +398,33 @@ const items = [{ label: 'Home', href: '/' }, ...nav, navCta];
     .header__end {
       width: 100%;
     }
-    /* Touch screens have no ⌘K; the palette stays keyboard-only there. */
+    /* Search collapses to an icon button left of the theme toggle. The
+       label stays readable to screen readers. */
     .palette-trigger {
+      position: absolute;
+      top: 0.55rem;
+      right: calc(var(--gutter) + 36px + 0.5rem);
+      justify-content: center;
+      width: 36px;
+      min-width: 0;
+      height: 36px;
+      min-height: 0;
+      padding: 0;
+      border-radius: 50%;
+      color: var(--text-secondary);
+    }
+    .palette-trigger__icon {
+      display: block;
+    }
+    .palette-trigger__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .palette-trigger kbd {
       display: none;
     }
     .header__inner {

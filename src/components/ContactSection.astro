@@ -83,6 +83,8 @@ const { standalone = false } = Astro.props;
 </section>
 
 <script>
+  import { shortcut } from '../lib/platform';
+
   const status = document.querySelector<HTMLElement>('[data-copy-status]');
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
     const label = button.querySelector<HTMLElement>('[data-copy-label]')!;
@@ -94,7 +96,12 @@ const { standalone = false } = Astro.props;
         button.classList.add('is-copied');
         if (status) status.textContent = 'Email address copied to clipboard.';
       } catch {
-        label.textContent = 'Press ⌘C';
+        // Clipboard access refused (permissions, an embedded browser): select
+        // the address so the shortcut the button names actually copies it.
+        const value = button.closest('li')?.querySelector('.contact__direct-value');
+        if (value) window.getSelection()?.selectAllChildren(value);
+        label.textContent = `Press ${shortcut('C')}`;
+        if (status) status.textContent = `Email address selected. Press ${shortcut('C')} to copy.`;
       }
       clearTimeout(timer);
       timer = setTimeout(() => {
@@ -131,6 +138,9 @@ const { standalone = false } = Astro.props;
 
   .contact__intro {
     display: grid;
+    /* Explicit, shrinkable column: the implicit one sizes to its widest
+       child, the one-line email row, and spilled out at 320px. */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
     align-content: start;
   }
@@ -150,6 +160,7 @@ const { standalone = false } = Astro.props;
 
   .contact__direct {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     margin-top: var(--space-4);
   }
 
@@ -220,8 +231,16 @@ const { standalone = false } = Astro.props;
   }
 
   .contact__direct-value {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The copy button floats over the end of the email row; keep the address
+     out from under it. */
+  .contact__direct li:has(.copy) a {
+    padding-right: calc(4.75rem + var(--space-3));
   }
 
   .contact__form {
@@ -233,7 +252,9 @@ const { standalone = false } = Astro.props;
 
   @media (max-width: 61.99rem) {
     .contact__grid {
-      grid-template-columns: 1fr;
+      /* minmax(0, …): a bare 1fr can't shrink below its content, and the
+         one-line email row would push a 320px screen sideways. */
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-8);
     }
 
@@ -245,6 +266,18 @@ const { standalone = false } = Astro.props;
   @media (max-width: 30rem) {
     .contact__form {
       padding: var(--space-5) var(--space-4);
+    }
+
+    /* On a phone the label column left ~110px for the value, so the email
+       was cut off. Each row's icon already names it; the label stays in the
+       accessibility tree, so links still read "GitHub amansriven". */
+    .contact__direct-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
   }
 </style>

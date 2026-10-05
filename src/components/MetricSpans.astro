@@ -43,7 +43,14 @@ const origin = (row: { precision: number; recall: number; f1: number }) =>
     <span class="key key--f1"><i></i>F1</span>
   </div>
 
-  <div class="spans__scroll">
+  <!-- Scrolls sideways only on the narrowest phones; the script makes it
+       focusable (and fades its edges) only while it does. -->
+  <div
+    class="spans__scroll scroll-fade"
+    role="region"
+    aria-label="Table I: per-class results"
+    data-spans-scroll
+  >
     <table class="spans__table">
       <caption class="visually-hidden">
         Precision, recall, F1 score, and AUC for each vulnerability class.
@@ -134,6 +141,15 @@ const origin = (row: { precision: number; recall: number; f1: number }) =>
     </table>
   </div>
 </figure>
+
+<script>
+  import { focusableWhenScrollable, trackScrollEdges } from '../lib/effects';
+
+  for (const region of document.querySelectorAll<HTMLElement>('[data-spans-scroll]')) {
+    focusableWhenScrollable(region);
+    trackScrollEdges(region);
+  }
+</script>
 
 <style>
   .spans {
@@ -424,7 +440,7 @@ const origin = (row: { precision: number; recall: number; f1: number }) =>
     }
 
     .spans__table thead th:first-child {
-      width: 42%;
+      width: 38%;
     }
 
     .spans__name {
@@ -432,9 +448,15 @@ const origin = (row: { precision: number; recall: number; f1: number }) =>
       font-size: var(--fs-xs);
     }
 
+    /* The dataset's own class id (NonVulnerable, IntegerUO...) is reference
+       detail; dropping it buys the plot the width it needs to show spread. */
+    .spans__name > .spans__label {
+      display: none;
+    }
+
     .spans__axis-head,
     .spans__plot {
-      width: 42%;
+      width: 46%;
       padding-inline: var(--space-3);
     }
 

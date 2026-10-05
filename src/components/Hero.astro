@@ -52,7 +52,12 @@ import portrait from '../assets/portrait/aman.jpg';
   const typed = document.querySelector<HTMLElement>('[data-typed]');
   if (typed && !reduceMotion) {
     const text = typed.textContent ?? '';
-    typed.parentElement?.setAttribute('aria-label', text);
+    // Screen readers get the whole line once, from a hidden copy, rather than
+    // the animation one letter at a time. (aria-label isn't allowed on a <p>.)
+    const label = document.createElement('span');
+    label.className = 'visually-hidden';
+    label.textContent = text;
+    typed.before(label);
     typed.setAttribute('aria-hidden', 'true');
     typed.textContent = '';
     let i = 0;
@@ -87,7 +92,7 @@ import portrait from '../assets/portrait/aman.jpg';
     align-items: center;
     gap: clamp(2.5rem, 5vw, 4.5rem);
     padding-top: 4.5rem;
-    padding-bottom: 4rem;
+    padding-bottom: var(--section-space);
   }
   .eyebrow {
     color: var(--accent);
@@ -377,7 +382,6 @@ import portrait from '../assets/portrait/aman.jpg';
       grid-template-columns: 1fr;
       gap: 2.5rem;
       padding-top: 2.5rem;
-      padding-bottom: 3rem;
     }
     .hero__portrait {
       width: min(16rem, 75vw);
