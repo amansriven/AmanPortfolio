@@ -87,6 +87,8 @@ const transition = projectTransition(project.id);
             </div>
           )
         }
+
+        {data.sourceNote && <p class="case__source-note">{data.sourceNote}</p>}
       </div>
 
       <div class="case__visual" style={transition.media}>
@@ -364,6 +366,14 @@ const transition = projectTransition(project.id);
   .case__gh {
     display: inline-grid;
     font-size: 1rem;
+  }
+
+  .case__source-note {
+    margin-top: var(--space-3);
+    max-width: 34rem;
+    font-size: var(--fs-xs);
+    line-height: 1.6;
+    color: var(--text-muted);
   }
 
   .case__link-host {

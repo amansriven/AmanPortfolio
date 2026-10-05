@@ -33,6 +33,12 @@ const projects = defineCollection({
     liveUrl: z.string().url().optional(),
     githubUrl: z.string().url().optional(),
     /**
+     * One short line under the links, for when `githubUrl` does not point at
+     * the source — a showcase repo for a closed codebase, say. Say what the
+     * link is rather than apologising for what it isn't.
+     */
+    sourceNote: z.string().optional(),
+    /**
      * Path under `public/`. If the file is not there yet, the site renders a
      * labelled placeholder telling you exactly where to drop it.
      */
