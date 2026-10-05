@@ -33,7 +33,12 @@ const { apiKey, apiHost } = Astro.props;
   if (url.href !== window.location.href) history.replaceState(history.state, '', url);
 
   posthog.init(apiKey, {
+    // PUBLIC_POSTHOG_HOST may be PostHog's own ingest host or the managed
+    // reverse proxy on our subdomain (e.amansriven.com), which ad blockers
+    // don't recognise. ui_host stays PostHog's app so its toolbar and links
+    // still work behind the proxy.
     api_host: apiHost,
+    ui_host: 'https://us.posthog.com',
     defaults: '2026-05-30',
     // Don't count the very visit that opts out.
     ...(optingOut && { capture_pageview: false }),
