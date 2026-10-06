@@ -1,5 +1,12 @@
 ---
-import { defaultFocus, experience, focuses, type Focus, type RoleStory } from '../lib/experience';
+import {
+  defaultFocus,
+  experience,
+  focuses,
+  roleId,
+  type Focus,
+  type RoleStory,
+} from '../lib/experience';
 import SectionHead from './SectionHead.astro';
 import CompanyLogo from './CompanyLogo.astro';
 interface Props {
@@ -64,6 +71,7 @@ const rows = experience.flatMap((role) => {
       {
         rows.map(({ role, story, foci }) => (
           <li
+            id={roleId(role)}
             class="entry spotlight"
             data-reveal
             data-foci={foci.join(' ')}
@@ -101,6 +109,12 @@ const rows = experience.flatMap((role) => {
                   <li>{tech}</li>
                 ))}
               </ul>
+
+              {role.link && (
+                <a class="text-link entry__link" href={role.link.href}>
+                  {role.link.label} <span aria-hidden="true">→</span>
+                </a>
+              )}
             </div>
           </li>
         ))
@@ -147,6 +161,16 @@ const rows = experience.flatMap((role) => {
     // Links like /experience?focus=ml open on that résumé.
     const initial = new URLSearchParams(window.location.search).get('focus');
     if (initial && initial !== defaultFocus) apply(initial, false);
+
+    // A link to one role (/experience#org) must land on it even when the
+    // current résumé hides that role: switch to one that shows it.
+    const target = window.location.hash
+      ? document.getElementById(decodeURIComponent(window.location.hash.slice(1)))
+      : null;
+    if (target?.hidden && target.dataset.foci) {
+      apply(target.dataset.foci.split(' ')[0]!, false);
+      target.scrollIntoView();
+    }
   }
 </script>
 
@@ -314,6 +338,13 @@ const rows = experience.flatMap((role) => {
     flex-wrap: wrap;
     gap: 0.35rem;
     font-size: var(--fs-micro);
+  }
+
+  .entry__link {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: var(--space-4);
+    font-size: var(--fs-sm);
   }
 
   .entry__stack li {

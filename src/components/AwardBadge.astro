@@ -1,0 +1,142 @@
+---
+/**
+ * The symposium award, linked to the official results with the entry
+ * highlighted. One component so the research page, homepage hero, and About
+ * page always say the same thing and point at the same source; the wording
+ * and URLs live in src/lib/research.ts (paper.recognition).
+ */
+import { paper } from '../lib/research';
+
+interface Props {
+  /** Smaller padding and type, for places where it sits beside other copy. */
+  compact?: boolean;
+  class?: string;
+}
+const { compact = false, class: className } = Astro.props;
+const { label, event, href } = paper.recognition;
+---
+
+<a
+  class:list={['award', { 'award--compact': compact }, className]}
+  href={href}
+  target="_blank"
+  rel="noopener"
+  style={`--atmo-dark: ${paper.accent}; --atmo-light: ${paper.accentLight}`}
+>
+  <svg class="award__icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <path
+      d="M8 2.5h8l-2.6 6.2M8 2.5l2.6 6.2"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linejoin="round"></path>
+    <circle cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+    <path
+      d="M11 13.4l1.3-.9v5.1"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+  <span class="award__text">
+    <span class="award__label">{label}</span>
+    <span class="visually-hidden"> at the </span>
+    <span class="award__event">{event}</span>
+  </span>
+  <span class="award__go" aria-hidden="true">↗</span>
+  <span class="visually-hidden">(official results, opens in a new tab)</span>
+</a>
+
+<style>
+  /* The research paper's violet, swapped per theme the same way the research
+     page does it, so the badge looks identical wherever it appears. */
+  .award {
+    --atmosphere: var(--atmo-light);
+  }
+
+  :global(:root[data-theme='dark']) .award {
+    --atmosphere: var(--atmo-dark);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .award {
+      --atmosphere: var(--atmo-dark);
+    }
+  }
+
+  .award {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 100%;
+    padding: 0.6rem 1rem 0.6rem 0.75rem;
+    border: 1px solid hsl(var(--atmosphere) / 35%);
+    border-radius: var(--radius-lg);
+    background: hsl(var(--atmosphere) / 10%);
+    color: var(--text);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .award:hover {
+    border-color: hsl(var(--atmosphere) / 60%);
+    background: hsl(var(--atmosphere) / 16%);
+    transform: translateY(-1px);
+  }
+
+  .award__icon {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  .award__text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .award__label {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .award__event {
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    line-height: 1.35;
+  }
+
+  .award__go {
+    align-self: start;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .award:hover .award__go {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  .award--compact {
+    gap: var(--space-2);
+    padding: 0.45rem 0.8rem 0.45rem 0.6rem;
+  }
+
+  .award--compact .award__icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .award--compact .award__label {
+    font-size: var(--fs-xs);
+  }
+
+  .award--compact .award__event {
+    font-size: var(--fs-micro);
+  }
+</style>

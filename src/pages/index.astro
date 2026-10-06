@@ -5,7 +5,7 @@ import Hero from '../components/Hero.astro';
 import ProjectTile from '../components/ProjectTile.astro';
 import CompanyLogo from '../components/CompanyLogo.astro';
 import SocialIcon from '../components/SocialIcon.astro';
-import { experience } from '../lib/experience';
+import { experience, roleId } from '../lib/experience';
 import { socials } from '../lib/site';
 /* The homepage is a highlight reel: only projects marked `featured` (two).
    /projects is the full, filterable archive. */
@@ -46,6 +46,11 @@ const projects = (await getCollection('projects'))
                 <>
                   <h3>{role.org}</h3>
                   <p>{role.role}</p>
+                  {role.highlight && (
+                    <a class="experience-list__highlight" href={`/experience#${roleId(role)}`}>
+                      {role.highlight}
+                    </a>
+                  )}
                 </>
               </div>
               <span class="mono">{role.period}</span>
@@ -158,6 +163,26 @@ const projects = (await getCollection('projects'))
     margin-top: 0.3rem;
     color: var(--text-muted);
     font-size: var(--fs-xs);
+  }
+  /* Quiet on purpose: muted like the role line, with a faint underline that
+     says "link" without competing with the row. */
+  .experience-list__highlight {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    margin-top: 0.2rem;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 3px;
+    transition:
+      color var(--dur-fast),
+      text-decoration-color var(--dur-fast);
+  }
+  .experience-list__highlight:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
   }
   .experience-list .mono {
     font-size: 0.7rem;

@@ -225,6 +225,29 @@ main:focus {
 .button-primary:hover {
   background: var(--accent-fill-hover);
 }
+/* Same size and shape as .button-primary, outlined so it sits beside one
+   without competing with it. */
+.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  transition:
+    border-color var(--dur-fast),
+    color var(--dur-fast);
+}
+.button-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 .text-link {
   display: inline-flex;
   align-items: center;

@@ -42,6 +42,23 @@ export interface Experience {
    * role is rendered once.
    */
   story: Partial<Record<Focus, RoleStory>>;
+  /**
+   * A short, verifiable result shown quietly under the role on the homepage
+   * list. It links to this role's entry on /experience, not straight to the
+   * evidence; the entry carries the link onward (see `link`).
+   */
+  highlight?: string;
+  /** A further link on the role's /experience entry, e.g. its write-up. */
+  link?: { label: string; href: string };
+}
+
+/** Stable anchor for a role's entry on /experience (#texas-am-university-cares-lab). */
+export function roleId(role: Pick<Experience, 'org'>): string {
+  return role.org
+    .toLowerCase()
+    .replace(/&/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 /* CARES Lab reads the same on both résumés, but its figures come from Table I
@@ -149,6 +166,8 @@ export const experience: Experience[] = [
     period: 'Dec 2024 — May 2025',
     logo: tamuLogo,
     story: { swe: caresStory, ml: caresStory },
+    highlight: '1st place, research symposium',
+    link: { label: 'Read the research', href: '/research' },
   },
   {
     year: '2026',
