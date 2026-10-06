@@ -55,7 +55,8 @@ const caresStory: RoleStory = {
   metrics: [
     { value: '0.8703', label: 'macro F1 across 12 classes' },
     { value: '0.9973', label: 'macro AUC' },
-    { value: '1st of 40', label: '2025 research symposium' },
+    // As the official results list it (tamug.edu/research/Symposium).
+    { value: '1st', label: 'Computer Sciences, 2025 TAMUG research symposium' },
   ],
 };
 

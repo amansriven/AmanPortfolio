@@ -45,7 +45,17 @@ export const paper = {
   year: '2025',
   period: 'December 2024 — May 2025',
   venue: 'Texas A&M University · MARE 491',
-  award: '1st of 40 — 2025 undergraduate research symposium',
+  /* Worded as the official results list it (see recognition.href), so the
+     claim and its source agree. */
+  award: '1st in Computer Sciences, 2025 TAMUG Student Research Symposium',
+  /* What a non-specialist needs in one sentence: what it does, and the one
+     comparison that makes the number meaningful (ega below: the previously
+     published model on this same dataset). */
+  oneLiner:
+    'A deep-learning model that flags eleven kinds of security vulnerability in Solidity smart contracts, scoring 0.87 macro F1 against 0.75 for the previously published model on the same dataset.',
+  role: 'First author; trained the PyTorch ensemble',
+  builtWith: 'PyTorch · multi-head attention · focal loss · SMOTE',
+  advisor: 'Dr. Irfan Khan',
   /* The award in the official results' own words, so a reader who follows the
      link finds exactly what the page claims. */
   recognition: {
@@ -98,12 +108,17 @@ export const paper = {
   ],
 } as const;
 
-/** The four macro figures, precision included. It is the weakest of them. */
+/**
+ * The top-line numbers, each with the plain-language reading a skimmer needs.
+ * Exact four-decimal figures live in the results table; precision, the weakest
+ * of them, is discussed there next to the comparison it loses.
+ */
 export const headline = [
-  { value: '0.8703', label: 'macro F1' },
-  { value: '0.9973', label: 'macro AUC' },
-  { value: '0.9572', label: 'macro recall' },
-  { value: '0.8069', label: 'macro precision' },
+  { value: '0.87', label: 'macro F1', note: 'vs 0.75 for the previous model on the same data' },
+  /* Mean recall over the eleven vulnerability classes (0.9536). The 0.9572
+     macro figure also averages in "Secure", which isn't a vulnerability. */
+  { value: '95%', label: 'of vulnerabilities caught', note: 'average across the eleven classes' },
+  { value: '0.997', label: 'macro AUC', note: 'how well it ranks risky contracts first' },
 ] as const;
 
 export const dataset = [

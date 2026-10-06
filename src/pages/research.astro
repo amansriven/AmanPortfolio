@@ -6,13 +6,15 @@ import ModelDiagram from '../components/ModelDiagram.astro';
 import MetricSpans from '../components/MetricSpans.astro';
 import PaperCover from '../components/PaperCover.astro';
 import PaperShelf from '../components/PaperShelf.astro';
-import CiteBlock from '../components/CiteBlock.astro';
-import { paper, headline, macro, ablation } from '../lib/research';
+import { paper, headline, macro, ablation, ega } from '../lib/research';
 
+/* What a reader scans for: when, what I did, with what, and how it was
+   received. The dataset is named in "In brief"; the course code meant nothing
+   outside A&M, so it's gone. */
 const facts: { label: string; value: string; href?: string }[] = [
   { label: 'Period', value: paper.period },
-  { label: 'Context', value: paper.venue },
-  { label: 'Dataset', value: 'BCCC-SCsVul-2024' },
+  { label: 'My role', value: paper.role },
+  { label: 'Built with', value: paper.builtWith },
   { label: 'Recognition', value: paper.award, href: paper.recognition.news },
 ];
 
@@ -47,14 +49,16 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
 
         <div class="masthead">
           <div class="masthead__text">
-            <p class="eyebrow paper__eyebrow">Research paper</p>
+            <p class="eyebrow paper__eyebrow">Undergraduate research · {paper.year}</p>
 
             <h1 class="paper__title">
               {paper.title}
               <span class="paper__acronym mono">{paper.acronym}</span>
             </h1>
 
-            <p class="paper__subtitle">{paper.subtitle}</p>
+            <!-- Plain English first; the paper's own subtitle stays in the page title
+                 and the PDF. -->
+            <p class="paper__subtitle">{paper.oneLiner}</p>
 
             <!-- The strongest credential, up top and verifiable in one click:
                  opens the official results with the entry highlighted. -->
@@ -91,21 +95,10 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
               <span class="visually-hidden">(official results, opens in a new tab)</span>
             </a>
 
-            <ul class="authors">
-              {
-                paper.authors.map((author) => (
-                  <li class="author" data-self={author.self ? '' : undefined}>
-                    <p class="author__name">{author.name}</p>
-                    <p class="author__where">
-                      {author.department}, {author.institution}
-                    </p>
-                    <p class="author__contact mono">
-                      {author.location} · {author.email}
-                    </p>
-                  </li>
-                ))
-              }
-            </ul>
+            <p class="byline">
+              <span class="byline__me">Aman Sriven</span>, first author · advised by {paper.advisor} ·
+              Texas A&amp;M University
+            </p>
 
             <div class="paper__actions">
               <a class="action action--primary" href={paper.href} target="_blank" rel="noopener">
@@ -171,6 +164,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
             <li>
               <span class="headline__value mono">{metric.value}</span>
               <span class="headline__label">{metric.label}</span>
+              <span class="headline__note">{metric.note}</span>
             </li>
           ))
         }
@@ -186,7 +180,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
         { label: 'Results', href: '#results-heading' },
         { label: 'Architecture', href: '#architecture-heading' },
         { label: 'Limits', href: '#limits-heading' },
-        { label: 'Paper & citation', href: '#paper-heading' },
+        { label: 'The paper', href: '#paper-heading' },
       ]}
     />
 
@@ -213,6 +207,11 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
             split that never saw resampling or threshold tuning, it reaches a macro F1 of {
               macro.f1.toFixed(4)
             } and a macro AUC of {macro.auc.toFixed(4)}.
+          </p>
+          <p class="abstract__more">
+            The domain is smart contracts; the skills are general. Learning from badly imbalanced
+            data, choosing metrics that don't flatter the model, and reporting the trade-offs rather
+            than hiding them carry over to any problem where rare events are the ones that matter.
           </p>
         </div>
       </div>
@@ -243,6 +242,15 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
             AUC stays above 0.99 everywhere, including those weak classes. The ranking is good even
             where the decision is not, so the failure is in where the threshold lands rather than in
             what the network learned.
+          </p>
+          <p>
+            Against {ega.name} ({ega.citation}), the previously published model on this same
+            dataset, SCRAN raises macro F1 from {ega.macro.egaF1.toFixed(2)} to {
+              ega.macro.scranF1.toFixed(2)
+            } and has the higher F1 on every one of the twelve classes. {ega.name} keeps the edge on macro
+            precision ({ega.macro.egaPrecision.toFixed(2)} against {
+              ega.macro.scranPrecision.toFixed(2)
+            }), and it was built to be explainable, which SCRAN is not.
           </p>
           <p>
             One trade is worth stating: a single model scores a slightly higher macro F1 ({
@@ -317,13 +325,11 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
         </div>
 
         <div class="paper__closing" data-reveal>
-          <CiteBlock />
-
           <div class="paper__thanks">
             <p class="eyebrow">Acknowledgements</p>
             <p>
-              Written with Dr. Irfan Khan, who advised the work throughout MARE 491, and with help
-              from graduate students Zahid Hussain and Shorya Agarwal.
+              Written with Dr. Irfan Khan, who advised the work, and with help from graduate
+              students Zahid Hussain and Shorya Agarwal.
             </p>
             <a class="action action--primary" href={paper.href} target="_blank" rel="noopener">
               <span>Read the paper</span>
@@ -411,6 +417,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: 24px;
     margin-bottom: var(--space-8);
     font-size: var(--fs-xs);
     color: var(--text-muted);
@@ -544,42 +551,17 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
     text-decoration-color: var(--accent);
   }
 
-  /* --- Authors ---------------------------------------------------- */
-  .authors {
-    display: grid;
-    gap: var(--space-4);
-    margin-top: var(--space-7);
-  }
-
-  .author {
-    padding-left: var(--space-4);
-    border-left: 1px solid var(--border);
-  }
-
-  .author[data-self] {
-    border-left-color: var(--accent);
-  }
-
-  .author__name {
-    font-size: var(--fs-sm);
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .author[data-self] .author__name {
-    color: var(--accent);
-  }
-
-  .author__where {
-    margin-top: 1px;
-    font-size: var(--fs-xs);
+  /* --- Byline ----------------------------------------------------- */
+  .byline {
+    margin-top: var(--space-6);
     color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
   }
 
-  .author__contact {
-    margin-top: 2px;
-    font-size: var(--fs-micro);
-    color: var(--text-faint);
+  .byline__me {
+    color: var(--text);
+    font-weight: 500;
   }
 
   /* --- Actions ---------------------------------------------------- */
@@ -672,7 +654,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
   /* --- Headline numbers -------------------------------------------- */
   .headline {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-5);
     padding: var(--space-6) 0;
     border-block: 1px solid var(--border);
@@ -692,6 +674,12 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
 
   .headline__label {
     font-size: var(--fs-xs);
+    color: var(--text-secondary);
+  }
+
+  .headline__note {
+    font-size: var(--fs-xs);
+    line-height: 1.45;
     color: var(--text-muted);
   }
 
@@ -779,7 +767,7 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
   /* --- Closing --------------------------------------------------------- */
   .paper__closing {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    max-width: 42rem;
     gap: var(--space-8);
     align-items: start;
     margin-top: var(--space-9);
@@ -865,12 +853,8 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
 
     .facts,
     .headline {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-5) var(--space-4);
-    }
-
-    .paper__closing {
       grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
     }
   }
 
