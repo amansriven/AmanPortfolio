@@ -9,11 +9,11 @@ import PaperShelf from '../components/PaperShelf.astro';
 import CiteBlock from '../components/CiteBlock.astro';
 import { paper, headline, macro, ablation } from '../lib/research';
 
-const facts = [
+const facts: { label: string; value: string; href?: string }[] = [
   { label: 'Period', value: paper.period },
   { label: 'Context', value: paper.venue },
   { label: 'Dataset', value: 'BCCC-SCsVul-2024' },
-  { label: 'Recognition', value: paper.award },
+  { label: 'Recognition', value: paper.award, href: paper.recognition.news },
 ];
 
 /* Quoted in Results; read from the data so the two can't drift apart. */
@@ -55,6 +55,41 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
             </h1>
 
             <p class="paper__subtitle">{paper.subtitle}</p>
+
+            <!-- The strongest credential, up top and verifiable in one click:
+                 opens the official results with the entry highlighted. -->
+            <a class="award" href={paper.recognition.href} target="_blank" rel="noopener">
+              <svg
+                class="award__icon"
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 2.5h8l-2.6 6.2M8 2.5l2.6 6.2"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"></path>
+                <circle cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="1.5"
+                ></circle>
+                <path
+                  d="M11 13.4l1.3-.9v5.1"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+              <span class="award__text">
+                <span class="award__label">{paper.recognition.label}</span>
+                <span class="visually-hidden"> at the </span>
+                <span class="award__event">{paper.recognition.event}</span>
+              </span>
+              <span class="award__go" aria-hidden="true">↗</span>
+              <span class="visually-hidden">(official results, opens in a new tab)</span>
+            </a>
 
             <ul class="authors">
               {
@@ -110,7 +145,17 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
             facts.map((fact) => (
               <div class="facts__row">
                 <dt class="mono">{fact.label}</dt>
-                <dd>{fact.value}</dd>
+                <dd>
+                  {fact.href ? (
+                    <a class="facts__link" href={fact.href} target="_blank" rel="noopener">
+                      {fact.value}
+                      <span aria-hidden="true"> ↗</span>
+                      <span class="visually-hidden">(news article, opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    fact.value
+                  )}
+                </dd>
               </div>
             ))
           }
@@ -428,6 +473,77 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
     color: var(--text-secondary);
   }
 
+  /* --- Award ------------------------------------------------------- */
+  .award {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 100%;
+    margin-top: var(--space-5);
+    padding: 0.6rem 1rem 0.6rem 0.75rem;
+    border: 1px solid hsl(var(--atmosphere) / 35%);
+    border-radius: var(--radius-lg);
+    background: hsl(var(--atmosphere) / 10%);
+    color: var(--text);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .award:hover {
+    border-color: hsl(var(--atmosphere) / 60%);
+    background: hsl(var(--atmosphere) / 16%);
+    transform: translateY(-1px);
+  }
+
+  .award__icon {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  .award__text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .award__label {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .award__event {
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    line-height: 1.35;
+  }
+
+  .award__go {
+    align-self: start;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .award:hover .award__go {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  .facts__link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 3px;
+    transition: text-decoration-color var(--dur-fast);
+  }
+
+  .facts__link:hover {
+    text-decoration-color: var(--accent);
+  }
+
   /* --- Authors ---------------------------------------------------- */
   .authors {
     display: grid;
@@ -533,6 +649,9 @@ const singleModel = ablation.find((row) => row.name === 'Single model')!;
 
   .facts__row {
     display: grid;
+    /* Rows share a height; keep each label tight to its value instead of
+       spreading the spare space between them when a neighbour wraps. */
+    align-content: start;
     gap: var(--space-1);
   }
 

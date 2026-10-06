@@ -46,6 +46,22 @@ export const paper = {
   period: 'December 2024 — May 2025',
   venue: 'Texas A&M University · MARE 491',
   award: '1st of 40 — 2025 undergraduate research symposium',
+  /* The award in the official results' own words, so a reader who follows the
+     link finds exactly what the page claims. */
+  recognition: {
+    label: '1st place, Computer Sciences',
+    event: '2025 TAMUG Student Research Symposium',
+    /* Official results, opened at #Awards with the Computer Sciences entry
+       highlighted (a text fragment; if it ever fails to match, #Awards still
+       lands on the right section). TAMUG shows only the latest year here, so
+       once the 2026 winners replace these, switch this to `archived`. */
+    href: 'https://www.tamug.edu/research/Symposium/index.html#Awards:~:text=Computer%20Sciences,Aman%20Sriven',
+    archived:
+      'https://web.archive.org/web/20251114023146/https://www.tamug.edu/research/Symposium/index.html#Awards:~:text=Computer%20Sciences,Aman%20Sriven',
+    /* Second source. (The CARES lab post is deliberately not linked: it
+       misdescribes the method.) */
+    news: 'https://news.galveston.tamu.edu/2025/05/14/student-scholarship-on-display-at-the-20th-annual-student-research-symposium/#:~:text=Computer%20Science,Deep%20Learning%20in%20Cybersecurity',
+  },
   /* Violet. Distinct from the four project accents, and it reads as ink on a
      dark page rather than as a product brand colour. */
   accent: '264 44% 66%',
