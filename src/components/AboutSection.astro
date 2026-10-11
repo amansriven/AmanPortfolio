@@ -15,55 +15,111 @@ const currently = [
   { label: 'Aiming', value: 'Quantitative software engineering' },
 ];
 
+/* Mirrors the skills block on the résumé; keep the two in step. */
 const toolkit = [
   {
     label: 'Languages',
-    items: ['Python', 'Java', 'C++', 'C', 'TypeScript', 'JavaScript', 'SQL', 'Go', 'Rust'],
+    items: ['Python', 'Java', 'C++', 'C', 'TypeScript', 'JavaScript', 'SQL', 'Rust', 'HTML/CSS'],
   },
   {
-    label: 'Frameworks & data',
+    label: 'Frameworks',
     items: [
       'FastAPI',
-      'React',
-      'Node.js',
-      'Next.js',
-      'PyTorch',
-      'Spark',
       'Spring Boot',
-      'MongoDB',
-      'PostgreSQL',
-      'Kafka',
+      'REST APIs',
+      'React',
+      'Next.js',
+      'Node.js',
+      'React Native',
+      'PyTorch',
+      'TensorFlow',
     ],
   },
   {
-    label: 'Cloud & infrastructure',
+    label: 'Data systems',
+    items: [
+      'PostgreSQL',
+      'MongoDB',
+      'DynamoDB',
+      'Redis',
+      'Kafka',
+      'Spark',
+      'Databricks',
+      'Firebase',
+    ],
+  },
+  {
+    label: 'Cloud & DevOps',
     items: [
       'AWS',
       'Azure',
-      'Databricks',
       'Kubernetes',
       'Docker',
-      'Redis',
+      'Google Cloud',
       'Helm',
       'ArgoCD',
       'CI/CD',
       'Prometheus / Grafana',
+      'Git',
     ],
   },
 ];
-/* Hovering a toolkit tag lists the projects whose stack includes it, so every
-   claim points at real work. Names match loosely (Next.js = NextJS); AWS also
-   covers the individual AWS services a project lists. */
+
+/* Where each tool was used on the job or in class, as Aman listed it. */
+const roles: Record<string, string[]> = {
+  Humana: [
+    'Python',
+    'FastAPI',
+    'REST APIs',
+    'PostgreSQL',
+    'MongoDB',
+    'Redis',
+    'Kafka',
+    'Spark',
+    'Databricks',
+    'Azure',
+    'Kubernetes',
+    'Docker',
+    'Google Cloud',
+    'Helm',
+    'ArgoCD',
+    'CI/CD',
+    'Prometheus / Grafana',
+    'Git',
+  ],
+  JAGGAER: [
+    'Python',
+    'Java',
+    'FastAPI',
+    'Spring Boot',
+    'REST APIs',
+    'AWS',
+    'Docker',
+    'Google Cloud',
+    'CI/CD',
+    'Git',
+  ],
+  'Texas A&M': ['C++', 'C', 'Rust'],
+};
+
+/* Hovering a toolkit tag lists the roles and projects that used it, so every
+   claim points at real work. Project names match loosely (Next.js = NextJS);
+   AWS also covers the individual AWS services a project lists. */
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const key = (name: string) => name.toLowerCase().replace(/[^a-z0-9+#]/g, '');
 const aliases: Record<string, string[]> = {
   aws: ['awslambda', 's3', 'dynamodb', 'cognito'],
+  googlecloud: ['gcp'],
 };
-function usedIn(tool: string): string[] {
+function usedIn(tool: string): string {
   const keys = [key(tool), ...(aliases[key(tool)] ?? [])];
-  return projects
+  const at = Object.keys(roles).filter((role) => roles[role].includes(tool));
+  const built = projects
     .filter((project) => project.data.stack.some((tech) => keys.includes(key(tech))))
     .map((project) => project.data.title);
+  return [at.length && `at ${at.join(', ')}`, built.length && `in ${built.join(', ')}`]
+    .filter(Boolean)
+    .join('; ');
 }
 
 interface Props {
@@ -186,11 +242,11 @@ const { standalone = false } = Astro.props;
               <ul class="toolkit__tags">
                 {group.items.map((item) => {
                   const used = usedIn(item);
-                  return used.length > 0 ? (
+                  return used ? (
                     <li class="toolkit__tag--used">
                       {item}
                       <span class="toolkit__tip">
-                        <span class="visually-hidden">: </span>Used in {used.join(', ')}
+                        <span class="visually-hidden">: </span>Used {used}
                       </span>
                     </li>
                   ) : (
@@ -372,7 +428,7 @@ const { standalone = false } = Astro.props;
 
   .toolkit__grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-5);
   }
 
@@ -398,7 +454,7 @@ const { standalone = false } = Astro.props;
       transform var(--dur-fast) var(--ease-out);
   }
 
-  /* A dot marks the tools that appear in a project on this site. */
+  /* A dot marks the tools backed by a role or a project on this site. */
   .toolkit__tag--used::before {
     content: '';
     display: inline-block;
