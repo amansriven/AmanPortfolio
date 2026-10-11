@@ -348,6 +348,72 @@ a:focus-visible > .social-circle {
   opacity: 1;
 }
 
+/* --- Viewfinder cursor -------------------------------------
+   initCursor() in effects.ts adds this and sets its box each frame. */
+.cursor {
+  --len: 7px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease-out),
+    scale var(--dur-fast) var(--ease-out);
+}
+
+.cursor.is-visible {
+  opacity: 0.7;
+}
+
+.cursor.is-framing {
+  --len: 12px;
+  opacity: 1;
+}
+
+.cursor.is-pressed {
+  scale: 0.92;
+}
+
+.cursor i {
+  position: absolute;
+  width: var(--len);
+  height: var(--len);
+  border: 0 solid var(--accent);
+  transition:
+    width var(--dur) var(--ease-out),
+    height var(--dur) var(--ease-out);
+}
+
+.cursor i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: 3px;
+}
+
+.cursor i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-width: 2px 2px 0 0;
+  border-top-right-radius: 3px;
+}
+
+.cursor i:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 2px 2px;
+  border-bottom-left-radius: 3px;
+}
+
+.cursor i:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-width: 0 2px 2px 0;
+  border-bottom-right-radius: 3px;
+}
+
 /* --- Sideways-scrolling rows -------------------------------
    Fades whichever edge has items hidden past it; trackScrollEdges() in
    src/lib/effects.ts sets the attributes. */

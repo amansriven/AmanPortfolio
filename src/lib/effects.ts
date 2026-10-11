@@ -17,6 +17,91 @@ export function initSpotlight(): void {
   }
 }
 
+/* --- Viewfinder cursor ------------------------------------------------ */
+
+const TARGETS = 'a[href], button, [role="button"], summary, label[for], select';
+const RETICLE = 26;
+const FRAME_PAD = 6;
+
+/**
+ * Four corner brackets, like the ones round the portrait, that trail the
+ * pointer and frame whatever link or button it rests on (`.cursor`,
+ * base.css). The native cursor stays: this only decorates it. Skipped on
+ * touch and for reduced motion.
+ */
+export function initCursor(): void {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const el = document.createElement('div');
+  el.className = 'cursor';
+  el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = '<i></i><i></i><i></i><i></i>';
+  document.body.append(el);
+
+  const px = { x: -100, y: -100 };
+  const box = { x: -100, y: -100, w: RETICLE, h: RETICLE };
+  let target: Element | null = null;
+  let frame = 0;
+
+  const goal = () => {
+    const rect = target?.getBoundingClientRect();
+    // Frame the element unless it's gone or too big to read as one control.
+    if (rect && rect.width && rect.width < innerWidth * 0.7 && rect.height < innerHeight * 0.7) {
+      return {
+        x: rect.left - FRAME_PAD,
+        y: rect.top - FRAME_PAD,
+        w: rect.width + FRAME_PAD * 2,
+        h: rect.height + FRAME_PAD * 2,
+      };
+    }
+    return { x: px.x - RETICLE / 2, y: px.y - RETICLE / 2, w: RETICLE, h: RETICLE };
+  };
+
+  const tick = () => {
+    const g = goal();
+    let moving = false;
+    for (const k of ['x', 'y', 'w', 'h'] as const) {
+      const d = g[k] - box[k];
+      box[k] = Math.abs(d) < 0.1 ? g[k] : box[k] + d * 0.22;
+      if (box[k] !== g[k]) moving = true;
+    }
+    el.style.transform = `translate(${box.x}px, ${box.y}px)`;
+    el.style.width = `${box.w}px`;
+    el.style.height = `${box.h}px`;
+    // Idle when settled; pointer moves and scrolls start it again.
+    frame = moving ? requestAnimationFrame(tick) : 0;
+  };
+  const wake = () => {
+    if (!frame) frame = requestAnimationFrame(tick);
+  };
+
+  document.addEventListener(
+    'pointermove',
+    (event) => {
+      if (event.pointerType !== 'mouse') return;
+      px.x = event.clientX;
+      px.y = event.clientY;
+      const over = (event.target as Element).closest?.(TARGETS) ?? null;
+      el.classList.toggle('is-framing', !!over);
+      target = over;
+      // Under an open modal, or over a text field, the reticle only gets in the way.
+      const hidden =
+        !!document.querySelector('dialog[open]') ||
+        !!(event.target as Element).closest?.('input, textarea, [contenteditable]');
+      el.classList.toggle('is-visible', !hidden);
+      wake();
+    },
+    { passive: true },
+  );
+  document.addEventListener('pointerdown', () => el.classList.add('is-pressed'));
+  document.addEventListener('pointerup', () => el.classList.remove('is-pressed'));
+  document.documentElement.addEventListener('pointerleave', () =>
+    el.classList.remove('is-visible'),
+  );
+  window.addEventListener('scroll', wake, { passive: true });
+}
+
 /* --- Sideways-scrolling rows ------------------------------------------ */
 
 /**
