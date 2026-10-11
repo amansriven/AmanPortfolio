@@ -102,7 +102,7 @@ export const experience: Experience[] = [
     story: {
       swe: {
         summary:
-          'Built a multi-provider AI gateway on Azure Kubernetes, with a FastAPI and PostgreSQL control plane for roles, sessions, and API keys.',
+          'On Enterprise AI’s GenAI Core Capabilities team, built a multi-provider AI gateway on Azure Kubernetes with a FastAPI and PostgreSQL control plane for roles, sessions, and API keys.',
         stack: ['Kubernetes', 'Envoy', 'FastAPI', 'PostgreSQL', 'Redis', 'Prometheus', 'Grafana'],
         metrics: [
           { value: '450K+', label: 'requests routed per day' },
@@ -116,7 +116,7 @@ export const experience: Experience[] = [
          reason. */
       ml: {
         summary:
-          'Built the gateway that routes model traffic to Azure OpenAI and Gemini, with bounded streaming retries and automatic provider failover.',
+          'On Enterprise AI’s GenAI Core Capabilities team, built the gateway routing model traffic to Azure OpenAI and Gemini, with bounded streaming retries and automatic failover.',
         stack: ['Azure OpenAI', 'Gemini', 'MCP', 'SSE', 'Envoy', 'Redis', 'Kubernetes'],
         metrics: [
           { value: '450K+', label: 'model requests routed per day' },

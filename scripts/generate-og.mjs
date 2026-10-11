@@ -227,7 +227,8 @@ const cards = [
     eyebrow: 'Engineer. Student. Builder.',
     title: 'Aman',
     titleAccent: 'Sriven.',
-    tagline: 'Thoughtful software. Real-world impact.',
+    // The hero lead only. Mirrors Hero.astro.
+    tagline: 'Building solutions to real problems.',
     accent: ACCENT,
     stack: ['Kubernetes', 'Python', 'TypeScript', 'PyTorch'],
     media: { ...PORTRAIT, kind: 'portrait', src: join(ASSETS, 'portrait/aman.jpg') },
