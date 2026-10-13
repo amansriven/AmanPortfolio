@@ -4,11 +4,9 @@
     siteKey: string;
     /** Fallback shown if the form endpoint is unreachable. */
     email: string;
-    /** Shown on the success screen for anything time-sensitive. */
-    phone: string;
   }
 
-  let { siteKey, email, phone }: Props = $props();
+  let { siteKey, email }: Props = $props();
 
   type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -251,8 +249,7 @@
     </p>
     <h3 class="sent__title">Thanks, {sent.name}. Your message is in.</h3>
     <p class="sent__body">
-      It went straight to my inbox, and I'll write back to <strong>{sent.email}</strong> myself. If
-      it's time-sensitive, call or text me at <span class="sent__phone">{phone}</span>.
+      It went straight to my inbox, and I'll write back to <strong>{sent.email}</strong> myself.
     </p>
     <button class="sent__again" type="button" onclick={reset}>Send another</button>
   </div>
@@ -616,8 +613,7 @@
     font-size: var(--fs-sm);
   }
 
-  .sent__body strong,
-  .sent__phone {
+  .sent__body strong {
     color: var(--text);
     font-weight: 500;
     white-space: nowrap;
