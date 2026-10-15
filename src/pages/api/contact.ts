@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
+import { EMAIL_PATTERN } from '../../lib/email';
 
 export const prerender = false;
 
 const MESSAGE_MAX = 4000;
 const NAME_MAX = 100;
 const EMAIL_MAX = 200;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 interface ContactPayload {
   name?: unknown;
@@ -142,6 +142,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (!resendResponse.ok) {
     const detail = await resendResponse.text().catch(() => '');
     console.error('contact: resend failed', resendResponse.status, detail);
+    // The visitor's address passed our check but not Resend's: say which field
+    // to fix rather than reporting a failed send.
+    if (resendResponse.status === 422 && detail.includes('reply_to')) {
+      return json(
+        {
+          ok: false,
+          error: 'Please check the highlighted fields.',
+          fields: { email: 'That address doesn’t look right.' },
+        },
+        400,
+      );
+    }
     return json(
       { ok: false, error: 'The message could not be sent. Please email me directly.' },
       502,

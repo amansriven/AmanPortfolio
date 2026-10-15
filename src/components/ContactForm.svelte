@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { EMAIL_PATTERN } from '../lib/email';
+
   interface Props {
     /** Public Turnstile site key. Absent locally until `.dev.vars` is set. */
     siteKey: string;
@@ -45,7 +47,7 @@
     }
     if (field === 'email') {
       if (!trimmed) return 'Please add an email so I can reply.';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) return 'That address looks incomplete.';
+      if (!EMAIL_PATTERN.test(trimmed)) return 'That address looks incomplete.';
     }
     if (field === 'message') {
       if (!trimmed) return 'Please add a message.';
