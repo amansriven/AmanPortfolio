@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import humanaLogo from '../assets/logos/humana.png';
 import jaggaerLogo from '../assets/logos/jaggaer.png';
+import srivensoftechLogo from '../assets/logos/srivensoftech.png';
 import tamuLogo from '../assets/logos/tamu.png';
 
 /**
@@ -122,6 +123,29 @@ export const experience: Experience[] = [
           { value: '450K+', label: 'model requests routed per day' },
           { value: '30+', label: 'MCP tool servers rate-limited per user' },
           { value: '100+', label: 'failure scenarios chaos-tested' },
+        ],
+      },
+    },
+  },
+  {
+    year: '2025',
+    org: 'Srivensoftech',
+    role: 'Founding Engineer',
+    location: 'Dallas, TX',
+    period: 'May 2025 — Present',
+    logo: srivensoftechLogo,
+    /* On the SWE résumé only. No `link` until the company moves to its
+       permanent domain. */
+    story: {
+      swe: {
+        summary:
+          'Co-founded a technology consulting firm and built its client software, from inventory and booking apps to the Next.js intake site on AWS that handles new inquiries.',
+        stack: ['React', 'Next.js', 'FastAPI', 'PostgreSQL', 'Redis', 'AWS'],
+        metrics: [
+          { value: '$200K', label: 'cumulative revenue' },
+          { value: '6', label: 'client applications shipped' },
+          { value: '150+', label: 'inquiries automated per month' },
+          { value: '−60%', label: 'API latency (800 → 320 ms)' },
         ],
       },
     },
