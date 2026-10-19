@@ -139,7 +139,7 @@ export const experience: Experience[] = [
     story: {
       swe: {
         summary:
-          'Co-founded a technology consulting firm and built its client software, from inventory and booking apps to a Node.js intake site on AWS that handles new inquiries.',
+          'Founded a technology consulting firm and built its client software, from inventory and booking apps to a Node.js intake site on AWS that handles new inquiries.',
         stack: ['React', 'Node.js', 'MongoDB', 'Redis', 'AWS'],
         metrics: [
           { value: '$200K', label: 'cumulative revenue' },
