@@ -1,0 +1,29 @@
+---
+title: Talus
+tagline: An LSM-tree storage engine written from scratch in C++20, built to never lose an acknowledged write — and to prove how fast it is.
+summary: An embedded, persistent key-value store in the spirit of LevelDB and RocksDB, with the whole data path built from scratch — a lock-free skiplist memtable, a group-commit write-ahead log, SSTables with cache-line-blocked bloom filters, and leveled compaction. Correctness is checked by a million-operation model test, a SIGKILL crash harness, corruption sweeps, and fuzzing; benchmarks against LevelDB and RocksDB are next.
+year: '2026'
+role: Systems engineering
+status: In development
+stack:
+  - C++20
+  - CMake
+  - Python
+  - libFuzzer
+accent: '42 24% 54%'
+featured: false
+order: 3
+githubUrl: https://github.com/amansriven/talus
+heroImage: /media/talus/hero.png
+heroAlt: 'The Talus wordmark: a stack of stone blocks settling into layers beside the name.'
+heroFrame: plain
+metrics:
+  - value: '265'
+    label: tests under ASan, UBSan, and TSan
+  - value: '1M'
+    label: random ops model-checked against std::map
+  - value: '18M+'
+    label: fuzz executions, zero crashes
+seo:
+  description: Talus is a from-scratch LSM-tree key-value storage engine in C++20, with a lock-free memtable, group commit, bloom-filtered SSTables, and crash, corruption, and fuzz testing.
+---
