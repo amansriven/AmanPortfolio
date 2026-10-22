@@ -49,7 +49,11 @@ export interface Experience {
    * evidence; the entry carries the link onward (see `link`).
    */
   highlight?: string;
-  /** A further link on the role's /experience entry, e.g. its write-up. */
+  /**
+   * A further link on the role's /experience entry, e.g. its write-up. An
+   * absolute URL opens in a new tab and also appears, by hostname, on the
+   * homepage list.
+   */
   link?: { label: string; href: string };
 }
 
@@ -86,6 +90,20 @@ const sinnFundStory: RoleStory = {
     { value: '150M+', label: 'options contracts modelled' },
     { value: '$80K+', label: 'fund under management' },
     { value: '−34%', label: 'simulation runtime for 7 researchers' },
+  ],
+};
+
+/* Written for the SWE résumé, but shown under both focuses: the company is
+   worth seeing whichever résumé a visitor reads. */
+const srivensoftechStory: RoleStory = {
+  summary:
+    'Founded a technology consulting firm and built its client software, from inventory and booking apps to a Node.js intake site on AWS that handles new inquiries.',
+  stack: ['React', 'Node.js', 'MongoDB', 'Redis', 'AWS'],
+  metrics: [
+    { value: '$200K', label: 'cumulative revenue' },
+    { value: '6', label: 'client applications shipped' },
+    { value: '150+', label: 'inquiries automated per month' },
+    { value: '−60%', label: 'API latency (800 → 320 ms)' },
   ],
 };
 
@@ -134,21 +152,8 @@ export const experience: Experience[] = [
     location: 'Dallas, TX',
     period: 'May 2025 — Present',
     logo: srivensoftechLogo,
-    /* On the SWE résumé only. No `link` until the company moves to its
-       permanent domain. */
-    story: {
-      swe: {
-        summary:
-          'Founded a technology consulting firm and built its client software, from inventory and booking apps to a Node.js intake site on AWS that handles new inquiries.',
-        stack: ['React', 'Node.js', 'MongoDB', 'Redis', 'AWS'],
-        metrics: [
-          { value: '$200K', label: 'cumulative revenue' },
-          { value: '6', label: 'client applications shipped' },
-          { value: '150+', label: 'inquiries automated per month' },
-          { value: '−60%', label: 'API latency (800 → 320 ms)' },
-        ],
-      },
-    },
+    story: { swe: srivensoftechStory, ml: srivensoftechStory },
+    link: { label: 'Visit srivensoftech.com', href: 'https://srivensoftech.com' },
   },
   {
     year: '2025',

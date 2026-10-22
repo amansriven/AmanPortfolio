@@ -51,6 +51,16 @@ const projects = (await getCollection('projects'))
                       {role.highlight}
                     </a>
                   )}
+                  {role.link?.href.startsWith('http') && (
+                    <a
+                      class="experience-list__highlight"
+                      href={role.link.href}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {new URL(role.link.href).hostname} <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
                 </>
               </div>
               <span class="mono">{role.period}</span>
@@ -169,6 +179,7 @@ const projects = (await getCollection('projects'))
   .experience-list__highlight {
     display: inline-flex;
     align-items: center;
+    gap: 0.25em;
     min-height: 24px;
     margin-top: 0.2rem;
     color: var(--text-muted);

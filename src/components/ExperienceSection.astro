@@ -110,11 +110,21 @@ const rows = experience.flatMap((role) => {
                 ))}
               </ul>
 
-              {role.link && (
-                <a class="text-link entry__link" href={role.link.href}>
-                  {role.link.label} <span aria-hidden="true">→</span>
-                </a>
-              )}
+              {role.link &&
+                (role.link.href.startsWith('http') ? (
+                  <a
+                    class="text-link entry__link"
+                    href={role.link.href}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {role.link.label} <span aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  <a class="text-link entry__link" href={role.link.href}>
+                    {role.link.label} <span aria-hidden="true">→</span>
+                  </a>
+                ))}
             </div>
           </li>
         ))
